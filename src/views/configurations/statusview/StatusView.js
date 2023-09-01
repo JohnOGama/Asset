@@ -37,30 +37,27 @@ import WriteLog from 'src/components/logs/LogListener';
   const StatusView = () => {
 
     const navigate = useNavigate();
-    
-    const [userID,setUserID] = useState("")
+  
+    var userID = ""
     const [message,setMessage] = useState("")
     const [colorMessage,setColorMessage] = useState('red')
 
     const [status,setStatus] = useState([])
     const [open, setOpen] = React.useState(false);
     const [rowselected,SetRowSelected] = useState("")
+    function getUserInfo() {
 
+      if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
+          userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
+          
+      }
+      else{ 
+          navigate('/login')
+      }
+    }
 
     useEffect(() => {
-      try {
-
-        if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
-          setUserID(decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal));
-        }
-        else
-        {
-          navigate('/login')
-        }
-        }catch(err) {
-          
-          navigate('/login')
-        }
+      getUserInfo()
   
       }, [])
 
@@ -128,6 +125,11 @@ import WriteLog from 'src/components/logs/LogListener';
 
       function checkStatus(param) {
         try {
+          if(userID == "") 
+          {
+            getUserInfo()
+          }
+
           let rowId = param
           const url = 'http://localhost:3001/status/checkStatusfordelete'
           axios.post(url,{rowId})
@@ -186,6 +188,11 @@ import WriteLog from 'src/components/logs/LogListener';
       },[])
     
     function LoadData(){
+      if(userID == "") 
+      {
+        getUserInfo()
+      }
+      
       const url = 'http://localhost:3001/status/viewallstatus'
       axios.post(url)
       .then(res => {

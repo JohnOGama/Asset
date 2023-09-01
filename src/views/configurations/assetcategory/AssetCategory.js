@@ -55,27 +55,29 @@ function AssetCategory() {
     description: ""
   })
 
+  function getUserInfo() {
+
+  if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
+      userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
+      
+  }
+  else{ 
+      navigate('/login')
+  }
+}
 
     useEffect(() => {
-      try {
-       
-        if(!window.localStorage.getItem('id') == null || window.localStorage.getItem('id') !== "0") {
-          setUserID(decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal));
-        }
-        else
-        {
-          navigate('/login')
-        }
-        }catch(err) {
-          
-          navigate('/login')
-        }
-  
+    getUserInfo()
       }, [])
       
 
     useEffect(() => {
    
+        if(userID == "") 
+  {
+    getUserInfo()
+  }
+
       if(!rowId == "") {
       const url = 'http://localhost:3001/category/getAssetCategorybyID'
       axios.post(url,{rowId})
@@ -114,7 +116,10 @@ function AssetCategory() {
         try {
     
           event.preventDefault();
-          
+            if(userID == "") 
+  {
+    getUserInfo()
+  }
 
           const name = values.name;
           const description = values.description;

@@ -40,7 +40,7 @@ function Position() {
    navigate('/dashboard')
   }
 
-  const [userID,setUserID] = useState("")
+     var userID = ""
   
     const [message,setMessage] = useState("")
     const [colorMessage,setColorMessage] = useState('red')
@@ -54,26 +54,27 @@ function Position() {
       departmentname: ""
     })
 
+    function getUserInfo() {
+
+  if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
+      userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
+      
+  }
+  else{ 
+      navigate('/login')
+  }
+}
     useEffect(() => {
-      try {
-       
-        if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
-          setUserID(decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal));
-        }
-        else
-        {
-          navigate('/login')
-        }
-        }catch(err) {
-          
-          navigate('/login')
-        }
-  
+   
+   getUserInfo()
       }, [])
 
 
     useEffect(() => {
-   
+     if(userID == "") 
+  {
+    getUserInfo()
+  }
       if(!rowId == "") {
       const url = 'http://localhost:3001/position/getPositionID'
       axios.post(url,{rowId})
@@ -101,7 +102,10 @@ function Position() {
     },[])
 
     useEffect(() => {
-   
+     if(userID == "") 
+  {
+    getUserInfo()
+  }
       const url = 'http://localhost:3001/department/viewalldepartment'
       axios.post(url)
       .then(res => {
@@ -141,7 +145,10 @@ function Position() {
     
           event.preventDefault();
           
-
+  if(userID == "") 
+  {
+    getUserInfo()
+  }
           const name = values.name;
           const description = values.description;
           const deptid = values.departmentid;

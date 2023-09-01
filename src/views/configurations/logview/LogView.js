@@ -37,7 +37,7 @@ import { decrypt } from 'n-krypta';
 const LogView = () => {
 
     const navigate = useNavigate();
-    const [userID,setUserID] = useState("")
+    var userID = ""
 
     //const [success,SetSuccess] = useState("");
     //const [errors,setErrors] = useState({})
@@ -48,21 +48,19 @@ const LogView = () => {
     const [open, setOpen] = React.useState(false);
     //const [rowselected,SetRowSelected] = useState("")
 
-    useEffect(() => {
-      try {
+    function getUserInfo() {
 
-       
-        if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
-          setUserID(decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal));
-        }
-        else
-        {
-          navigate('/login')
-        }
-        }catch(err) {
+      if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
+          userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
           
+      }
+      else{ 
           navigate('/login')
-        }
+      }
+    }
+
+    useEffect(() => {
+      getUserInfo()
   
       }, [])
 
@@ -124,16 +122,6 @@ const LogView = () => {
        }
 
 
-
-
-  //const handleClickOpen = (param) => {
-
-   ///   setMessage("")
-   //   SetRowSelected(param)
-      //checkUserPosition(param)
-     
-//  };
-
   const handleClose = () => {
     setOpen(false);
   };
@@ -147,6 +135,10 @@ useEffect(() => {
   },[])
     
 function LoadData(){
+  if(userID == "") 
+  {
+    getUserInfo()
+  }
   const url = 'http://localhost:3001/log/viewallLogs'
   axios.post(url)
   .then(res => {

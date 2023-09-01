@@ -27,7 +27,7 @@ import LogListener from 'src/components/logs/LogListener'
 function Log() {
 
   const navigate = useNavigate();
-  const [userID,setUserID] = useState("")
+  var userID = ""
   
   const {state} = useLocation();
   let rowId = ""
@@ -47,29 +47,29 @@ function Log() {
       details: "",
     })
 
+    function getUserInfo() {
+
+      if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
+          userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
+          
+      }
+      else{ 
+          navigate('/login')
+      }
+    }
 
     useEffect(() => {
-      try {
-       
-       
-        if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
-          setUserID(decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal));
-        }
-        else
-        {
-          navigate('/login')
-        }
-        }catch(err) {
-          
-          navigate('/login')
-        }
+      getUserInfo()
   
       }, [])
 
 
     useEffect(() => {
 
-       
+      if(userID == "") 
+      {
+        getUserInfo()
+      }
 
       if(!rowId == "") {
       const url = 'http://localhost:3001/log/getlogID'

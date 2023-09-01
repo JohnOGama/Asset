@@ -37,7 +37,8 @@ function Department() {
    navigate('/dashboard')
   }
   
-  const [userID,setUserID] = useState("")
+          var userID = ""
+
 
   const [message,setMessage] = useState("")
   const [colorMessage,setColorMessage] = useState('red')
@@ -48,26 +49,30 @@ function Department() {
     description: ""
   })
 
-    useEffect(() => {
-      try {
-      
-        if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
-          setUserID(decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal));
+  function getUserInfo() {
 
-        }
-        else
-        {
-          navigate('/login')
-        }
-        }catch(err) {
-          
-          navigate('/login')
-        }
-  
+  if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
+      userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
+      
+  }
+  else{ 
+      navigate('/login')
+  }
+}
+
+
+
+    useEffect(() => {
+     getUserInfo()
       }, [])
 
     useEffect(() => {
       try {
+          if(userID == "") 
+  {
+    getUserInfo()
+  }
+
       if(!rowId == "") {
       const url = 'http://localhost:3001/department/getDepartmentID'
       axios.post(url,{rowId})
@@ -104,7 +109,10 @@ function Department() {
 
     function handleSubmit(event) {
         try {
-    
+      if(userID == "") 
+  {
+    getUserInfo()
+  }
           event.preventDefault();
           const userID = decrypt(localStorage.getItem('id'), appSettings.secretkeylocal); 
 

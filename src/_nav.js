@@ -127,7 +127,7 @@ const _nav = [
       },*/
     ],
   },
-
+/*
   {
     component: CNavGroup,
     name: 'Forms',
@@ -256,7 +256,8 @@ const _nav = [
         to: '/forms/validation',
       },
     ],
-  },
+  }, */
+  /*
   {
     component: CNavItem,
     name: 'Charts',
@@ -315,7 +316,9 @@ const _nav = [
         to: '/notifications/toasts',
       },
     ],
-  },
+  }, */ 
+
+  /* 
   {
     component: CNavItem,
     name: 'Widgets',
@@ -325,11 +328,15 @@ const _nav = [
       color: 'info',
       text: 'NEW',
     },
-  },
+  }, */
+
+  /*
   {
     component: CNavTitle,
     name: 'Extras',
   },
+  */
+ 
   {
     component: CNavGroup,
     name: 'MyAccount',

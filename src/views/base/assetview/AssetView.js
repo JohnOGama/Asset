@@ -3,22 +3,6 @@ import  { useEffect, useState } from 'react'
 import axios from 'axios'
 import * as React from 'react'
 
-//import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
-//import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-//import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-//import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-
-
-// input Mask
-
-//import PropTypes, { bool } from 'prop-types';
-//import { IMaskInput } from 'react-imask';
-//import { NumericFormat } from 'react-number-format';
-//import Box from '@mui/material/Box';
-//import Input from '@mui/material/Input';
-//import InputLabel from '@mui/material/InputLabel';
-//import TextField from '@mui/material/TextField';
-//import FormControl from '@mui/material/FormControl';
 
 import { DataGrid } from '@mui/x-data-grid';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
@@ -66,7 +50,7 @@ const AssetView = () => {
 
   const navigate = useNavigate();
   
-  const [userID,setUserID] = useState("")
+    var userID = ""
 
   const [message,setMessage] = useState("")
   const [colorMessage,setColorMessage] = useState('red')
@@ -75,7 +59,27 @@ const AssetView = () => {
   //const [disposeFound,setdisposeFound] = useState(false)
   //const [deployFound,setdeployFound] = useState(false)
 
+  function getUserInfo() {
+
+  if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
+      userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
+      
+  }
+  else{ 
+      navigate('/login')
+  }
+}
   useEffect(() => {
+      getUserInfo()
+    }, [])
+
+
+  useEffect(() => {
+      if(userID == "") 
+  {
+    getUserInfo()
+  }
+
       try {
       const url = 'http://localhost:3001/assets/viewallassetsavailable'
       axios.post(url)
@@ -94,30 +98,14 @@ const AssetView = () => {
     }
   },[])
 
-  useEffect(() => {
-    try {
-     
-     
-      if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
-        setUserID(decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal));
-      }
-      else
-      {
-        navigate('/login')
-      }
-      }catch(err) {
-        
-        navigate('/login')
-      }
-
-    }, [])
-
-
 
 function CheckDispose(rowidselected,source) {
 
   try {
-
+  if(userID == "") 
+  {
+    getUserInfo()
+  }
     const rowId = rowidselected
   
       const url = 'http://localhost:3001/dispose/checkassetdispose'
@@ -151,7 +139,10 @@ function CheckDeploy(rowidselected,source){
 
  
   try {
-
+  if(userID == "") 
+  {
+    getUserInfo()
+  }
     const rowId = rowidselected
     const params = rowidselected
       const url = 'http://localhost:3001/dispose/checkassetdeploy'

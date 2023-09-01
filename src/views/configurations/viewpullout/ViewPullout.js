@@ -36,7 +36,7 @@ import {  decrypt } from 'n-krypta';
 const ViewPullout = () => {
 
     const navigate = useNavigate();
-    const [userID,setUserID] = useState("")
+  var userID = ""
 
     const [message,setMessage] = useState("")
     const [colorMessage,setColorMessage] = useState('red')
@@ -46,21 +46,21 @@ const ViewPullout = () => {
     const [rowselected,setRowSelected] = useState({ })
 
 
+function getUserInfo() {
+
+  if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
+      userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
+      
+  }
+  else{ 
+      navigate('/login')
+  }
+}
+
+
     useEffect(() => {
-      try {
-       
-        if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
-          setUserID(decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal));
-        }
-        else
-        {
-          navigate('/login')
-        }
-        }catch(err) {
-          
-          navigate('/login')
-        }
   
+  getUserInfo()
       }, [])
 
 
@@ -120,6 +120,12 @@ const ViewPullout = () => {
     function CheckAssetReceive(param)
     {
       try{
+
+          if(userID == "") 
+  {
+    getUserInfo()
+  }
+
         setMessage("")
         let rowId = param
         const url = 'http://localhost:3001/pullout/checkpulloutnotification'
@@ -147,7 +153,10 @@ const ViewPullout = () => {
     function SingleCheckIn(param) {
         
         try{
-
+  if(userID == "") 
+  {
+    getUserInfo()
+  }
           let rowId = param
           const url = 'http://localhost:3001/pullout/updatepulloutnotification'
           axios.post(url,{rowId,userID})
@@ -218,7 +227,10 @@ useEffect(() => {
   }, [pullout])
 
 function LoadData(){
-  
+    if(userID == "") 
+  {
+    getUserInfo()
+  }
   const url = 'http://localhost:3001/pullout/viewallpullout'
   axios.post(url)
   .then(res => {

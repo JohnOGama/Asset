@@ -79,21 +79,18 @@ function Supplier() {
 }
 
 
+function getUserInfo() {
+
+  if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
+      userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
+      
+  }
+  else{ 
+      navigate('/login')
+  }
+}
     useEffect(() => {
-      try {
-       
-        if(!window.localStorage.getItem('id') == null || window.localStorage.getItem('id') !== "0") {
-          setUserID(decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal));
-        }
-        else
-        {
-          navigate('/login')
-        }
-        }catch(err) {
-          
-          navigate('/login')
-        }
-  
+      getUserInfo()
       }, [])
       
 
@@ -106,7 +103,10 @@ function Supplier() {
     function LoadSupplierByID() {
 
       try {
-
+        if(userID == "") 
+        {
+          getUserInfo()
+        }
       if(!rowId == "") {
         const url = 'http://localhost:3001/supplier/getsupplierbyID'
         axios.post(url,{rowId},{
@@ -154,7 +154,10 @@ function Supplier() {
         try {
     
           event.preventDefault();
-
+          if(userID == "") 
+          {
+            getUserInfo()
+          }
 
           const name = values.name;
           const address = values.address;
@@ -242,7 +245,10 @@ function Supplier() {
       try {
       
         if(!file == "") {
-          
+          if(userID == "") 
+          {
+            getUserInfo()
+          }
           const rowId = values.supplierid
           const url = 'http://localhost:3001/supplier/updateSupplierImage'
           axios.post(url,{file,rowId},config)

@@ -38,8 +38,8 @@ import {
 function SupplierView() {
 
     const navigate = useNavigate();
-    const [userID,setUserID] = useState("")
-
+ 
+    var userID = ""
     //const [success,SetSuccess] = useState("");
     //const [errors,setErrors] = useState({})
     const [message,setMessage] = useState("")
@@ -49,21 +49,20 @@ function SupplierView() {
     const [open, setOpen] = React.useState(false);
     const [rowselected,SetRowSelected] = useState("")
 
-    useEffect(() => {
-      try {
-       
-       
-        if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
-          setUserID(decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal));
-        }
-        else
-        {
-          navigate('/login')
-        }
-        }catch(err) {
+    function getUserInfo() {
+
+      if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
+          userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
           
+      }
+      else{ 
           navigate('/login')
-        }
+      }
+    }
+
+    
+    useEffect(() => {
+      getUserInfo()
   
       }, [])
 
@@ -140,6 +139,11 @@ function SupplierView() {
 
       function checkStatus(param) {
         try {
+          if(userID == "") 
+          {
+            getUserInfo()
+          }
+
           let rowId = param
           const url = 'http://localhost:3001/supplier/checksupplierfordelete'
           axios.post(url,{rowId})
@@ -168,6 +172,11 @@ function SupplierView() {
 
        function handleDelete() {
         try {
+          if(userID == "") 
+          {
+            getUserInfo()
+          }
+
           let rowId = rowselected
         const url = 'http://localhost:3001/supplier/deleteSupplier'
         axios.post(url,{rowId})
@@ -201,6 +210,11 @@ function SupplierView() {
     
     function LoadData(){
       setMessage("")
+      if(userID == "") 
+      {
+        getUserInfo()
+      }
+      
       const url = 'http://localhost:3001/supplier/viewallsupplier'
       axios.post(url)
       .then(res => {

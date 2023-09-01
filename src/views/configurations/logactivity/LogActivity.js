@@ -37,7 +37,7 @@ import { decrypt } from 'n-krypta';
 const LogActivity = () => {
 
     const navigate = useNavigate();
-    const [userID,setUserID] = useState("")
+    var userID = ""
 
     //const [success,SetSuccess] = useState("");
     //const [errors,setErrors] = useState({})
@@ -48,21 +48,20 @@ const LogActivity = () => {
     const [open, setOpen] = React.useState(false);
     //const [rowselected,SetRowSelected] = useState("")
 
-    useEffect(() => {
-      try {
 
-       
-        if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
-          setUserID(decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal));
-        }
-        else
-        {
-          navigate('/login')
-        }
-        }catch(err) {
-          
-          navigate('/login')
-        }
+function getUserInfo() {
+
+  if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
+      userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
+      
+  }
+  else{ 
+      navigate('/login')
+  }
+}
+
+    useEffect(() => {
+      getUserInfo()
   
       }, [])
 
@@ -135,6 +134,11 @@ useEffect(() => {
   },[])
     
 function LoadData(){
+    if(userID == "") 
+  {
+    getUserInfo()
+  }
+  
   const url = 'http://localhost:3001/log/viewallLogs'
   axios.post(url)
   .then(res => {

@@ -38,7 +38,7 @@ import {
 function UserCategoryView() {
 
     const navigate = useNavigate();
-    const [userID,setUserID] = useState("")
+    var userID = ""
 
 
     const [message,setMessage] = useState("")
@@ -48,21 +48,20 @@ function UserCategoryView() {
     const [open, setOpen] = React.useState(false);
     const [rowselected,SetRowSelected] = useState("")
 
+
+function getUserInfo() {
+
+  if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
+      userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
+      
+  }
+  else{ 
+      navigate('/login')
+  }
+}
+
     useEffect(() => {
-      try {
-       
-       
-            if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
-            setUserID(decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal));
-            }
-            else
-            {
-            navigate('/login')
-            }
-        }catch(err) {
-          
-          navigate('/login')
-        }
+      getUserInfo()
   
       }, [])
 
@@ -131,6 +130,11 @@ function UserCategoryView() {
 
       function checkStatus(param) {
         try {
+          if(userID == "") 
+          {
+            getUserInfo()
+          }
+
           let rowId = param
           const url = 'http://localhost:3001/usercategory/checkuserCategoryfordelete'
           axios.post(url,{rowId})
@@ -160,6 +164,11 @@ function UserCategoryView() {
 
        function handleDelete() {
         try {
+          if(userID == "") 
+          {
+            getUserInfo()
+          }
+
           let rowId = rowselected
         const url = 'http://localhost:3001/usercategory/deleteuserCategory'
         axios.post(url,{rowId})
@@ -193,6 +202,11 @@ function UserCategoryView() {
     
     function LoadData(){
       setMessage("")
+      if(userID == "") 
+      {
+        getUserInfo()
+      }
+      
       const url = 'http://localhost:3001/usercategory/viewallusercategory'
       axios.post(url)
       .then(res => {

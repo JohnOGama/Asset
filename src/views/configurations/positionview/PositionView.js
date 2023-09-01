@@ -36,7 +36,7 @@ import Draggable from 'react-draggable';
 
     const navigate = useNavigate();
     
-    const [userID,setUserID] = useState("")
+    var userID = ""
     const [message,setMessage] = useState("")
     const [colorMessage,setColorMessage] = useState('red')
 
@@ -44,23 +44,22 @@ import Draggable from 'react-draggable';
     const [open, setOpen] = React.useState(false);
     const [rowselected,SetRowSelected] = useState("")
 
-    useEffect(() => {
-      try {
-       
 
-       
-        if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
-          setUserID(decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal));
-        }
-        else
-        {
-          navigate('/login')
-        }
-        }catch(err) {
-          
-          navigate('/login')
-        }
-  
+function getUserInfo() {
+
+  if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
+      userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
+      
+  }
+  else{ 
+      navigate('/login')
+  }
+}
+
+    useEffect(() => {
+
+        getUserInfo()
+      
       }, [])
 
 
@@ -137,6 +136,11 @@ import Draggable from 'react-draggable';
 
   function checkUserPosition(param) {
   try {
+      if(userID == "") 
+  {
+    getUserInfo()
+  }
+
     let rowId = param
     const url = 'http://localhost:3001/position/checkPositionfordelete'
     axios.post(url,{rowId})
@@ -165,6 +169,11 @@ import Draggable from 'react-draggable';
 
     function handleDelete() {
     try {
+        if(userID == "") 
+  {
+    getUserInfo()
+  }
+
       let rowId = rowselected
     const url = 'http://localhost:3001/position/deletePosition'
     axios.post(url,{rowId})
@@ -196,6 +205,11 @@ useEffect(() => {
   },[])
     
 function LoadData(){
+    if(userID == "") 
+  {
+    getUserInfo()
+  }
+  
   const url = 'http://localhost:3001/position/viewallposition'
   axios.post(url)
   .then(res => {
