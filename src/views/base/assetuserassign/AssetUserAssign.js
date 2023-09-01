@@ -79,25 +79,20 @@ const AssetUserAssign = () => {
   const [assetstatfordeploy,setAssetForDeploy] = useState("") // for deploy
   const [rowselected,setRowSelected] = useState({})
 
+  function getUserInfo() {
+
+  if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
+      userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
+      
+  }
+  else{ 
+      navigate('/login')
+  }
+}
+
 
   useEffect(() => {
-    try {
-     
-     
-      if(!window.localStorage.getItem('id') == null || window.localStorage.getItem('id') !== "0") {
-       
-        userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
- 
-      }
-      else
-      {
-        navigate('/login')
-      }
-      }catch(err) {
-        
-        navigate('/login')
-      }
-
+    getUserInfo()
     }, [])
 
 
@@ -108,7 +103,10 @@ const AssetUserAssign = () => {
     useEffect(() => {
      
       try {
-        
+        if(userID == "") 
+        {
+        getUserInfo()
+        }
         const url = 'http://localhost:3001/assets/viewallassetsassignfordeploy'
         axios.post(url,{userID})
        
@@ -178,9 +176,12 @@ const AssetUserAssign = () => {
     event.preventdefault
     setOpen(true);
   try {
-      //console.log(userID)
-      userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
-      rowselected.forEach((irow) => {
+
+      if(userID == "") 
+  {
+    getUserInfo()
+  }
+       rowselected.forEach((irow) => {
      
         const assetid = irow
         const url = 'http://localhost:3001/assets/checkinassetsdetail'
@@ -221,6 +222,12 @@ const AssetUserAssign = () => {
 
   function UpdateAssetDeployed(assetid) {
     try {
+
+        if(userID == "") 
+  {
+    getUserInfo()
+  }
+
       const assetdeploy = assetstat
       
       const varassetid = assetid
@@ -248,7 +255,10 @@ const AssetUserAssign = () => {
 
 function LoadData() {
   try {
-    console.log("prepare to access ---- " + userID)
+     if(userID == "") 
+  {
+    getUserInfo()
+  }
     const url = 'http://localhost:3001/assets/viewallassetsassignfordeploy'
     axios.post(url,{userID})
     .then(res => {
@@ -270,7 +280,10 @@ function LoadData() {
 
 
   useEffect(() => {
-
+  if(userID == "") 
+  {
+    getUserInfo()
+  }
     const url = 'http://localhost:3001/assets/getassetfordeploystatus'
     axios.post(url)
     .then(response => {
@@ -289,6 +302,10 @@ function LoadData() {
 
 
   useEffect(() => {
+      if(userID == "") 
+  {
+    getUserInfo()
+  }
     const url = 'http://localhost:3001/assets/getassetstatdeploy'
     axios.post(url)
     .then(res => {

@@ -282,12 +282,12 @@ app.post('/auth/updateProfile', (req,res)   => {
         if(err) {
            
             res.json({
-                message: "Update Error",
+                message: "Upload Error",
                 message2: err.message});
         }else {
             //console.log("Success")
             res.json({
-                message: "Update Success"});
+                message: "Upload Success"});
         }
 
      })
@@ -303,12 +303,10 @@ app.post('/auth/updateImage',upload.single("file"), (req,res)   => {
 
     connection.query(sql,[imagefile,req.body.userID],(err,result) => {
         if(err) {
-          
             res.json({
                 message: "Upload Error",
                 message2: err.message});
         }else {
-            
             res.json({
                 message: "Upload Success"});
         }
@@ -1222,14 +1220,15 @@ app.post('/assets/upDateImage', upload.single("file"), (req,res)   => {
     connection.query(sqlUpdate,[imagefile,req.body.assetID],(err,result) => {
         if(err) {
             res.json({
-                message: "Update Error",
+                message: "Upload Error",
                 message2: err.message});
         }else {
             
-            if(result.length > 0) {
-                res.json({result,message: "Update Success"});
+            //console.log(result)
+            if(result.changedRows == 1) {
+                res.json({result,message: "Upload Success"});
             } else {
-                res.json({message: "Update Error"});
+                res.json({message: "Upload Error"});
             }
         }
 

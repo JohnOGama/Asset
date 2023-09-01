@@ -34,26 +34,26 @@ function AssetByUser() {
 
   const navigate = useNavigate();
   
-    let userID = ""
+    var userID = ""
     const [success,SetSuccess] = useState("");
     const [errors,setErrors] = useState({})
     const [message,setMessage] = useState("")
     const [colorMessage,setColorMessage] = useState('red')
 
-  useEffect(() => {
-    try {
-     
-      if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
-        userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
-      }
-      else
-      {
-        navigate('/login')
-      }
-      }catch(err) {
-        navigate('/login')
-      }
 
+function getUserInfo() {
+
+  if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
+      userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
+      
+  }
+  else{ 
+      navigate('/login')
+  }
+}
+
+  useEffect(() => {
+      getUserInfo()
     }, [])
 
     function handleSubmit(event) {
@@ -74,6 +74,10 @@ function AssetByUser() {
 const [assets,setAssets] = useState([])
 
 useEffect(() => {
+  if(userID == "") 
+  {
+    getUserInfo()
+  }
   const url = 'http://localhost:3001/assets/viewallassetsassignbyuserfordeploy_deployed  '
   axios.post(url,{userID})
   .then(res => {
@@ -84,6 +88,7 @@ useEffect(() => {
   }).catch(err => {
     WriteLog("Error","AssetByUser","handleCheckin /assets/viewallassetsassignbyuserfordeploy_deployed'",err.message,userID)
   })
+
 },[])
 
 

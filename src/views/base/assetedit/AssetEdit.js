@@ -137,7 +137,8 @@ const AssetEdit = () => {
   const [colorMessage,setColorMessage] = useState('red')
   
   const [assetStat,setAssetStat] = useState("");
-  const [userID,setUserID] = useState("")
+ 
+    var userID = ""
 
   const [datePurchase, setDatePurchase] = useState("");
   const [dateDepreciated, setDateDepreciated] = useState("");
@@ -178,21 +179,21 @@ const AssetEdit = () => {
     amountdepnumberformat: '',
   });
 
-  useEffect(() => {
-    try {
-    
+function getUserInfo() {
 
-      if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
-        setUserID(decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal));
-      }
-      else
-      {
-        navigate('/login')
-      }
-      }catch(err) {
+    if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
+        userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
         
+    }
+    else
+    { 
         navigate('/login')
-      }
+    }
+}
+
+  useEffect(() => {
+   
+    getUserInfo()
 
     }, [])
 
@@ -204,6 +205,10 @@ const AssetEdit = () => {
   function LoadData() {
     try {
   
+      if(userID == "") 
+      {
+        getUserInfo()
+      }
       const url = 'http://localhost:3001/assets/getassetsbyID'
       axios.post(url,{rowId}, 
         {
@@ -252,6 +257,10 @@ const AssetEdit = () => {
 
   useEffect(() => {
     try {
+        if(userID == "") 
+        {
+          getUserInfo()
+        }
     const url = 'http://localhost:3001/category/getAssetCategory'
     axios.post(url)
     .then(res => {
@@ -275,6 +284,12 @@ const AssetEdit = () => {
 
   useEffect(() => {
     try {
+
+      if(userID == "") 
+      {
+        getUserInfo()
+      }
+
     const url = 'http://localhost:3001/supplier/getsupplier'
     axios.post(url)
     .then(res => {
@@ -299,6 +314,11 @@ const AssetEdit = () => {
   
   useEffect(() => {
     try {
+
+      if(userID == "") 
+      {
+        getUserInfo()
+      }
 
     const url = 'http://localhost:3001/assets/getAssetStatus'
     axios.post(url)
@@ -339,6 +359,10 @@ const handleChange = (event) => {
 
   function handleSubmit(event) {
     try {
+      if(userID == "") 
+      {
+        getUserInfo()
+      }
 
       event.preventDefault();
     
@@ -382,6 +406,8 @@ const handleChange = (event) => {
                 + "\n Name : " + assetname 
                 + "\n ....."
                 + "\n Updated by : " + userID,userID)
+                setMessage('Asset updated successfully')
+                setColorMessage('green')
             } else if(dataResponse == "Update Error") {
               WriteLog("Error","AssetEdit","handleSubmit /assets/updateassets",res.data.message2,userID)
               //navigate('/500');
@@ -397,7 +423,7 @@ const handleChange = (event) => {
         else
         {
           setMessage(" All Fields must not be Empty")
-          setColorMessage("red")  
+          setColorMessage("orange")  
     
         }
 
@@ -413,6 +439,10 @@ const handleChange = (event) => {
   function handleUploadImage(e) {
     e.preventDefault()
     try {
+      if(userID == "") 
+      {
+        getUserInfo()
+      }
     
       if(!file == "") {
 
@@ -427,6 +457,7 @@ const handleChange = (event) => {
         axios.post(url,{file,assetID},config)
         .then(res => { 
           const dataResponse = res.data.message 
+          console.log(dataResponse)
           if(dataResponse == "Upload Success"){ 
            
             WriteLog("Message","AssetEdit","handleUploadImage /assets/upDateImage",
@@ -435,13 +466,17 @@ const handleChange = (event) => {
               + "AssetID : " + assetID
               ,userID)
     
-              LoadData()
-          } else if(dataResponse == "Update Error") {
+              //LoadData()
+              setMessage('Upload Image successfully')
+              setColorMessage('green')
+          } else if(dataResponse == "Upload Error") {
             WriteLog("Error","AssetEdit","handleUploadImage /assets/upDateImage",
               "Upload selected Image \n"
               + "File : " + file.name
               + "AssetID : " + assetID
               ,userID)
+              setMessage('Upload Image not succesful')
+              setColorMessage('red')
           } 
         })
         .catch(err => {

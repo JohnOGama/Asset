@@ -52,7 +52,7 @@ import { ButtonGroup } from '@mui/material';
 function AssetPullout() {
   const navigate = useNavigate();
 
-  let userID = ""
+  var userID = ""
   let displayname = ""
 
 
@@ -65,27 +65,20 @@ function AssetPullout() {
     const [assetID,setAssetStatID] = useState(""); /// receive selected status
     const [notes,setNotes] = useState(""); // receive notes 
 
+function getUserInfo() {
 
-    useEffect(() => {
-      try {
-       
+  if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
+      userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
+      
+  }
+  else{ 
+      navigate('/login')
+  }
+}
 
-       
-        if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
-          userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
-          displayname = window.localStorage.getItem('display')
-          
-        }
-        else
-        {
-          navigate('/login')
-        }
-        }catch(err) {
-          
-          navigate('/login')
-        }
-  
-      }, [])
+useEffect(() => {
+    getUserInfo()
+  }, [])
 
       
     function handleSubmit(event) {
@@ -105,6 +98,11 @@ function AssetPullout() {
 /// select / option 
 
 useEffect(() => {
+
+    if(userID == "") 
+  {
+    getUserInfo()
+  }
   const url = 'http://localhost:3001/status/getasset_status_users'
   axios.post(url)
   .then(res => {
@@ -184,7 +182,11 @@ function handleViewPullout() {
 const handlePullout = () => {
   setOpen(true);
 try {
-    userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
+      if(userID == "") 
+  {
+    getUserInfo()
+  }
+
     rowselecteddetail.forEach((irow, index) => {
       const detailid = irow
      
@@ -217,6 +219,11 @@ try {
     rowselecteddetail.forEach((nrow, index) => {
 
       try {
+        if(userID == "") 
+        {
+        getUserInfo()
+        }
+
         const detailID = nrow
         const url = 'http://localhost:3001/assets/asset_bydetail'
         axios.post(url,{detailID})
@@ -251,7 +258,10 @@ finally {
 
 function UpdateMain_Asset(varassetid) {
   try {
-   
+           if(userID == "") 
+        {
+        getUserInfo()
+        }
     const assetdeploy = assetID
     const url = 'http://localhost:3001/assets/updateassetdeploy'
     axios.post(url,{assetdeploy,userID,varassetid})
@@ -331,7 +341,10 @@ function UpdateMain_Asset(varassetid) {
   function LoadAsset()
   {
     try {
-
+        if(userID == "") 
+        {
+        getUserInfo()
+        }
       const url = 'http://localhost:3001/assets/viewallassetsassigndeployed_user'
       axios.post(url,{userID})
       .then(res => {
@@ -388,15 +401,15 @@ function UpdateMain_Asset(varassetid) {
     let strDate =   utils_getDate();
     displayname = window.localStorage.getItem('display')
     try {
-    var templateParams = {
-    email_to: appSettings.ASSET_EMAIL,
-    email_sender: appSettings.email_sender,
-    reply_to : appSettings.reply_to,
-    name: appSettings.ASSET_RECEIVERNAME,
-    notes: notes,
-    date: strDate,
-    user_name: displayname
-};
+        var templateParams = {
+        email_to: appSettings.ASSET_EMAIL,
+        email_sender: appSettings.email_sender,
+        reply_to : appSettings.reply_to,
+        name: appSettings.ASSET_RECEIVERNAME,
+        notes: notes,
+        date: strDate,
+        user_name: displayname
+    };
 
     emailjs.send(appSettings.USER_SERVICE_ID, appSettings.USER_TEMPLATE_ID, templateParams,appSettings.public_key)
     .then(function(response) {
@@ -407,7 +420,7 @@ function UpdateMain_Asset(varassetid) {
 
   }
   catch(err) {
-    console.log(err)
+   WriteLog("Error","AssetPullout","sendEmail not successful","Error in try/catch \n" + err.message,userID)
   }
   }
   

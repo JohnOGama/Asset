@@ -73,6 +73,10 @@ const UpdateProfile = () => {
 
 
   useEffect(() => {
+    if(userID == "") 
+    {
+      getUserInfo()
+    }
     const url = 'http://localhost:3001/getCategory'
     
     axios.post(url)
@@ -89,6 +93,10 @@ const UpdateProfile = () => {
 },[])
 
 useEffect(() => {
+  if(userID == "") 
+  {
+    getUserInfo()
+  }
   const url = 'http://localhost:3001/position/viewallposition'
   axios.post(url)
   .then( res => {
@@ -112,6 +120,11 @@ useEffect(() => {
 
 function LoadProfile() {
   try {
+
+    if(userID == "") 
+    {
+      getUserInfo()
+    }
 
     const userid =  userID
 
@@ -162,7 +175,11 @@ useEffect(() => {
 
   function handleSubmit(event) {
     try {
-      getUserInfo()
+     
+      if(userID == "") 
+      {
+        getUserInfo()
+      }
       
       event.preventDefault();
      // setErrors(ValidationProfile(values))
@@ -186,7 +203,7 @@ useEffect(() => {
         .then(res => {
           const dataResponse = res.data.message
 
-          if(dataResponse == "Update Success"){
+          if(dataResponse == "Upload Success"){
             WriteLog("Message","UpdateProfile","handleSubmit /auth/updateProfile", 
             " Update Profile "
             + "\n Name: " + lastname + ", " + firstname 
@@ -195,14 +212,11 @@ useEffect(() => {
             setMessage("Update successfull")
             setColorMessage("green")
             //navigate('/login');
-          } else if(dataResponse == "Update Error") {
+          } else if(dataResponse == "Upload Error") {
             setMessage("Update Error")
             setColorMessage("red")
             WriteLog("Error","UpdateProfile","handleSubmit /auth/updateProfile",res.data.message2,userID)
-          } else {
-            //setMessage(dataResponse)
-
-          }
+          } 
         })
       } else (
         setMessage("Incomplete Information")
@@ -214,10 +228,13 @@ useEffect(() => {
 
 
   function handleUploadImage(e) {
-    getUserInfo()
+   
     e.preventDefault()
     try {
-    
+      if(userID == "") 
+      {
+        getUserInfo()
+      }
       if(!file == "") {
 
         const config = {
@@ -227,7 +244,7 @@ useEffect(() => {
       }
     
         
-       console.log(userID)
+      // console.log(userID)
         const url = 'http://localhost:3001/auth/updateImage'
         axios.post(url,{file,userID},config)
         .then(res => { 
@@ -240,7 +257,7 @@ useEffect(() => {
               + "userID : " + userID
               ,userID)
     
-              LoadProfile()
+              //LoadProfile()
               setMessage('Upload image success')
               setColorMessage('green')
           } else if(dataResponse == "Update Error") {

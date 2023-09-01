@@ -127,7 +127,7 @@ const AssetRegister = () => {
   const [datePurchase, setDatePurchase] = useState("");
   const [dateDepreciated, setDateDepreciated] = useState("");
   
-  const [userID,setUserID] = useState("")
+  var userID = ""
 
   const [values,setValues] = useState ({
     assetcategID: '',
@@ -160,24 +160,27 @@ const AssetRegister = () => {
    // console.log("")
   },[dateDepreciated]);
 
+  function getUserInfo() {
+
+    if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
+        userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
+        
+    }
+    else{ 
+        navigate('/login')
+    }
+  }
 
   useEffect(() => {
-    try {
-      if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
-        setUserID(decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal));
-      }
-      else
-      {
-        navigate('/login')
-      }
-      }catch(err) {
-        
-        navigate('/login')
-      }
-
+    getUserInfo()
     }, [])
 
   useEffect(() => {
+    if(userID == "") 
+    {
+      getUserInfo()
+    }
+
     try {
     const url = 'http://localhost:3001/category/getAssetCategory'
     axios.post(url)
@@ -205,6 +208,11 @@ const AssetRegister = () => {
 
   function LoadSupplier() {
     try {
+      if(userID == "") 
+      {
+        getUserInfo()
+      }
+
       const url = 'http://localhost:3001/supplier/getsupplier'
       axios.post(url)
       .then(res => {
@@ -227,6 +235,11 @@ const AssetRegister = () => {
   }
 
   useEffect(() => {
+
+    if(userID == "") 
+    {
+      getUserInfo()
+    }
 
     try {
     const url = 'http://localhost:3001/assets/getAssetStatus'
@@ -266,7 +279,10 @@ const handleChange = (event) => {
 
   function handleSubmit(event) {
     try {
-
+  if(userID == "") 
+  {
+    getUserInfo()
+  }
       event.preventDefault();
 
       const config = {

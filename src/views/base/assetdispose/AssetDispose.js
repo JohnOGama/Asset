@@ -120,7 +120,7 @@ const AssetDispose = () => {
    navigate('/dashboard')
   }
  
-  const [userID,setUserID] = useState("")
+    var userID = ""
   
   const [status , setStatus] = useState([])
 
@@ -161,25 +161,30 @@ const AssetDispose = () => {
     amountdepnumberformat: '',
   });
 
-  useEffect(() => {
-    try {
-     
-     
+
+    function getUserInfo() {
+
       if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
-        setUserID(decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal));
+          userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
+          
       }
       else
-      {
-        navigate('/login')
+      { 
+          navigate('/login')
       }
-      }catch(err) {
-        
-        navigate('/login')
       }
 
+  useEffect(() => {
+   
+getUserInfo()
     }, [])
 
 useEffect(() => {
+    if(userID == "") 
+  {
+    getUserInfo()
+  }
+
     const url = 'http://localhost:3001/dispose/viewallstatus'
     axios.post(url)
     .then(res => {
@@ -198,6 +203,10 @@ useEffect(() => {
   },[])
 
   useEffect(() => {
+      if(userID == "") 
+  {
+    getUserInfo()
+  }
     const url = 'http://localhost:3001/dispose/viewallboxs'
     axios.post(url)
     .then(res => {
@@ -219,7 +228,10 @@ useEffect(() => {
 
 
   useEffect(() => {
-  
+    if(userID == "") 
+  {
+    getUserInfo()
+  }
     const url = 'http://localhost:3001/assets/getassetsbyID'
     axios.post(url,{rowId})
     .then(res => {
@@ -263,7 +275,10 @@ useEffect(() => {
 
 function DisposeAsset(){
     try {
-            
+      if(userID == "") 
+      {
+        getUserInfo()
+      }
       const statusid = dispose.statusID;
       const reason = dispose.reason
       const boxid = dispose.boxID
@@ -313,6 +328,10 @@ function DisposeAsset(){
 
   function handleSubmit(event) {
     try {
+      if(userID == "") 
+      {
+      getUserInfo()
+      }
 
       event.preventDefault();
     
