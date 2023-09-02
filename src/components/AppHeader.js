@@ -3,6 +3,7 @@ import React, {useEffect, useState } from 'react'
 // useContext, 
 import { NavLink } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
+import axios from 'axios'
 import {
   CContainer,
   CHeader,
@@ -12,15 +13,20 @@ import {
   CHeaderToggler,
   CNavLink,
   CNavItem,
+  CBadge
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilBell, cilEnvelopeOpen, cilList, cilMenu} from '@coreui/icons'
+import { cilBell, cilEnvelopeOpen, cilList, cilMenu,cilAddressBook, cilBellExclamation, cilAlarm} from '@coreui/icons'
 
 import {  decrypt } from 'n-krypta';
 import appSettings from 'src/AppSettings' // read the app config
+import WriteLog from 'src/components/logs/LogListener';
 //import { AppBreadcrumb } from './index'
 import { AppHeaderDropdown } from './header/index'
 import { logo } from 'src/assets/brand/logo'
+import belUser from 'src/assets/images/DefaultUserBellInfo.jpg'
+
+import { Icon } from '@mui/material'
 
 const AppHeader = () => {
   const dispatch = useDispatch()
@@ -28,7 +34,13 @@ const AppHeader = () => {
   var userID = ""
   let displayName = ""
   const [display,setDisplay] = useState("")
+  const [countlogNotif,setCountlogNotif] = useState("")
   //const [userid,setUserID] = useState("");
+
+  useEffect(() => {
+    getUserInfo()
+    Load_LogUserInfo()
+},[]);
 
   function getUserInfo() {
 
@@ -43,11 +55,35 @@ const AppHeader = () => {
     }
     }
 
-  useEffect(() => {
 
+function Load_LogUserInfo() {
+  try {
+    
+    if(userID == "") 
+    {
     getUserInfo()
+    }
+    
+    const url = 'http://localhost:3001/log/getInfoNotif'
+    axios.post(url,{userID})
+    .then(res => {
+      const dataResponse = res.data.message;
+      if(dataResponse == "Record Found") {
+       setCountlogNotif(res.data.result[0].countInfo)
+      } else if (dataResponse == "No Record Found") {
+        setCountlogNotif("")
+        
+      }
+    }).catch(err => {
+      WriteLog("Error","AppHeader","Load_LogUserInfo /log/getInfoNotif","Error in then/catch : " + err.message,userID)
+    })
+  }
 
-},[]);
+catch (err) {
+  WriteLog("Error","AppHeader","Load_LogUserInfo /log/getInfoNotif","Error in try/catch \n" + err.message,userID)
+}
+
+}
 
   return (
     <CHeader position="sticky" className="mb-4">
@@ -71,23 +107,23 @@ const AppHeader = () => {
             }
             </CNavLink>
         </CNavItem> 
-        </CHeaderNav>
-        <CHeaderNav>
+        </CHeaderNav >
+        <CHeaderNav  >
           <CNavItem>
-            <CNavLink href="#">
-              <CIcon icon={cilBell} size="lg" />
-            </CNavLink>
+          
+            
+            <CBadge color="info" className="ms-2">  
+            
+            {
+            countlogNotif 
+            ? (countlogNotif) 
+            : ""
+            }
+            </CBadge>
+
+      
           </CNavItem>
-          <CNavItem>
-            <CNavLink href="#">
-              <CIcon icon={cilList} size="lg" />
-            </CNavLink>
-          </CNavItem>
-          <CNavItem>
-            <CNavLink href="#">
-              <CIcon icon={cilEnvelopeOpen} size="lg" />
-            </CNavLink>
-          </CNavItem>
+          
         </CHeaderNav>
         <CHeaderNav className="ms-3">
           <AppHeaderDropdown/>

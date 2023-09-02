@@ -54,9 +54,10 @@ const AppHeaderDropdown = () => {
   const [success,SetSuccess] = useState("");
   const [errors,setErrors] = useState({})
 
-  const [countnotif,setCountNotif] = useState("0")
-  const [countcheckin,setCountcheckin] = useState("0")
-  const [countassets,setCountAssets] = useState("0")
+  const [countnotif,setCountNotif] = useState("")
+  const [countcheckin,setCountcheckin] = useState("")
+  const [countassets,setCountAssets] = useState("")
+
   /// For Dialog 
 
   function PaperComponent(props) {
@@ -87,7 +88,7 @@ const AppHeaderDropdown = () => {
     window.localStorage.removeItem('id')
     window.localStorage.removeItem('display')
     window.localStorage.removeItem('userimg')
-    window.localStorage.clear()
+
       setOpen(false);
       navigate('/login');
   }catch(err) {
@@ -108,7 +109,7 @@ function getUserInfo() {
   if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
       userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
       setUserImg(window.localStorage.getItem('userimg'))
-      console.log(userImg)
+     
 
   }
   else
@@ -120,15 +121,18 @@ function getUserInfo() {
   useEffect(() => {
     
     getUserInfo()
+    LoadCount_byDeployed()
+    LoadCount_Notif()
+    LoadCount_CheckInNotif
+  }, [countassets,countcheckin,countnotif])
 
-  }, [])
 
-useEffect(() => {
- 
+
+function LoadCount_Notif() {
+
   try {
     
-  if((window.localStorage.getItem('id') !== null) || (window.localStorage.getItem('id') !== "0"))
-    {
+  
     if(userID == "") 
     {
     getUserInfo()
@@ -141,23 +145,22 @@ useEffect(() => {
       if(dataResponse == "Record Found") {
         setCountNotif(res.data.result[0]['Notif'])
       } else if (dataResponse == "No Record Found") {
-        setCountNotif("0")
+        setCountNotif("")
       
       }
     }).catch(err => {
-      WriteLog("Error","AppHeaderDropdown","useEffect /assets/pulloutNotification",err.message,userID)
+      WriteLog("Error","AppHeaderDropdown","LoadCount_Notif /assets/pulloutNotification",err.message,userID)
     })
-  }
-  else {
-    navigate("/login")
-  }
+
 }
 catch (err) {
-  WriteLog("Error","AppHeaderDropdown","useEffect /assets/pulloutNotification","Error in try/catch \n" + err.message,userID)
+  WriteLog("Error","AppHeaderDropdown","LoadCount_Notif /assets/pulloutNotification","Error in try/catch \n" + err.message,userID)
 }
-},[countnotif])
 
-useEffect(() => {
+}
+
+function LoadCount_CheckInNotif() {
+
   try {
   
     if(userID == "") 
@@ -170,10 +173,10 @@ useEffect(() => {
       .then(res => {
         const dataResponse = res.data.message;
         if(dataResponse == "Record Found") {
-          setCountcheckin(res.data.result[0]['checkin'])
+          setCountcheckin(res.data.result[0].checkin)
           
         } else if (dataResponse == "No Record Found") {
-          setCountcheckin("0")
+          setCountcheckin("")
         
         }
       }).catch(err => {
@@ -185,10 +188,10 @@ useEffect(() => {
   catch (err) {
     WriteLog("Error","AppHeaderDropdown","useEffect /assets/checkinNotification","Error in try/catch \n" + err.message,userID)
   }
-},[countcheckin])
 
+}
 
-useEffect(() => {
+function LoadCount_byDeployed() {
   try {
   
     if(userID == "") 
@@ -204,17 +207,17 @@ useEffect(() => {
           setCountAssets(res.data.result[0].assetCount)
           
         } else if (dataResponse == "No Record Found") {
-          setCountAssets("0")
+          setCountAssets("")
         
         }
       }).catch(err => {
-        WriteLog("Error","AppHeaderDropdown","useEffect /assets/countsassignbyuser_deployed","Error in then/catch \n" + err.message,userID)
+        WriteLog("Error","AppHeaderDropdown","LoadCount_byDeployed /assets/countsassignbyuser_deployed","Error in then/catch \n" + err.message,userID)
       })
   }
   catch (err) {
-    WriteLog("Error","AppHeaderDropdown","useEffect /assets/countsassignbyuser_deployed","Error in try/catch \n" + err.message,userID)
+    WriteLog("Error","AppHeaderDropdown","LoadCount_byDeployed /assets/countsassignbyuser_deployed","Error in try/catch \n" + err.message,userID)
   }
-},[countassets])
+}
 
 /// EO Notifications
 

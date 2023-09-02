@@ -62,6 +62,7 @@ const CheckoutEmail = React.lazy(() => import('./views/configurations/checkoutem
 const UserCategoryView = React.lazy(() => import('./views/configurations/usercategoryview/UserCategoryView'))
 const UserCategory = React.lazy(() => import('./views/configurations/usercategory/UserCategory'))
 const SupplierView = React.lazy(() => import('./views/configurations/supplierview/SupplierView'))
+const LogUserInfoView = React.lazy(() => import('./views/configurations/loguserinfoview/LogUserInfoView'))
 //Forms
 const ChecksRadios = React.lazy(() => import('./views/forms/checks-radios/ChecksRadios'))
 const FloatingLabels = React.lazy(() => import('./views/forms/floating-labels/FloatingLabels'))
@@ -153,6 +154,7 @@ const routes = [
   { path: '/configurations/usercategory', name: 'UserCategory', element: UserCategory },
   { path: '/configurations/supplierview', name: 'SupplierView', element: SupplierView },
   { path: '/configurations/supplier', name: 'Supplier', element: Supplier },
+  { path: '/configurations/loguserinfoview', name: 'LogUserInfoView', element: LogUserInfoView },
   
   
   { path: '/charts', name: 'Charts', element: Charts },

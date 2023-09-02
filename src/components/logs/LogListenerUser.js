@@ -1,13 +1,12 @@
-import React from "react";
 import axios from 'axios'
 
-function WriteLog(logtype,module,logfunction,logvalues,userID) {
+function WriteUserInfo(logtype,module,userNotifID,logvalues,userID) {
     let notif = false
 
     try {
 
-        const url = 'http://localhost:3001/log/putLog'
-        axios.post(url,{logtype,module,logfunction,logvalues,userID})
+        const url = 'http://localhost:3001/log/putUserNotif'
+        axios.post(url,{logtype,module,userNotifID,logvalues,userID})
         .then(res => {
         const dataResponse = res.data.message;
         if(dataResponse == "Insert Success") {
@@ -32,4 +31,4 @@ function WriteLog(logtype,module,logfunction,logvalues,userID) {
 }
 
 
-export default WriteLog;
+export default WriteUserInfo;

@@ -123,17 +123,52 @@ app.post('/log/putLog', (req,res)   => {
      })
 })
 
+
+app.post('/log/putUserNotif', (req,res)   => {
+    
+    const id = randomUUID()
+
+    const sql = "INSERT INTO tblLogs(logID,logtype,module,userID,"
+            + "logvalues,createdBy,dateCreated) values (?)";
+
+    const values = [
+        id,
+        req.body.logtype,
+        req.body.module,
+        req.body.userNotifID,
+        req.body.logvalues,
+        req.body.userID,
+        utils_getDate()
+    ];
+      
+    connection.query(sql,[values],(err,result) => {
+        if(err) {
+            
+            res.json({
+                message: "Insert Error",
+                message2: err.message});
+        }else {
+           // console.log(res)
+            
+            res.json({
+                message: "Insert Success"});
+        }
+
+     })
+})
+
 app.post('/log/viewallLogs',(req,res) => {
 
    const sql = "SELECT log.logID as id,log.logtype,log.module,log.logfunction,log.logvalues,"
     + "users.displayName,COALESCE(DATE_FORMAT(log.dateCreated, '%m/%d/%Y'),'') as dateatecreated  FROM tblLogs log"
     + " INNER JOIN tblUsers users on users.userDisplayID = log.createdBy"
+    + " where logtype <> 'Info'"
     + " ORDER BY log.dateCreated desc"
     
 
     connection.query(sql,(err,result) => {
         if(err) {
-            console.log(err)
+           // console.log(err)
             res.json({message: "No Record Found",
                 message2: err.message});
         } else {
@@ -154,6 +189,37 @@ app.post('/log/viewallLogs',(req,res) => {
     })
 });
 
+app.post('/log/viewaLogUserInfo',(req,res) => {
+
+    const sql = "SELECT log.logID as id,log.logtype,log.module,log.logfunction,log.logvalues,"
+     + "COALESCE(DATE_FORMAT(log.dateCreated, '%m/%d/%Y'),'') as dateatecreated  FROM tblLogs log"
+     + " where (logtype = 'Info') and (log.active=1) and (log.userID =?)"
+     + " ORDER BY log.dateCreated desc"
+     
+ 
+     connection.query(sql,[req.body.userID],(err,result) => {
+         if(err) {
+            // console.log(err)
+             res.json({message: "No Record Found",
+                 message2: err.message});
+         } else {
+             if(result.length > 0) {
+                 
+                 if (bShowConsole == true ) {
+                     console.log(result)
+                 } else 
+                 {
+                     /// Error Logs here
+                 }
+          
+                 res.json({result,message: "Record Found"});
+             } else {
+                 res.json({message: "No Record Found"});
+             }
+         }
+     })
+ });
+
 app.post('/log/getlogID',(req,res) => {
 
    const sql = "SELECT * FROM tblLogs"
@@ -173,6 +239,29 @@ app.post('/log/getlogID',(req,res) => {
         }
     })
 });
+
+app.post('/log/getInfoNotif',(req,res) => {
+
+    const sql = "SELECT count(log.logID) as countInfo FROM tblLogs log"
+            + " where log.logtype = 'Info' and log.userID = ?"
+            + " and log.active = 1"
+ 
+     connection.query(sql,[req.body.userID],(err,result) => {
+         if(err) {
+            //cosole.log(err)
+             res.json({err:err,
+                 message2: err.message});
+         } else {
+            //console.log(result)
+             if(result.length > 0) {
+                 res.json({result,message: "Record Found"});
+             } else {
+                 res.json({message: "No Record Found"});
+             }
+         }
+     })
+ });
+
 ////// End of Log
 
 //////////////// MODULE : USERS  /////////
@@ -219,7 +308,11 @@ app.post('/getuserbyactive',(req,res) => {
 
 app.post('/checkLogin',(req,res) => {
 
-    const sql = "SELECT userDisplayID, displayName,imgFilename FROM tblUsers where `username` = ? and `password` = ? and active=1";
+    const sql = "SELECT users.userDisplayID,users.displayName,CONCAT(users.lastname ,', ', users.firstname) as Name,"
+                + " users.email,users.imgFilename,userCategory.categoryName as userRole FROM tblUsers users"
+                + " inner join tblUserCategory userCategory on users.groupTypeID = userCategory.categoryID"
+                + " where users.username = ? and users.password = ? and active=1"
+
     const username = req.body.username;
     const pass = req.body.password;
 
@@ -265,7 +358,7 @@ app.post('/auth/register', (req,res)   => {
             
             res.json({
                 message: "Insert Success"});
-                console.log(result)
+               // console.log(result)
         }
 
      })

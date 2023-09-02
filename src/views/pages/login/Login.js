@@ -81,17 +81,24 @@ useEffect(() => {
                 const userid = res.data.result[0].userDisplayID
                 const displayName = res.data.result[0].displayName 
                 const img = res.data.result[0].imgFilename 
+                const name = res.data.result[0].Name
+                
                 // encrypt to local storage use new different key
                 
                 const encryptedID = encrypt(userid, appSettings.secretkeylocal); 
+                const userRoles = encrypt(res.data.result[0].userRole,appSettings.secretkeylocal); 
 
                 window.localStorage.removeItem('id');
                 window.localStorage.removeItem('display');
                 window.localStorage.removeItem('userimg');
+                window.localStorage.removeItem('Kgr67W@'); // This is a user Role
+                
                 window.localStorage.clear()
                 window.localStorage.setItem('id',encryptedID)
                 window.localStorage.setItem('display',displayName)
                 window.localStorage.setItem('userimg',img);
+                window.localStorage.setItem('Kgr67W@',userRoles)
+               
                 navigate('/dashboard');
 
               }else {
@@ -101,7 +108,7 @@ useEffect(() => {
               }
           })
           .catch(err => {
-              setMessage("Login error" + err.message)
+              setMessage( err.message)
               setColorMessage("red")
           })
         }
@@ -154,7 +161,6 @@ useEffect(() => {
                     </CInputGroup>
                     <CRow>
                       <CCol xs={6}>
-                        {<span className="message" style={{ color: colorMessage}}><p>{message}</p></span>}
                         <CButton color="primary" className="px-4" type='submit'>
                           Login
                         </CButton>

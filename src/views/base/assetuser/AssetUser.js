@@ -69,6 +69,7 @@ import {  decrypt } from 'n-krypta';
 //import { buildTimeValue } from '@testing-library/user-event/dist/types/utils';
 
 import WriteLog from 'src/components/logs/LogListener';
+import WriteUserInfo from '../../../components/logs/LogListenerUser'
 
 const AssetUser = () => {
 
@@ -98,6 +99,7 @@ const AssetUser = () => {
     })
 
     const [receiverInfo,setReceiverInfo] = useState ({
+      receiverID: '',
       receiveremail: '',
       receivername: ''
       })
@@ -287,6 +289,7 @@ function GetEmailInfo(param) {
               //email = response.data.result[0].email
               //name =  response.data.result[0].userName
               setReceiverInfo({...receiverInfo,
+                receiverID: response.data.result[0].userID,
                 receiveremail: response.data.result[0].email,
                 receivername: response.data.result[0].userName})
 
@@ -313,7 +316,7 @@ function GetEmailInfo(param) {
          
           
           InsertAssetDetail();
-          sendEmail();
+          sendEmail(userSelected.userid);
       }else {
         setMessage(" All Fields must not be Empty")
         setColorMessage("red")  
@@ -438,7 +441,7 @@ function GetEmailInfo(param) {
 
   /////////// End of Datagrid 
 
-  function sendEmail() {
+  function sendEmail(userid) {
 
     let strDate =   utils_getDate();
     
@@ -454,9 +457,22 @@ function GetEmailInfo(param) {
  
     emailjs.send(appSettings.YOUR_SERVICE_ID, appSettings.YOUR_TEMPLATE_ID, templateParams,appSettings.public_key)
     .then(function(response) {
-       console.log('SUCCESS!', response.status, response.text);
+      WriteUserInfo("Info","AssetUser",userid,
+                  "Email sent : " 
+                  + "Checkout Date : " + templateParams.date + "\n "
+                  + "Notes : " + templateParams.notes + "\n "
+                  + "Response : " + response.text + "\n "
+                  + "Status : " + response.status ,userID)
+       //console.log('SUCCESS!', response.status, response.text);
     }, function(error) {
-       console.log('FAILED...', error);
+      WriteUserInfo("Error","AssetUser",userid,
+      "Info : " 
+      + "Failed sending email to selected user : " + userid + "\n"
+      + "Plan receive asset : " + templateParams.date + "\n "
+      + "Notes : " + templateParams.notes + "\n "
+      + "Response : " + error
+      ,userID)
+      // console.log('FAILED...', error);
     });
 
   }
