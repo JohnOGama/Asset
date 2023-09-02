@@ -25,6 +25,7 @@ import {
 import CIcon from '@coreui/icons-react'
 
 import avatar8 from './../../assets/images/avatars/8.jpg'
+import defaultUser from './../../assets/images/avatars/DefaultUser.png'
 
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -40,11 +41,13 @@ import appSettings from 'src/AppSettings' // read the app config
 import {  decrypt } from 'n-krypta';
 //compare , decrypt
 import WriteLog from 'src/components/logs/LogListener';
+import { Avatar } from '@mui/material'
 
 const AppHeaderDropdown = () => {
 
   const navigate = useNavigate();
   let userID = ""
+  var userImg = ""
 
   
 
@@ -83,6 +86,7 @@ const AppHeaderDropdown = () => {
   try {
     window.localStorage.removeItem('id')
     window.localStorage.removeItem('display')
+    window.localStorage.removeItem('userimg')
     window.localStorage.clear()
       setOpen(false);
       navigate('/login');
@@ -98,20 +102,43 @@ const AppHeaderDropdown = () => {
 
 ///  Notifications
 
+
+function getUserInfo() {
+
+  if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
+      userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
+      userImg = window.localStorage.getItem('userimg'), appSettings.secretkeylocal
+      
+  }
+  else
+  { 
+      navigate('/login')
+  }
+  }
+
+  useEffect(() => {
+    
+    getUserInfo()
+
+  }, [])
+
 useEffect(() => {
  
   try {
     
   if((window.localStorage.getItem('id') !== null) || (window.localStorage.getItem('id') !== "0"))
     {
-      userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal); 
+    if(userID == "") 
+    {
+    getUserInfo()
+    }
+    
     const url = 'http://localhost:3001/assets/pulloutNotification'
     axios.post(url,{userID})
     .then(res => {
       const dataResponse = res.data.message;
       if(dataResponse == "Record Found") {
         setCountNotif(res.data.result[0]['Notif'])
-      
       } else if (dataResponse == "No Record Found") {
         setCountNotif("0")
       
@@ -132,9 +159,12 @@ catch (err) {
 useEffect(() => {
   try {
   
-      if((window.localStorage.getItem('id') !== null) || (window.localStorage.getItem('id') !== "0"))
-      {
-      userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal); 
+    if(userID == "") 
+    {
+      getUserInfo()
+    }
+
+      
       const url = 'http://localhost:3001/assets/checkinNotification'
       axios.post(url,{userID})
       .then(res => {
@@ -150,10 +180,7 @@ useEffect(() => {
         WriteLog("Error","AppHeaderDropdown","useEffect /assets/checkinNotification",err.message,userID)
       })
 
-    }
-    else {
-      navigate("/login")
-    }
+
   }
   catch (err) {
     WriteLog("Error","AppHeaderDropdown","useEffect /assets/checkinNotification","Error in try/catch \n" + err.message,userID)
@@ -164,9 +191,11 @@ useEffect(() => {
 useEffect(() => {
   try {
   
-      if((window.localStorage.getItem('id') !== null) || (window.localStorage.getItem('id') !== "0"))
-      {
-      userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal); 
+    if(userID == "") 
+    {
+      getUserInfo()
+    }
+    
       const url = 'http://localhost:3001/assets/countsassignbyuser_deployed'
       axios.post(url,{userID})
       .then(res => {
@@ -181,11 +210,6 @@ useEffect(() => {
       }).catch(err => {
         WriteLog("Error","AppHeaderDropdown","useEffect /assets/countsassignbyuser_deployed","Error in then/catch \n" + err.message,userID)
       })
-
-    }
-    else {
-      navigate("/login")
-    }
   }
   catch (err) {
     WriteLog("Error","AppHeaderDropdown","useEffect /assets/countsassignbyuser_deployed","Error in try/catch \n" + err.message,userID)
@@ -198,7 +222,14 @@ useEffect(() => {
   return (
     <CDropdown variant="nav-item">
       <CDropdownToggle placement="bottom-end" className="py-0" caret={false}>
-        <CAvatar src={avatar8} size="md" />
+
+
+        <Avatar src={ 
+                   userImg
+                   ?  require(`../../../../backend/uploads/${userImg}`)
+                   : defaultUser 
+        }  size="md"
+           />
       </CDropdownToggle>
       <CDropdownMenu className="pt-0" placement="bottom-end">
         <CDropdownHeader className="bg-light fw-semibold py-2">Account</CDropdownHeader>

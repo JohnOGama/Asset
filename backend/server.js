@@ -219,7 +219,7 @@ app.post('/getuserbyactive',(req,res) => {
 
 app.post('/checkLogin',(req,res) => {
 
-    const sql = "SELECT userDisplayID, displayName FROM tblUsers where `username` = ? and `password` = ? and active=1";
+    const sql = "SELECT userDisplayID, displayName,imgFilename FROM tblUsers where `username` = ? and `password` = ? and active=1";
     const username = req.body.username;
     const pass = req.body.password;
 
@@ -1336,7 +1336,8 @@ app.post('/assets/updateassets',(req,res)   => {
     
     const sqlUpdate = "UPDATE tblAssets SET assetCategID = ?,assetStatusID = ?,supplierID = ?,serialNo = ?,"
             + "assetCode = ?,assetName = ?,description = ?,amount = ?,datePurchase = ?,"
-            + "amountDepreciatedYr = ?,dateDepreciated = ?,updatedBy = ?,dateUpdated = ?"
+            + "amountDepreciatedYr = ?,dateDepreciated = ?,updatedBy = ?,dateUpdated = ?,"
+            + " typeID = ?"
             + " where assetID = ? "
 
             const dpurchase = new Date(req.body.datePurchase)
@@ -1352,14 +1353,14 @@ app.post('/assets/updateassets',(req,res)   => {
       
     connection.query(sqlUpdate,[req.body.assetcategID, req.body.assetStat,req.body.supplierid,req.body.serialno,
         req.body.assetcode,req.body.assetname, req.body.description,req.body.amount,dpurchase,
-        req.body.amountdepreciated,ddepreciated, req.body.userID,utils_getDate(),req.body.rowId],(err,result) => {
+        req.body.amountdepreciated,ddepreciated,req.body.userID,utils_getDate(),req.body.typeID,req.body.rowId],(err,result) => {
         if(err) {
             res.json({
                 message: "Update Error",
                 message2: err.message});
         }else {
       
-            //console.log(values)
+            //console.log(result)
             res.json({
                 message: "Update Success"});
         }
@@ -1457,7 +1458,7 @@ app.post('/assets/getassetsbyID',(req,res) => {
 
     const sql = "SELECT assets.assetID,assets.assetCategID,assets.supplierid,assets.serialNo,assets.assetCode,"
         + "assets.assetName,assets.description,assets.pictureFile,assets.amount,COALESCE(DATE_FORMAT(assets.datePurchase, '%m/%d/%Y'),'') as datePurchase,"
-        + "assets.amountDepreciatedYr,"
+        + "assets.typeID,assets.amountDepreciatedYr,"
         + "COALESCE(DATE_FORMAT(assets.dateDepreciated, '%m/%d/%Y'),'') as dateDepreciated,"
         + "stat.statusName FROM tblAssets assets"
         + " inner join tblAssetStatus stat on stat.assetStatusID COLLATE utf8mb4_unicode_ci = assets.assetStatusID"
@@ -2762,3 +2763,31 @@ app.post('/supplier/getSupplierAssetsValue',(req,res) => {
         
 ////// End of Supplier
 
+
+/// Asset Type 
+
+
+app.post('/type/getAssetType',(req,res) => {
+    // Dashboard
+        const sql = "select type.typeID,type.typeName as name from tblAssetType type"
+                + " order by Name asc"
+    
+        connection.query(sql,(err,result) => {
+            if(err) {
+                res.json({
+                    message: "No Record Found",
+                    message2: err.message});
+            } else {
+                if(result.length > 0) {
+                    //console.log(result[0]);
+                    res.json({result,message: "Record Found"});
+                } else {
+                    res.json({message: "No Record Found"});
+                }
+            }
+        })
+    });
+        
+
+
+/// Eod of Asset Type 

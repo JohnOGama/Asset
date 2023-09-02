@@ -80,16 +80,18 @@ useEffect(() => {
               if(dataResponse == "Record Found"){
                 const userid = res.data.result[0].userDisplayID
                 const displayName = res.data.result[0].displayName 
-                
+                const img = res.data.result[0].imgFilename 
                 // encrypt to local storage use new different key
                 
                 const encryptedID = encrypt(userid, appSettings.secretkeylocal); 
 
                 window.localStorage.removeItem('id');
                 window.localStorage.removeItem('display');
+                window.localStorage.removeItem('userimg');
                 window.localStorage.clear()
                 window.localStorage.setItem('id',encryptedID)
                 window.localStorage.setItem('display',displayName)
+                window.localStorage.setItem('userimg',img);
                 navigate('/dashboard');
 
               }else {

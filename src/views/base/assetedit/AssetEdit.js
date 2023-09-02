@@ -132,6 +132,7 @@ const AssetEdit = () => {
   
   const [assetsCategory , setAssetsCategory] = useState([])
   const [supplier , setSupplier] = useState([])
+  const [type , setAssetType] = useState([])
   const [errors,setErrors] = useState({})
   const [message,setMessage] = useState("")
   const [colorMessage,setColorMessage] = useState('red')
@@ -143,12 +144,11 @@ const AssetEdit = () => {
   const [datePurchase, setDatePurchase] = useState("");
   const [dateDepreciated, setDateDepreciated] = useState("");
 
-  var imgPath = '../../../../public/uploads/'
-
   const [values,setValues] = useState ({
     assetID: '',
     assetcategID: '',
     supplierID:'',
+    typeID: '',
     serialNo: '',
     assetCode: '',
     assetName: '',
@@ -200,6 +200,7 @@ function getUserInfo() {
 
   useEffect(() => {
     LoadData()
+    LoadAssetType()
   }, [])
 
   function LoadData() {
@@ -225,6 +226,7 @@ function getUserInfo() {
               assetcategID: res.data.result[0].assetCategID,
               supplierID: res.data.result[0].supplierid,
               serialNo: res.data.result[0].serialNo,
+              typeID: res.data.result[0].typeID,
               assetCode: res.data.result[0].assetCode,
               imgFile: res.data.result[0].pictureFile, 
               assetName:res.data.result[0].assetName,
@@ -281,6 +283,36 @@ function getUserInfo() {
     WriteLog("Error","AssetEdit","useEffect /category/getAssetCategory","Error in try/catch \n" +err.message,userID)
   }
   },[])
+
+
+   function LoadAssetType()
+  {
+      try {
+        if(userID == "") 
+        {
+          getUserInfo()
+        }
+        const url = 'http://localhost:3001/type/getAssetType'
+        axios.post(url)
+        .then(res => {
+          const dataResponse = res.data.message;
+          if(dataResponse == "Record Found") {
+            setAssetType(res.data.result)
+          
+          } else if (dataResponse == "No Record Found") {
+            WriteLog("Error","AssetEdit","LoadAssetType /type/getAssetType",res.data.message2,userID)
+        
+          }
+        }).catch(err => {
+          WriteLog("Error","AssetEdit","LoadAssetType /type/getAssetType","Error in then/catch \n" + err.message,userID)
+        
+        })
+  }
+  catch(err) {
+    WriteLog("Error","AssetEdit","LoadAssetType /type/getAssetType","Error in try/catch \n" +err.message,userID)
+  }
+  }
+
 
   useEffect(() => {
     try {
@@ -374,8 +406,9 @@ const handleChange = (event) => {
       const description = values.description;
       const amount = formatvalues.amountnumberformat;
       const amountdepreciated = formatvalues.amountdepnumberformat;
-
-      
+      const typeID = values.typeID
+      //console.log(values)
+      console.log("What valss : " + amount)
 
         if((!assetStat == "") && 
           (!assetcategID == "") &&
@@ -387,12 +420,14 @@ const handleChange = (event) => {
           (!amount == "") && 
           (!amountdepreciated == "") && 
           (!datePurchase == "") && 
-          (!dateDepreciated == "")) 
+          (!dateDepreciated == "")  
+          && 
+          (!typeID == ""))
         {
           
           const url = 'http://localhost:3001/assets/updateassets'
           axios.post(url,{ rowId, assetStat,assetcategID,supplierid,serialno,assetcode,assetname,description,
-            amount,amountdepreciated,datePurchase,dateDepreciated,userID})
+            amount,amountdepreciated,datePurchase,dateDepreciated,typeID,userID})
           .then(res => { 
             const dataResponse = res.data.message 
             if(dataResponse == "Update Success"){ 
@@ -410,7 +445,8 @@ const handleChange = (event) => {
                 setColorMessage('green')
             } else if(dataResponse == "Update Error") {
               WriteLog("Error","AssetEdit","handleSubmit /assets/updateassets",res.data.message2,userID)
-              //navigate('/500');
+              setMessage('Asset not updated successfully')
+              setColorMessage('red')
             } 
           })
           .catch(err => {
@@ -527,7 +563,11 @@ const handleChange = (event) => {
                         <Select className="mb-3" aria-label="Small select example"
                           name='supplierID' onChange={handleInput} value={values.supplierID}
                           label="Supplier"
-                          
+                          error = {
+                            values.supplierID
+                            ? false
+                            : true
+                          }
                           >
                             { 
                             supplier.map((val) => 
@@ -545,6 +585,11 @@ const handleChange = (event) => {
                         <Select className="mb-3" aria-label="Small select example"
                           name='assetcategID' onChange={handleInput} value={values.assetcategID}
                           label="Asset Category"
+                          error = {
+                            values.assetcategID
+                            ? false
+                            : true
+                          }
                           >
                             {
                             assetsCategory.map((val) => 
@@ -555,28 +600,92 @@ const handleChange = (event) => {
                         </Select>
                     </FormControl>
 
+                    <FormControl fullWidth xs={6}>
+                      <InputLabel id="typeID">Asset Type</InputLabel>
+                        <Select className="mb-3" aria-label="Small select example"
+                          name='typeID' onChange={handleInput} value={values.typeID}
+                          error = {
+                            values.typeID
+                            ? false
+                            : true
+                          }
+                          label="Asseet Type"
+                          >
+                            { 
+                            type.map((val) => 
+                              
+                              <MenuItem key={val.typeID} value={val.typeID} >{val.name}</MenuItem>
+
+                             
+                            )
+                            }
+                        </Select>
+                    </FormControl>
                     <CInputGroup size="sm" className="mb-3" >
-                          <TextField onChange={handleInput} value={values.serialNo} name="serialNo" 
+                          <TextField onChange={handleInput} value={
+                            values.serialNo 
+                          } name="serialNo" 
+                          error = {
+                            values.serialNo
+                            ? false
+                            : true
+                          }
                           id="outlined-textarea" fullWidth label="SerialNo" placeholder="Notes" editable/> 
                     </CInputGroup>
 
 
                     <CInputGroup size="sm" className="mb-3" >
-                        <TextField onChange={handleInput} name="assetCode" value={values.assetCode} id="outlined-textarea" fullWidth label="Asset Code" placeholder="Notes" />
+                        <TextField onChange={handleInput} name="assetCode" value={values.assetCode} id="outlined-textarea" 
+                         error = {
+                          values.assetCode
+                          ? false
+                          : true
+                        }
+                        fullWidth label="Asset Code" placeholder="Notes" />
                       </CInputGroup>
 
                       <CInputGroup size="sm" className="mb-3" >
-                        <TextField onChange={handleInput} name="assetName" value={values.assetName} id="outlined-textarea" fullWidth label="Asset Name" placeholder="Notes" />
+                        <TextField onChange={handleInput} name="assetName" value={values.assetName} 
+                        error = {
+                          values.assetName
+                          ? false
+                          : true
+                        }
+                        id="outlined-textarea" fullWidth label="Asset Name" placeholder="Notes" />
                       </CInputGroup>
 
                       <CInputGroup size="sm" className="mb-3" >
-                        <TextField onChange={handleInput} name="description" value={values.description} id="outlined-textarea" fullWidth label="Description" placeholder="Notes" multiline/>
+                        <TextField onChange={handleInput} name="description" value={values.description} 
+                        error = {
+                          values.description
+                          ? false
+                          : true
+                        }
+                        id="outlined-textarea" 
+                            fullWidth label="Description" placeholder="Notes" multiline rows={3}/>
                       </CInputGroup>
 
                   </CCardBody>
                 </CCol>
                 <CCol>
                 <CCardBody>
+                <CInputGroup size="sm" className="mb-3">
+                    <LocalizationProvider dateAdapter={AdapterDayjs}  >
+                      <DatePicker
+                              name='datePurchase'
+                              label="Date Purchase"
+                              fullWidth true
+                              value={dayjs(values.datePurchase)}
+                              onChange={(datePurchase) => setDatePurchase(datePurchase)}
+                              error = {
+                                values.datePurchase
+                                ? false
+                                : true
+                              }
+                      />
+                      
+                    </LocalizationProvider>
+                  </CInputGroup>
                   <CInputGroup size="sm" className="mb-3">
                           <Box
                             sx={{
@@ -587,6 +696,11 @@ const handleChange = (event) => {
                           >
                           <TextField
                                   label="Amount Purchase"
+                                  error = {
+                                    formatvalues.amountnumberformat
+                                    ? false
+                                    : true
+                                  }
                                   value={values.amount}
                                   onChange={handleChange}
                                   name="amountnumberformat"
@@ -594,9 +708,28 @@ const handleChange = (event) => {
                                   InputProps={{
                                     inputComponent: NumericFormatCustom,
                                   }}
+                                  
                                   variant="standard"
                           />
                           </Box>
+                  </CInputGroup>
+                  <CInputGroup size="sm" className="mb-3">
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DatePicker
+                            name='dateDepreciated'
+                            label="Date Depreciated"
+                            fullWidth true
+                            error = {
+                              values.dateDepreciated
+                              ? false
+                              : true
+                            }
+                            value={dayjs(values.dateDepreciated)}
+                            onChange={(dateDepreciated) => setDateDepreciated(dateDepreciated)}
+                            
+                          />
+                        </LocalizationProvider>
+                        
                   </CInputGroup>
                   <CInputGroup size="sm" className="mb-3">
                         <TextField
@@ -609,36 +742,15 @@ const handleChange = (event) => {
                                 InputProps={{
                                   inputComponent: NumericFormatCustom,
                                 }}
+                                error = {
+                                  formatvalues.amountdepnumberformat
+                                  ? false
+                                  : true
+                                }
                                 variant="standard"
                         />
                   </CInputGroup>
-                  <CInputGroup size="sm" className="mb-3">
-                  <LocalizationProvider dateAdapter={AdapterDayjs}  >
-                    <DatePicker
-                            name='datePurchase'
-                            label="Date Purchase"
-                            fullWidth true
-                            value={dayjs(values.datePurchase)}
-                            onChange={(datePurchase) => setDatePurchase(datePurchase)}
-
-                    />
-                    
-              </LocalizationProvider>
-                  </CInputGroup>
-                 
-                  <CInputGroup size="sm" className="mb-3">
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                          <DatePicker
-                            name='dateDepreciated'
-                            label="Date Depreciated"
-                            fullWidth true
-                            value={dayjs(values.dateDepreciated)}
-                            onChange={(dateDepreciated) => setDateDepreciated(dateDepreciated)}
-                          />
-                        </LocalizationProvider>
-                        
-                  </CInputGroup>
-                  <CInputGroup xs={5} size="xs" className="mb-3">
+                  <CInputGroup  size="sm" className="mb-3">
 
                   <CAccordion flush={false} size="xs" className="mb-3" fullWidth>
                     <CAccordionItem itemKey={1} size="xs" className="mb-3">
@@ -671,7 +783,7 @@ const handleChange = (event) => {
                     <div className="formInput" >
                       <img src={
                         values.imgFile
-                        ?  require(`../../../../backend/uploads/${values.imgFile}`)
+                        ?  require( `../../../../backend/uploads/${values.imgFile}`)
                         : imgDefault 
                       }
                       alt="" style={{  width: '80%', textAlign: "center", margin: "auto"}}    />

@@ -16,30 +16,36 @@ import {
 import CIcon from '@coreui/icons-react'
 import { cilBell, cilEnvelopeOpen, cilList, cilMenu} from '@coreui/icons'
 
-
+import {  decrypt } from 'n-krypta';
+import appSettings from 'src/AppSettings' // read the app config
 //import { AppBreadcrumb } from './index'
-import { AppHeaderDropdown } from './header/index'
+import { AppHeaderDropdown1 } from './header/index'
 import { logo } from 'src/assets/brand/logo'
 
 const AppHeader = () => {
   const dispatch = useDispatch()
   const sidebarShow = useSelector((state) => state.sidebarShow)
-
+  var userID = ""
+  let displayName = ""
+  const [display,setDisplay] = useState("")
   //const [userid,setUserID] = useState("");
-  const [displayName,setDisplayName] = useState("");
+
+  function getUserInfo() {
+
+    if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
+        userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
+        displayName = window.localStorage.getItem('display')
+        setDisplay(window.localStorage.getItem('display'))
+    }
+    else
+    { 
+        navigate('/login')
+    }
+    }
 
   useEffect(() => {
-    try {
 
-      if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) { 
-        setDisplayName(window.localStorage.getItem('display'));
-      }else {
-        window.localStorage.setItem('id','0');
-      }
-  }
-  catch{
-    window.localStorage.setItem('id','0');
-  }
+    getUserInfo()
 
 },[]);
 
@@ -57,8 +63,12 @@ const AppHeader = () => {
         </CHeaderBrand>
         <CHeaderNav className="d-none d-md-flex me-auto">
         <CNavItem>
-            <CNavLink to="/dashboard" component={NavLink}>
-              Welcome : {displayName}
+            <CNavLink to="/dashboard" component={NavLink} >
+              Welcome : {
+              displayName
+              ? displayName
+            : display
+            }
             </CNavLink>
         </CNavItem> 
         </CHeaderNav>
@@ -80,7 +90,7 @@ const AppHeader = () => {
           </CNavItem>
         </CHeaderNav>
         <CHeaderNav className="ms-3">
-          <AppHeaderDropdown/>
+          <AppHeaderDropdown1/>
         </CHeaderNav>
       </CContainer>
     </CHeader>

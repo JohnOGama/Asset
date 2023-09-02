@@ -19,7 +19,6 @@ import {
   CAccordionItem
 } from '@coreui/react'
 
-
 import imgDefault from '../../../assets/images/defaultProfile.png'
 
 import { decrypt } from 'n-krypta';
@@ -51,7 +50,6 @@ const UpdateProfile = () => {
     imgFile: ''
   })
 
-
   function getUserInfo() {
 
     if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
@@ -63,7 +61,6 @@ const UpdateProfile = () => {
         navigate('/login')
     }
     }
-
 
   useEffect(() => {
     
