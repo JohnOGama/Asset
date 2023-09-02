@@ -19,7 +19,7 @@ import { cilBell, cilEnvelopeOpen, cilList, cilMenu} from '@coreui/icons'
 import {  decrypt } from 'n-krypta';
 import appSettings from 'src/AppSettings' // read the app config
 //import { AppBreadcrumb } from './index'
-import { AppHeaderDropdown1 } from './header/index'
+import { AppHeaderDropdown } from './header/index'
 import { logo } from 'src/assets/brand/logo'
 
 const AppHeader = () => {
@@ -90,7 +90,7 @@ const AppHeader = () => {
           </CNavItem>
         </CHeaderNav>
         <CHeaderNav className="ms-3">
-          <AppHeaderDropdown1/>
+          <AppHeaderDropdown/>
         </CHeaderNav>
       </CContainer>
     </CHeader>
