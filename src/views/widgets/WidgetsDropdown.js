@@ -15,6 +15,7 @@ import {
   CWidgetStatsA,
   //CButton,
   CCardBody,
+  CFormLabel,
 } from '@coreui/react'
 
 import { getStyle } from '@coreui/utils'
@@ -38,6 +39,7 @@ const WidgetsDropdown = () => {
     totalassets: "",
     totalamount:""
   })
+  
   const [countsupplier,setTotalSupplier] = useState({
     totalsupplier: ""
   })
@@ -55,34 +57,59 @@ const WidgetsDropdown = () => {
 
   const [message,setMessage] = useState("")
   const [colorMessage,setColorMessage] = useState('red')
-  const [userID,setUserID] = useState("")
+
+
+  var userID = ""
+
+  // base sa testing use sya sa mga condition
+  // na nagpapalit ang variables during loading
+  var userRole = ""
+
+
+  // base sa testing use sya kapag display in HTML
+  const [userRoles,setUserRole] = useState("")
+ 
 
   useEffect(() => {
-    try {
-     
-      if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
-        setUserID(decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal));
-      }
-      
-      }catch(err) {
-        
-        navigate('/login')
-      }
+    getUserInfo()
 
-    }, [])
-
-  useEffect(() => {
-  // console.log()
-  LoadAssets()
-  LoadAssetsperCategory()
-  LoadSuppler()
-  LoadCountSupplier()
-  LoadStatus()
-  LoadStatAvailable()
-  LoadPullout()
-  LoadCountPullout()
-  //console.log()
   }, [])
+  
+  useEffect(() => {
+    if(userRole == "Admin") {
+      LoadAssets()
+      //LoadAssets()
+      LoadAssetsperCategory()
+      LoadSuppler()
+      LoadCountSupplier()
+      LoadStatus()
+      LoadStatAvailable()
+      LoadPullout()
+      LoadCountPullout()
+    } else if(userRoles == "IT") {
+      
+      LoadAssets()
+    }
+    else if(userRole == "User"){
+      LoadAssetsbyUser()
+      LoadCountSupplier()
+      
+    }
+
+  }, [])
+
+  function getUserInfo() {
+
+    if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
+      userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
+       userRole = decrypt(window.localStorage.getItem('Kgr67W@'), appSettings.secretkeylocal)
+       setUserRole(decrypt(window.localStorage.getItem('Kgr67W@'), appSettings.secretkeylocal))
+    }
+    else{ 
+        navigate('/login')
+    }
+  }
+
 
   useEffect(() => {
     //console.log(assetsperCategory)
@@ -180,12 +207,12 @@ const WidgetsDropdown = () => {
         setStatus(res.data.result)
         
       } else if (dataResponse == "No Record Found") {
-        WriteLog("Error","WidgetsDropDown","LoadStatus /status/getStatusbyAsset",res.data.message,userID)
+        WriteLog("Error","WidgetsDropDownUser","LoadStatus /status/getStatusbyAsset",res.data.message,userID)
         //setTotalAssets()
         //navigate('/500');
       }
     }).catch(err => {
-      WriteLog("Error","WidgetsDropDown","LoadStatus /status/getStatusbyAsset","Error in then/catch \n" + err.message,userID)
+      WriteLog("Error","WidgetsDropDownUser","LoadStatus /status/getStatusbyAsset","Error in then/catch \n" + err.message,userID)
     })
   }
 
@@ -253,19 +280,14 @@ const WidgetsDropdown = () => {
   return (
     <CRow>
       <CCol sm={6} lg={3}>
-
         <CCardBody>
-
         </CCardBody>
-
         <CWidgetStatsA
           className="mb-4"
           color="primary"
           value={
             <>
-            
-            {( assets.totalassets ) }
-           
+            {(assets.totalassets)}
               <span className="fs-6 fw-normal">
             
               ( { assets?.totalamount || "0.00"} )
@@ -282,6 +304,8 @@ const WidgetsDropdown = () => {
               <CDropdownItem  href="#/base/assetregister"> New Asset</CDropdownItem> 
                 <CDropdownItem  href="#/base/assetview"> Asset</CDropdownItem> 
                 <CDropdownItem href="#/base/assetuser">Checkout</CDropdownItem>
+                <CDropdownItem href="#/configurations/viewpullout">Pullout out By User</CDropdownItem>
+                
                 <CDropdownItem href="#/base/disposeview"> Dispose</CDropdownItem>
                 
               </CDropdownMenu>

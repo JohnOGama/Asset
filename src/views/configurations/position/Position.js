@@ -247,7 +247,7 @@ function Position() {
                               <Select  size="sm" className="mb-3" aria-label="Small select example"
                                 name='departmentid' onChange={handleInput} value={values.departmentid} >
                                   {
-                                  department.map((val,result) => 
+                                  department.map((val) => 
                                   
                                     <MenuItem key={val.id} value={val.id}  >{val.departmentName}</MenuItem>
                                   )

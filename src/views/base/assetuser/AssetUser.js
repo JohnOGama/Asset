@@ -458,11 +458,10 @@ function GetEmailInfo(param) {
     emailjs.send(appSettings.YOUR_SERVICE_ID, appSettings.YOUR_TEMPLATE_ID, templateParams,appSettings.public_key)
     .then(function(response) {
       WriteUserInfo("Info","AssetUser",userid,
-                  "Email sent : " 
-                  + "Checkout Date : " + templateParams.date + "\n "
-                  + "Notes : " + templateParams.notes + "\n "
-                  + "Response : " + response.text + "\n "
-                  + "Status : " + response.status ,userID)
+                  "Email sent Asset Check In: "
+                  + `\nNotes : ` + templateParams.notes
+                  /*+ "Response : " + response.text + "\n "
+                  + "Status : " + response.status */ ,userID)
        //console.log('SUCCESS!', response.status, response.text);
     }, function(error) {
       WriteUserInfo("Error","AssetUser",userid,
@@ -541,7 +540,10 @@ const handleClose = () => {
                       </LocalizationProvider>
                     </CInputGroup>
                     <CInputGroup size="sm" className="mb-3" >
-                      <TextField onChange={handleInput} name="notes" id="outlined-textarea" fullWidth label="Notes" placeholder="Notes" multiline  rows={5} />
+                      <TextField onChange={handleInput} name="notes" id="outlined-textarea" 
+                      fullWidth label="Notes" placeholder="You have asset(s) to be pickup on schedule date" multiline  rows={5}
+     
+                      />
                     </CInputGroup>
                     <div className="d-grid" style={{
                             

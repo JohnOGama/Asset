@@ -111,7 +111,7 @@ catch (err) {
         <CHeaderNav  >
           <CNavItem>
           
-            
+            {/*
             <CBadge color="info" className="ms-2">  
             
             {
@@ -119,7 +119,7 @@ catch (err) {
             ? (countlogNotif) 
             : ""
             }
-            </CBadge>
+          </CBadge> */}
 
       
           </CNavItem>

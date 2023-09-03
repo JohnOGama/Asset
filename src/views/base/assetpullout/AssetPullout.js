@@ -428,18 +428,19 @@ function UpdateMain_Asset(varassetid) {
 
   return (
 
-    <CCol xs={12}>
+    <CCol >
          <CCard className="mb-3" size="sm"  >
          <CCardHeader>
             <h6>
-            <span className="message" style={{ color: '#5da4f5'}}> <> Pullout </></span> 
+              
+            <span className="message" style={{ color: '#5da4f5'}}> <> Current Asset(s) </></span>
             <br></br>
             <strong><span className="message" style={{ color: colorMessage}}><p>{message}</p></span> </strong>
             </h6>
           </CCardHeader>
           <CForm onSubmit={handleSubmit}>
-            <CRow >
-                <CCol >
+            <CRow  >
+                <CCol xs={3} >
                     <CCardBody> 
                     
                       <CFormSelect size="sm" className="mb-3" aria-label="Small select example"
@@ -493,7 +494,7 @@ function UpdateMain_Asset(varassetid) {
                     
                     </CCardBody>
                 </CCol>
-                <CCol>
+                <CCol xs={9}>
                 <CCardBody>
                     <CInputGroup size="sm" className="mb-3">
                     <div style={{ height: 400, width: '100%' }}>

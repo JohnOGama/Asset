@@ -82,22 +82,25 @@ useEffect(() => {
                 const displayName = res.data.result[0].displayName 
                 const img = res.data.result[0].imgFilename 
                 const name = res.data.result[0].Name
-                
+          
                 // encrypt to local storage use new different key
                 
                 const encryptedID = encrypt(userid, appSettings.secretkeylocal); 
                 const userRoles = encrypt(res.data.result[0].userRole,appSettings.secretkeylocal); 
+                const userDepartmentID = encrypt(res.data.result[0].departmentDisplayID,appSettings.secretkeylocal); 
 
                 window.localStorage.removeItem('id');
                 window.localStorage.removeItem('display');
                 window.localStorage.removeItem('userimg');
                 window.localStorage.removeItem('Kgr67W@'); // This is a user Role
+                window.localStorage.removeItem('LkgdW23!'); // This is for DepartmentID
                 
                 window.localStorage.clear()
                 window.localStorage.setItem('id',encryptedID)
                 window.localStorage.setItem('display',displayName)
                 window.localStorage.setItem('userimg',img);
                 window.localStorage.setItem('Kgr67W@',userRoles)
+                window.localStorage.setItem('LkgdW23!',userDepartmentID)
                
                 navigate('/dashboard');
 

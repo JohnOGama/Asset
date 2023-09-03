@@ -34,34 +34,34 @@ const WidgetsDropdownUser = () => {
 
   const navigate = useNavigate();
 
+  const [message,setMessage] = useState("")
+  const [colorMessage,setColorMessage] = useState('red')
+  var  userID = ""
+  var departmentID = ""
+
   const [assets,setTotalAssets] = useState({
-    totalassets: "",
-    totalamount:""
+    totalassets: ""
   })
-  const [countsupplier,setTotalSupplier] = useState({
-    totalsupplier: ""
+
+  const [totalDepartment,setTotalDepartment] = useState({
+    totaldepartment: ""
   })
+
   const [statavailable,setStatAvailable] = useState({
     available: ""
   })
-  const [countPullout,setCountPullout] = useState({
-    totalpullout: ""
-  })
 
   const [assetsperCategory,setAssetsperCategoory] = useState([])
-  const [supplier,setSupplier] = useState([])
+  const [department,setDepartment] = useState([])
   const [status,setStatus] = useState([])
-  const [pullout,setPullout] = useState([])
-
-  const [message,setMessage] = useState("")
-  const [colorMessage,setColorMessage] = useState('red')
-  const [userID,setUserID] = useState("")
-
+  
+  
   useEffect(() => {
     try {
      
       if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
-        setUserID(decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal));
+        userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
+        departmentID = decrypt(window.localStorage.getItem('LkgdW23!'), appSettings.secretkeylocal)
       }
       
       }catch(err) {
@@ -72,48 +72,49 @@ const WidgetsDropdownUser = () => {
     }, [])
 
   useEffect(() => {
-  // console.log()
-  LoadAssets()
+  
+  LoadAssetsbyUser()
   LoadAssetsperCategory()
-  LoadSuppler()
-  LoadCountSupplier()
+  LoadCountDepartment_ByUser()
+  LoadTotalCountDepartment_ByUser()
+  LoadCountStatusDepartment_ByUser()
+  LoadTotalCountStatusDepartment_ByUser()
+ /*
   LoadStatus()
   LoadStatAvailable()
   LoadPullout()
   LoadCountPullout()
-  //console.log()
+  */
   }, [])
 
-  useEffect(() => {
-    //console.log(assetsperCategory)
-  }, [assetsperCategory])
 
-   function LoadAssets(){
-    setMessage("")
-    const url = 'http://localhost:3001/assets/getCountassets'
-     axios.post(url)
+ 
+  function LoadAssetsbyUser(){
+
+
+    const url = 'http://localhost:3001/assets/getCountassets_byUser'
+     axios.post(url,{userID})
 
     .then(res => {
       const dataResponse = res.data.message;
       if(dataResponse == "Record Found") {
         setTotalAssets({...assets,
-          totalassets: res.data.result[0].totalAsset,
-          totalamount: res.data.result[0].totalAmount})
+          totalassets: res.data.result[0].totalAssets})
       } else if (dataResponse == "No Record Found") {
-        WriteLog("Error","WidgetsDropDown","LoadData /assets/getCountassets",res.data.message,userID)
+        WriteLog("Error","WidgetsDropDownUser","LoadAssetsbyUser /assets/getCountassets",res.data.message,userID)
         setTotalAssets({...assets,
           totalassets: "0"})
         //navigate('/500');
       }
     }).catch(err => {
-      WriteLog("Error","WidgetsDropDown","LoadData /assets/getCountassets","Error in then/catch \n" + err.message,userID)
+      WriteLog("Error","WidgetsDropDownUser","LoadAssetsbyUser /assets/getCountassets","Error in then/catch \n" + err.message,userID)
     })
   }
 
   function LoadAssetsperCategory(){
     setMessage("")
-    const url = 'http://localhost:3001/assets/getCountassetsper_category'
-     axios.post(url)
+    const url = 'http://localhost:3001/assets/getCountassetsper_category_ByUser'
+     axios.post(url,{userID})
  
     .then(res => {
       const dataResponse = res.data.message;
@@ -128,51 +129,52 @@ const WidgetsDropdownUser = () => {
     })
   }
 
-  function LoadSuppler(){
+  function LoadCountDepartment_ByUser(){
     setMessage("")
-    const url = 'http://localhost:3001/supplier/getSupplierAssets'
+    const url = 'http://localhost:3001/assets/viewallassetsCountPerDepartment_By_User'
      axios.post(url)
  
     .then(res => {
       const dataResponse = res.data.message;
       if(dataResponse == "Record Found") {
-        setSupplier(res.data.result)
+        setDepartment(res.data.result)
         
       } else if (dataResponse == "No Record Found") {
-        WriteLog("Error","WidgetsDropDown","LoadSuppler /assets/getCountSupplier",res.data.message,userID)
+        WriteLog("Error","WidgetsDropDownUser","LoadCountperDepartment /assets/viewallassetsCountPerDepartment",res.data.message,userID)
         //setTotalAssets()
         //navigate('/500');
       }
     }).catch(err => {
-      WriteLog("Error","WidgetsDropDown","LoadSuppler /assets/getCountSupplier","Error in then/catch \n" + err.message,userID)
+      WriteLog("Error","WidgetsDropDownUser","LoadCountperDepartment /assets/viewallassetsCountPerDepartment","Error in then/catch \n" + err.message,userID)
     })
   }
 
-  function LoadCountSupplier(){
+
+  function LoadTotalCountDepartment_ByUser() {
     setMessage("")
-    const url = 'http://localhost:3001/supplier/getCountSupplier'
-     axios.post(url)
+    const url = 'http://localhost:3001/assets/viewallassetsToatalPerDepartment_By_User'
+     axios.post(url,{departmentID})
 
     .then(res => {
       const dataResponse = res.data.message;
       if(dataResponse == "Record Found") {
-        setTotalSupplier({...countsupplier,
-          totalsupplier: res.data.result[0].countsupplier})
+        setTotalDepartment({...totalDepartment,
+          totaldepartment: res.data.result[0].totalDepartment})
       } else if (dataResponse == "No Record Found") {
-        WriteLog("Error","WidgetsDropDown","LoadCountSupplier /supplier/getCountSupplier",res.data.message,userID)
-        setTotalAssets({...countsupplier,
-          totalsupplier: "0"})
+        WriteLog("Error","WidgetsDropDownUser","LoadTotalCountDepartment_ByUser /assets/viewallassetsToatalPerDepartment_By_User",res.data.message,userID)
+        setTotalAssets({...totalDepartment,
+          totaldepartment: "0"})
         //navigate('/500');
       }
     }).catch(err => {
-      WriteLog("Error","WidgetsDropDown","LoadCountSupplier /supplier/getCountSupplier","Error in then/catch \n" + err.message,userID)
+      WriteLog("Error","WidgetsDropDownUser","LoadTotalCountDepartment_ByUser /assets/viewallassetsToatalPerDepartment_By_User","Error in then/catch \n" + err.message,userID)
     })
   }
 
-  function LoadStatus(){
+  function LoadCountStatusDepartment_ByUser(){
     setMessage("")
-    const url = 'http://localhost:3001/status/getStatusbyAsset'
-     axios.post(url)
+    const url = 'http://localhost:3001/status/getStatusbyAssetDepartment_ByUser'
+     axios.post(url,{departmentID})
  
     .then(res => {
       const dataResponse = res.data.message;
@@ -180,16 +182,16 @@ const WidgetsDropdownUser = () => {
         setStatus(res.data.result)
         
       } else if (dataResponse == "No Record Found") {
-        WriteLog("Error","WidgetsDropDown","LoadStatus /status/getStatusbyAsset",res.data.message,userID)
+        WriteLog("Error","WidgetsDropDownUser","LoadStatusDepartment_ByUser /status/getStatusbyAssetDepartment_ByUser",res.data.message,userID)
         //setTotalAssets()
         //navigate('/500');
       }
     }).catch(err => {
-      WriteLog("Error","WidgetsDropDown","LoadStatus /status/getStatusbyAsset","Error in then/catch \n" + err.message,userID)
+      WriteLog("Error","WidgetsDropDownUser","LoadStatusDepartment_ByUser /status/getStatusbyAssetDepartment_ByUser","Error in then/catch \n" + err.message,userID)
     })
   }
 
-  function LoadStatAvailable(){
+  function LoadTotalCountStatusDepartment_ByUser(){
     setMessage("")
     const url = 'http://localhost:3001/status/getStatusAvailable'
      axios.post(url)
@@ -209,46 +211,7 @@ const WidgetsDropdownUser = () => {
       WriteLog("Error","WidgetsDropDown","LoadAvailable /status/getStatusAvailable","Error in then/catch \n" + err.message,userID)
     })
   }
-
-  function LoadPullout(){
-    setMessage("")
-    const url = 'http://localhost:3001/pullout/countallPullout'
-     axios.post(url)
-    
-    .then(res => {
-      const dataResponse = res.data.message;
-      if(dataResponse == "Record Found") {
-        setCountPullout({...countPullout,
-          totalpullout: res.data.result[0].totalpullout})
-        
-      } else if (dataResponse == "No Record Found") {
-        WriteLog("Error","WidgetsDropDown","LoadPullout /pullout/countallPullout",res.data.message,userID)
-        //setTotalAssets()
-        //navigate('/500');
-      }
-    }).catch(err => {
-      WriteLog("Error","WidgetsDropDown","LoadPullout /pullout/countallPullout","Error in then/catch \n" + err.message,userID)
-    })
-  }
-
-  function LoadCountPullout(){
-   
-    const url = 'http://localhost:3001/pullout/getallpulloutbydepartment'
-     axios.post(url)
-    .then(res => {
-      const dataResponse = res.data.message;
-      if(dataResponse == "Record Found") {
-        setPullout(res.data.result)
-        
-      } else if (dataResponse == "No Record Found") {
-        WriteLog("Error","WidgetsDropDown","LoadCountPullout /pullout/getallpulloutbydepartment",res.data.message,userID)
-        //setTotalAssets()
-        //navigate('/500');
-      }
-    }).catch(err => {
-      WriteLog("Error","WidgetsDropDown","LoadCountPullout /pullout/getallpulloutbydepartment","Error in then/catch \n" + err.message,userID)
-    })
-  }
+  
 
   return (
     <CRow>
@@ -258,31 +221,25 @@ const WidgetsDropdownUser = () => {
 
         </CCardBody>
 
-        <CWidgetStatsA
+        <CWidgetStatsA id='a'
           className="mb-4"
           color="primary"
           value={
             <>
-            
-            {( assets.totalassets ) }
-           
-              <span className="fs-6 fw-normal">
-            
-              ( { assets?.totalamount || "0.00"} )
-              </span>
+            {(assets.totalassets)}
               </>
           }
-          title="This is for User  "
+          title="Assigned Asset(s)"
           action={
             <CDropdown alignment="end">
               <CDropdownToggle color="transparent" caret={false} className="p-0">
                 <CIcon icon={cilOptions} className="text-high-emphasis-inverse" />
               </CDropdownToggle>
               <CDropdownMenu>
-              <CDropdownItem  href="#/base/assetregister"> New Asset</CDropdownItem> 
-                <CDropdownItem  href="#/base/assetview"> Asset</CDropdownItem> 
-                <CDropdownItem href="#/base/assetuser">Checkout</CDropdownItem>
-                <CDropdownItem href="#/base/disposeview"> Dispose</CDropdownItem>
+                <CDropdownItem  href="#/base/assetbyuser"> Asset</CDropdownItem> 
+                <CDropdownItem href="#/base/assetuserassign"> CheckIn</CDropdownItem>
+                <CDropdownItem href="#/base/assetpullout">Pullout</CDropdownItem>
+                
                 
               </CDropdownMenu>
             </CDropdown>
@@ -354,18 +311,15 @@ const WidgetsDropdownUser = () => {
 
       </CCol>
       <CCol sm={6} lg={3}>
-        <CWidgetStatsA
+        <CWidgetStatsA id='department'
           className="mb-4"
           color="info"
           value={
             <>
-              {countsupplier.totalsupplier}
-              <span className="fs-6 fw-normal">
-               
-              </span>
-            </>
+            {(totalDepartment.totaldepartment)}
+              </>
           }
-          title="Supplier(s)"
+          title="Department Asset(s)"
           /* action={
            <CDropdown alignment="end">
               <CDropdownToggle color="transparent" caret={false} className="p-0">
@@ -384,14 +338,14 @@ const WidgetsDropdownUser = () => {
               className="mt-3 mx-3"
               style={{ height: '70px' }}
               data={{
-                labels: supplier?.map((categ) => categ.name),
+                labels: department?.map((dept) => dept.departmentName),
                 datasets: [
                   {
                     label: 'Total',
                     backgroundColor: 'transparent',
                     borderColor: 'rgba(255,255,255,.55)',
                     pointBackgroundColor: getStyle('--cui-info'),
-                    data: supplier?.map((categ) => categ.countsupplier),
+                    data: department?.map((dept) => dept.countDept),
                   },
                 ],
               }}
@@ -440,19 +394,15 @@ const WidgetsDropdownUser = () => {
         />
       </CCol>
       <CCol sm={5} lg={3}>
-        <CWidgetStatsA
+        <CWidgetStatsA id='status'
           className="mb-4"
           color="warning"
-          value={
-            <>
-              { statavailable.available} 
-             
-              <span className="fs-6 fw-normal">
-                ( Available )  
-              </span>
-            </>
+          value= 
+
+            {(statavailable.available)
+         
           }
-          title="Status"
+          title="Department Status"
          /*  action={
             <CDropdown alignment="end">
               <CDropdownToggle color="transparent" caret={false} className="p-0">
@@ -471,13 +421,13 @@ const WidgetsDropdownUser = () => {
               className="mt-3"
               style={{ height: '70px' }}
               data={{
-                labels: status?.map((stat) => stat.statusName),
+                labels:  status?.map((stat) => stat.statusName),
                 datasets: [
                   {
                     label: 'Total',
                     backgroundColor: 'rgba(255,255,255,.2)',
                     borderColor: 'rgba(255,255,255,.55)',
-                    data: status?.map((stat) => stat.totalasset),
+                    data:  status?.map((stat) => stat.countStatus), 
                     fill: true,
                   },
                 ],
@@ -516,18 +466,15 @@ const WidgetsDropdownUser = () => {
         
       </CCol>
       <CCol sm={6} lg={3}>
-        <CWidgetStatsA
+        <CWidgetStatsA id='a'
           className="mb-4"
           color="danger"
-          value={
-            <>
-              {countPullout?.totalpullout || ""}
-              <span className="fs-6 fw-normal">
-                ( For Pullout )
-              </span>
-            </>
-          }
-          title="Pullout History"
+          value= 
+
+          {(statavailable.available)
+       
+        }
+          title="Department Pullout History"
           /*
           action={
             <CDropdown alignment="end">
@@ -544,13 +491,13 @@ const WidgetsDropdownUser = () => {
               className="mt-3 mx-3"
               style={{ height: '70px' }}
               data={{
-                labels: pullout?.map((pullout) => pullout.departmentName),
+                labels:  status?.map((stat) => stat.statusName),
                 datasets: [
                   {
                     label: 'Total',
                     backgroundColor: 'rgba(255,255,255,.2)',
                     borderColor: 'rgba(255,255,255,.55)',
-                    data: pullout?.map((pullout) => pullout.total),
+                    data: status?.map((stat) => stat.countStatus), 
                   },
                 ],
               }}
