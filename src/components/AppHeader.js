@@ -33,7 +33,7 @@ const AppHeader = () => {
 
 
   const navigate = useNavigate();
-  
+
   const dispatch = useDispatch()
   const sidebarShow = useSelector((state) => state.sidebarShow)
   var userID = ""
@@ -50,6 +50,10 @@ const AppHeader = () => {
   function getUserInfo() {
     try {
 
+      if(window.localStorage.getItem('id') == "0")
+      {
+        navigate('/login')
+      }
 
     if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
         userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
