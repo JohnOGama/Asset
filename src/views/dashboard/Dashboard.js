@@ -107,6 +107,8 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   function getUserInfo() {
+
+    try {
     let id = "";
     let display = "";
    
@@ -124,6 +126,10 @@ const Dashboard = () => {
     { 
       navigate('/login')
     }
+  }
+  catch(err) {
+    navigate('/login')
+  }
   }
 
   useEffect(() => {

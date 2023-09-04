@@ -25,10 +25,15 @@ import WriteLog from 'src/components/logs/LogListener';
 import { AppHeaderDropdown } from './header/index'
 import { logo } from 'src/assets/brand/logo'
 import belUser from 'src/assets/images/DefaultUserBellInfo.jpg'
+import {useNavigate} from 'react-router-dom'
 
 import { Icon } from '@mui/material'
 
 const AppHeader = () => {
+
+
+  const navigate = useNavigate();
+  
   const dispatch = useDispatch()
   const sidebarShow = useSelector((state) => state.sidebarShow)
   var userID = ""
@@ -43,6 +48,8 @@ const AppHeader = () => {
 },[]);
 
   function getUserInfo() {
+    try {
+
 
     if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
         userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
@@ -53,7 +60,11 @@ const AppHeader = () => {
     { 
         navigate('/login')
     }
-    }
+  }
+  catch{
+    navigate('/login')
+  } 
+}
 
 
 function Load_LogUserInfo() {
