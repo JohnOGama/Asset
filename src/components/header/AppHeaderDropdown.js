@@ -227,7 +227,7 @@ function LoadCount_byDeployed() {
       <CDropdownToggle placement="bottom-end" className="py-0" caret={false}>
         <Avatar src={ 
                    userImg
-                   ? require(`./../../../backend/uploads/${userImg}`)
+                   ? require(`../../../../backend/uploads/${userImg}`)
                    /*'./../../../backend/uploads/' + `${userImg}` */
                    : defaultUser 
         }  size="md"

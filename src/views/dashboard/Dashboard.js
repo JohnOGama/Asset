@@ -108,22 +108,28 @@ const Dashboard = () => {
 
   function getUserInfo() {
 
+    try { 
+
     try {
     let id = "";
     let display = "";
    
 
-    if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
-      //setID(window.localStorage.getItem('id'));
-      display = window.localStorage.getItem('display');
-       userRole = decrypt(window.localStorage.getItem('Kgr67W@'), appSettings.secretkeylocal)
-       setUserRole(userRole)
-      userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
-      setDisplayName(display);
+      if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
+        //setID(window.localStorage.getItem('id'));
+        display = window.localStorage.getItem('display');
+        userRole = decrypt(window.localStorage.getItem('Kgr67W@'), appSettings.secretkeylocal)
+        setUserRole(userRole)
+        userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
+        setDisplayName(display);
 
+      }
+      else
+      { 
+        navigate('/login')
+      }
     }
-    else
-    { 
+    catch {
       navigate('/login')
     }
   }
