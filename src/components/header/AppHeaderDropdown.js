@@ -24,8 +24,7 @@ import {
 } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 
-import avatar8 from './../../assets/images/avatars/8.jpg'
-import defaultUser from './../../assets/images/avatars/DefaultUser.png'
+
 
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -42,7 +41,11 @@ import {  decrypt } from 'n-krypta';
 //compare , decrypt
 import WriteLog from 'src/components/logs/LogListener';
 import { Avatar } from '@mui/material'
-import userAvatar from './../../assets/images/avatars/8.jpg'
+import userAvatar from '../../assets/images/avatars/8.jpg'
+import defaultUser from '../../assets/images/avatars/DefaultUser.png'
+//'./../../assets/images/avatars/DefaultUser.png'
+
+//'./../../assets/images/avatars/8.jpg'
 const AppHeaderDropdown = () => {
 
   const navigate = useNavigate();
