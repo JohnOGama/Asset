@@ -242,7 +242,6 @@ function getUserInfo() {
             formatvalues.amountnumberformat = res.data.result[0].amount
             formatvalues.amountdepnumberformat = res.data.result[0].amountDepreciatedYr
 
-  
         } else if (dataResponse == "No Record Found") {
           WriteLog("Error","AssetEdit","LoadData /assets/getassetsbyID","No Record Found " + res.data.message2,userID)
           

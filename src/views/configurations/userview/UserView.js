@@ -5,6 +5,7 @@ import * as React from 'react'
 import { DataGrid } from '@mui/x-data-grid';
 
 import DeleteOutlineTwoToneIcon from '@mui/icons-material/DeleteOutlineTwoTone';
+import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 
 import {useNavigate} from 'react-router-dom';
 
@@ -42,7 +43,7 @@ import Draggable from 'react-draggable';
 
     const [users,setUsers] = useState([])
     const [open, setOpen] = React.useState(false);
-    const [rowselected,SetRowSelected] = useState("")
+    //const [rowselected,SetRowSelected] = useState("")
 
 function getUserInfo() {
 
@@ -68,8 +69,8 @@ function getUserInfo() {
         renderCell: (params) => {
           return (
             <div >
-              
-              <DeleteOutlineTwoToneIcon cursor="pointer" onClick={()=> handleClickOpen(params.row.id)}/>
+              <EditTwoToneIcon cursor="pointer" onClick={()=> handleClick(params.row.id,"For Edit")}/>
+              <DeleteOutlineTwoToneIcon cursor="pointer" onClick={()=> handleClick(params.row.id,"For Delete")}/>
             </div>
 
           );
@@ -127,7 +128,23 @@ function getUserInfo() {
     //setOpen(true);
   }, [rowselected])
 
-  const handleClickOpen = (param) => {
+  const handleClick = (paramID,paramStat) => {
+
+    checkUser(paramID)
+    SetRowSelected(paramID)
+    try {
+
+      if(paramStat == "For Edit") {
+        // view employee Edit
+      } else {
+        // Delete Here
+      }
+
+    }
+    catch(err) {
+      WriteLog("Error","UserView","handleClick /users/checkUserfordelete",err.message,userID)
+    }
+
 
       setMessage("")
       checkUser(param)
