@@ -37,13 +37,16 @@ import Draggable from 'react-draggable';
 
     const navigate = useNavigate();
      var userID = ""
+     var rowSelectedID = "" // user selected
+     const [irowSelectedID,setRowSelected] = useState("")
+    
 
     const [message,setMessage] = useState("")
     const [colorMessage,setColorMessage] = useState('red')
 
     const [users,setUsers] = useState([])
     const [open, setOpen] = React.useState(false);
-    //const [rowselected,SetRowSelected] = useState("")
+    
 
 function getUserInfo() {
 
@@ -69,8 +72,9 @@ function getUserInfo() {
         renderCell: (params) => {
           return (
             <div >
-              <EditTwoToneIcon cursor="pointer" onClick={()=> handleClick(params.row.id,"For Edit")}/>
-              <DeleteOutlineTwoToneIcon cursor="pointer" onClick={()=> handleClick(params.row.id,"For Delete")}/>
+            { /* <EditTwoToneIcon cursor="pointer" onClick={()=> handleClick(params.row.id,"For Edit")}/>
+             */ }
+              <DeleteOutlineTwoToneIcon cursor="pointer" onClick={()=> handleClick(params.row.id)}/>
             </div>
 
           );
@@ -124,100 +128,102 @@ function getUserInfo() {
       ],[]);
 
 
-  useEffect(() => {
-    //setOpen(true);
-  }, [rowselected])
+  function handleClick(paramID) {
 
-  const handleClick = (paramID,paramStat) => {
-
-    checkUser(paramID)
-    SetRowSelected(paramID)
     try {
-
-      if(paramStat == "For Edit") {
-        // view employee Edit
-      } else {
-        // Delete Here
-      }
-
+      setRowSelected(paramID);
+      CheckUserfordelete(paramID)
+    
     }
     catch(err) {
       WriteLog("Error","UserView","handleClick /users/checkUserfordelete",err.message,userID)
     }
 
-
-      setMessage("")
-      checkUser(param)
-      SetRowSelected(param)
   };
+
+
+
+  function CheckUserfordelete(rowId)  {
+    
+    try {
+
+      const  url ='http://localhost:3001/users/checkUserfordelete'
+       axios.post(url,{rowId})
+       
+      .then(response => {
+        const dataResponse = response.data.message;
+      
+        if(dataResponse == "Record Found") {
+           setMessage('User still with asset(s) tag')
+           setColorMessage('re')
+        } else {
+          rowSelectedID = rowId
+          setOpen(true);
+          setMessage("")
+          setColorMessage('')
+        }
+
+      })
+      .catch(err => {
+        WriteLog("Error","UserView","CheckUserAssets /users/checkUserfordelete","Error in try/catch " + err.message,userID)
+      })
+
+     
+     
+
+    }
+    catch(err) {
+      WriteLog("Error","UserView","CheckUserAssets /users/checkUserfordelete","Error in try/catch " + err.message,userID)
+    }
+  
+  
+  }
+
 
   const handleClose = () => {
     setOpen(false);
     setMessage("")
   };
 
-function checkUser(param) {
-  try {
-      if(userID == "") 
-  {
-    getUserInfo()
-  }
-    let rowId = param
-    const url = 'http://localhost:3001/users/checkUserfordelete'
-    axios.post(url,{rowId})
-    .then(res => {
-      const dataResponse = res.data.message;
-      if(dataResponse == "Record Found") {
-        setMessage("User selected still in use")
-        setColorMessage('red')
-        setOpen(false);
-      } else if (dataResponse == "No Record Found") {
-        setOpen(true);
-      }
-    }).catch(err => {
-     WriteLog("Error","UserView","checkUser /users/checkUserfordelete",err.message,userID)
-      setMessage("Error in checking user ")
-      setColorMessage('red')
-    })
-  }
-  catch(err) {
-    WriteLog("Error","UserView","checkUser /users/checkUserfordelete",err.message,userID)
-  }
-    }
+
 
   function handleDelete() {
   try {
-      if(userID == "") 
-  {
-    getUserInfo()
-  }
-
-    let rowId = rowselected
-  const url = 'http://localhost:3001/users/deleteUser'
-  axios.post(url,{rowId})
-  .then(res => {
-    const dataResponse = res.data.message;
-    if(dataResponse == "Record Deleted") {
-      setOpen(false)
-      WriteLog("Message","UserView","handleDelete /users/deleteUser", 
-      " Delete Employees "
-      + "\n EmployeeID: " + rowId
-      + "\n Deleted By  : " + userID ,userID)
-      LoadData()
-      
-    } else if (dataResponse == "No Record Deleted") {
-      setMessage("No record deleted")
-      setColorMessage("red")
-      WriteLog("Error","UserView","handleDelete /users/deleteUser",res.data.message2,userID)
+    if(userID == "") 
+    {
+      getUserInfo()
     }
-  }).catch(err => {
-    WriteLog("Error","UserView","handleDelete /users/deleteUser",err.message,userID)
-   
-  })
+
+      console.log(irowSelectedID)
+      const url = 'http://localhost:3001/users/deleteUser'
+      axios.post(url,{irowSelectedID})
+      .then(res => {
+        const dataResponse = res.data.message;
+        if(dataResponse == "Record Deactivated") {
+          setOpen(false)
+          WriteLog("Message","UserView","handleDelete /users/deleteUser", 
+          " Deactivated Employee "
+          + "\n EmployeeID: " + irowSelectedID
+          + "\n Deleted By  : " + userID ,userID)
+          setOpen(false)
+          LoadData()
+          
+        } else if (dataResponse == "No Record Deactivated") {
+          setOpen(false)
+          setMessage("No record deactivated")
+          setColorMessage("red")
+          WriteLog("Error","UserView","handleDelete /users/deleteUser","No Record Deactivated \n" + res.data.message,userID)
+          
+        }
+      }).catch(err => {
+        WriteLog("Error","UserView","handleDelete /users/deleteUser","Error in then/catch \n" + err.message,userID)
+        setOpen(false)
+      })
 
   }
   catch(err) {
     WriteLog("Error","UserView","handleDelete /users/deleteUser",err.message,userID)
+    setOpen(false)
   }
     }
 
@@ -228,9 +234,9 @@ function checkUser(param) {
     
     function LoadData(){
         if(userID == "") 
-  {
-    getUserInfo()
-  }
+        {
+          getUserInfo()
+        }
   
       const url = 'http://localhost:3001/users/viewallusers'
       axios.post(url)

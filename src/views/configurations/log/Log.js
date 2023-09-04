@@ -44,8 +44,10 @@ function Log() {
       type: "",
       module: "",
       function: "",
-      details: "",
+      details: ""
     })
+
+
 
     function getUserInfo() {
 
@@ -87,6 +89,7 @@ function Log() {
             });
 
         } else if (dataResponse == "No Record Found") {
+
             LogListener.WriteLog("Error","Log","Load /log/getlogID","DB No Record Found",userID)
    
         }

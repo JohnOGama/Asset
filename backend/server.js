@@ -395,7 +395,6 @@ app.post('/auth/updateProfile', (req,res)   => {
      })
 })
 
-
 app.post('/auth/updateImage',upload.single("file"), (req,res)   => {
     
     const imagefile = req.file.filename
@@ -459,6 +458,7 @@ app.post('/users/viewallusers',(req,res) => {
             res.json({message: "No Record Found",
                 message2: err.message});
         } else {
+            
             if(result.length > 0) {
                 res.json({result,message: "Record Found"});
             } else {
@@ -472,18 +472,17 @@ app.post('/users/checkUserfordelete', (req,res)   => {
     
     const sql = "SELECT * FROM tblUserAssetDetails details"
         + " inner join tblAssetStatus stat on stat.assetStatusID COLLATE utf8mb4_unicode_ci = details.assetStatusID"
-        + " where stat.statusName = 'Deployed'"
+        + " where (stat.statusName = 'Deployed' or stat.statusName = 'For Deploy') "
         + " and details.userSelectedID = ?"
-        + " limit 1" 
-    
+
     connection.query(sql,[req.body.rowId],(err,result) => {
         if(err) {
-            
             res.json({
                 message: "No Record Found",
                 message2: err.message});
         }else {
             if(result.length > 0) {
+               
                 res.json({result,message: "Record Found"});
             } else {
                 res.json({message: "No Record Found"});
@@ -495,19 +494,25 @@ app.post('/users/checkUserfordelete', (req,res)   => {
 
 app.post('/users/deleteUser', (req,res)   => {
     
-
     const sqlUpdate = "UPDATE tblUsers SET active = 0 where userDisplayID = ?"
 
-    connection.query(sqlUpdate,[req.body.rowId],(err,result) => {
+
+    connection.query(sqlUpdate,[req.body.irowSelectedID],(err,result) => {
         if(err) {
            
             res.json({
-                message: "No Record Deleted",
+                message: "No Record Deactivated",
                 message2: err.message});
         }else {
 
+            if(result.changedRows > 0) {
             res.json({
-                message: "Record Deleted"});
+                message: "Record Deactivated"});
+            }
+            else {
+                res.json({
+                    message: "No Record Deactivated"})
+            }
         }
 
      })

@@ -39,6 +39,7 @@ const LogView = () => {
     const navigate = useNavigate();
     var userID = ""
 
+
     //const [success,SetSuccess] = useState("");
     //const [errors,setErrors] = useState({})
     //const [message,setMessage] = useState("")
@@ -48,11 +49,11 @@ const LogView = () => {
     const [open, setOpen] = React.useState(false);
     //const [rowselected,SetRowSelected] = useState("")
 
+
     function getUserInfo() {
 
       if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
           userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
-          
       }
       else{ 
           navigate('/login')
@@ -139,13 +140,15 @@ function LoadData(){
   {
     getUserInfo()
   }
+
   const url = 'http://localhost:3001/log/viewallLogs'
   axios.post(url)
   .then(res => {
     const dataResponse = res.data.message;
     if(dataResponse == "Record Found") {
         setLog(res.data.result)
-    } 
+    }
+
   }).catch(err => {
     WriteLog("Error","LogView","Load log/viewallLogs","Error in try/catch " + err.message,userID)
   })
