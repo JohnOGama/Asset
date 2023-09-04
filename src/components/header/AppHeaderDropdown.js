@@ -49,7 +49,7 @@ import defaultUser from '../../assets/images/avatars/DefaultUser.png'
 const AppHeaderDropdown = () => {
 
   const navigate = useNavigate();
-  let userID = ""
+  var userID = ""
 
 
   
@@ -126,7 +126,7 @@ function getUserInfo() {
     getUserInfo()
     LoadCount_byDeployed()
     LoadCount_Notif()
-    LoadCount_CheckInNotif
+    LoadCount_CheckInNotif()
   }, [countassets,countcheckin,countnotif])
 
 
@@ -165,9 +165,10 @@ catch (err) {
 function LoadCount_CheckInNotif() {
 
   try {
-  
+    
     if(userID == "") 
     {
+
       getUserInfo()
     }
 
@@ -230,7 +231,8 @@ function LoadCount_byDeployed() {
       <CDropdownToggle placement="bottom-end" className="py-0" caret={false}>
         <Avatar src={ 
                    userImg
-                   ? require(`../../../../backend/uploads/${userImg}`)
+                   ? require(`../../../backend/uploads/${userImg}`)
+                   
                    /*'./../../../backend/uploads/' + `${userImg}` */
                    : defaultUser 
         }  size="md"
@@ -244,7 +246,10 @@ function LoadCount_byDeployed() {
           Checkin
           <CBadge color="info" className="ms-2">  
           {
-            countcheckin ? (countcheckin) : ""
+            countcheckin 
+            ? 
+              (countcheckin) 
+            : ""
           }
           </CBadge>
         </CDropdownItem>
