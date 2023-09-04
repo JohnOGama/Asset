@@ -43,7 +43,7 @@ useEffect(() => {
 
   if (!window.localStorage.getItem("id") == null) {
     if (window.localStorage.getItem("id") !== "0"){
-      navigate('/Dashboard')
+      navigate('/dashboard')
     }
     
   } else{
