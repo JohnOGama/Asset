@@ -233,10 +233,10 @@ function LoadCount_byDeployed() {
                    userImg
                    ? require(`../../../backend/uploads/${userImg}`)
                    
-                   /*'./../../../backend/uploads/' + `${userImg}` */
+           
                    : defaultUser 
         }  size="md"
-          /*  `../../../../backend/uploads/${userImg}` */ />
+        />
       </CDropdownToggle>
   
       <CDropdownMenu className="pt-0" placement="bottom-end">
