@@ -59,6 +59,7 @@ const AppHeader = () => {
         userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
         displayName = window.localStorage.getItem('display')
         setDisplay(window.localStorage.getItem('display'))
+        window.localStorage.setItem('Kvsf45_','0');
     }
     else
     { 

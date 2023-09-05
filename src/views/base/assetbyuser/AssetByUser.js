@@ -35,26 +35,52 @@ function AssetByUser() {
   const navigate = useNavigate();
   
   var userID = ""
+  var userRole = ""
     const [success,SetSuccess] = useState("");
     const [errors,setErrors] = useState({})
     const [message,setMessage] = useState("")
     const [colorMessage,setColorMessage] = useState('red')
 
+useEffect(() => {
+  getUserInfo()
+}, [])
 
-function getUserInfo() {
+function CheckRole() {
+  try {
 
-  if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
-      userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
-      
+    userRole = decrypt(window.localStorage.getItem('Kgr67W@'), appSettings.secretkeylocal)
+
   }
-  else{ 
-      navigate('/login')
+  catch(err) {
+    WriteLog("Error","AssetByUser","CheckRole Local Storage is tampered", err.message,userID)
+    navigate('/dashboard')
   }
 }
 
-  useEffect(() => {
-      getUserInfo()
-    }, [])
+function getUserInfo() {
+
+  try {
+    CheckRole()
+      if (userRole == "Admin" || userRole == "IT")
+        {
+            if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
+              userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
+            
+            }else{ 
+              navigate('/login')
+          }
+        }
+      else {
+        navigate('/dashboard')
+      }
+        
+      }
+catch(err) {
+  navigate('/dashboard')
+    }
+}
+
+
 
     function handleSubmit(event) {
         try {

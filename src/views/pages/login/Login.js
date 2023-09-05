@@ -94,13 +94,14 @@ useEffect(() => {
                 window.localStorage.removeItem('userimg');
                 window.localStorage.removeItem('Kgr67W@'); // This is a user Role
                 window.localStorage.removeItem('LkgdW23!'); // This is for DepartmentID
-                
+                window.localStorage.removeItem('Kvsf45_');
                 window.localStorage.clear()
                 window.localStorage.setItem('id',encryptedID)
                 window.localStorage.setItem('display',displayName)
                 window.localStorage.setItem('userimg',img);
                 window.localStorage.setItem('Kgr67W@',userRoles)
                 window.localStorage.setItem('LkgdW23!',userDepartmentID)
+                window.localStorage.setItem('Kvsf45_','0');
                
                 navigate('/dashboard');
 
@@ -134,10 +135,11 @@ useEffect(() => {
                   <CForm onSubmit={handleSubmit}>
                     <h3>
                     <span className="message" style={{ color: '#5da4f5'}}> <>Login </></span> 
-                    <br></br>
-                    <strong><span className="message" style={{ color: colorMessage}}><p>{message}</p></span> </strong>
                     </h3>
+                    <br></br>
                     <h6>
+                      <span className="message" style={{ color: colorMessage}}><p>{message}</p></span>
+
                       <p className="text-medium-emphasis">Sign In to your account</p>
                     </h6>
                     

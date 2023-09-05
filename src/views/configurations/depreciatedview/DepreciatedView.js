@@ -20,30 +20,19 @@ import {
 
   } from '@coreui/react'
 
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-import Paper from '@mui/material/Paper';
-import Draggable from 'react-draggable';
+
 
 import WriteLog from 'src/components/logs/LogListener';
 
 import appSettings from 'src/AppSettings' // read the app config
 import { decrypt } from 'n-krypta';
 // encrypt, compare
-const LogView = () => {
+const DepreciatedView = () =>   {
 
     const navigate = useNavigate();
     var userID = ""
     var userRole = ""
-
-
-    const [log,setLog] = useState([])
-    const [open, setOpen] = React.useState(false);
-    //const [rowselected,SetRowSelected] = useState("")
+    const [assetvalue,setAssetValue] = useState([])
 
     function CheckRole() {
       try {
@@ -52,13 +41,13 @@ const LogView = () => {
   
       }
       catch(err) {
-        WriteLog("Error","LogView","CheckRole Local Storage is tampered", err.message,userID)
+        WriteLog("Error","DepreciatedView","CheckRole Local Storage is tampered", err.message,userID)
         navigate('/dashboard')
       }
     }
 
-    function getUserInfo() {
 
+    function getUserInfo() {
       try {
         CheckRole()
           if (userRole == "Admin" || userRole == "IT")
@@ -78,7 +67,6 @@ const LogView = () => {
       catch(err) {
         navigate('/dashboard')
         }
-    
     }
 
     useEffect(() => {
@@ -103,54 +91,68 @@ const LogView = () => {
         }
       },
       {
-        field: 'displayName',
-        headerName: 'User',
+        field: 'assetCode',
+        headerName: 'Code',
         width: 100,
         editable: false,
       },
       {
-        field: 'dateatecreated',
-        headerName: 'Date',
-        width: 100,
+        field: 'assetName',
+        headerName: 'Asset Name',
+        width: 130,
         editable: false,
       },
       {
-        field: 'logtype',
-        headerName: 'Type',
-        width: 100,
+        field: 'statusName',
+        headerName: 'Status',
+        width: 130,
         editable: false,
       },
         {
-          field: 'module',
-          headerName: 'Module',
-          width: 150,
+          field: 'assetCategName',
+          headerName: 'Category',
+          width: 130,
           editable: false,
         },
         {
-          field: 'logfunction',
-          headerName: 'Function',
-          width: 400,
+          field: 'amount',
+          headerName: 'Purchase',
+          width: 100,
           editable: false,
+        },
+        {
+            field: 'depreciated',
+            headerName: 'Amt Depreciated',
+            width: 100,
+            editable: false,
+        },
+        {
+            field: 'Dfrom',
+            headerName: 'Date Purchase',
+            width: 100,
+            editable: false,
+        },
+        {
+            field: 'Dto',
+            headerName: 'Date Purchase',
+            width: 100,
+            editable: false,
+        },
+        {
+            field: 'RemainingYR',
+            headerName: 'Remaining',
+            width: 100,
+            editable: false,
+        },
+        {
+            field: 'Depreciated',
+            headerName: 'Fully Depreciated',
+            width: 100,
+            editable: false,
         },
 
       ],[]);
 
-
-       function handleClick(params) {
-
-        // console.log("This " + params)
-         navigate('/configurations/log',{state:{params}})
-         
-       }
-
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  function handleSubmit() {
-      LoadData()
-  }
 
 useEffect(() => {
     LoadData()
@@ -162,12 +164,12 @@ function LoadData(){
     getUserInfo()
   }
 
-  const url = 'http://localhost:3001/log/viewallLogs'
+  const url = 'http://localhost:3001/depreciated/viewDepreciated'
   axios.post(url)
   .then(res => {
     const dataResponse = res.data.message;
     if(dataResponse == "Record Found") {
-        setLog(res.data.result)
+        setAssetValue(res.data.result)
     }
 
   }).catch(err => {
@@ -175,18 +177,6 @@ function LoadData(){
   })
 }
 
-
-      /// For Dialog
-  function PaperComponent(props) {
-    return (
-      <Draggable
-        handle="#draggable-dialog-title"
-        cancel={'[class*="MuiDialogContent-root"]'}
-      >
-        <Paper {...props} />
-      </Draggable>
-    );
-  }
 
 
   return (
@@ -205,12 +195,12 @@ function LoadData(){
                             alignItems: 'left',
                             justifyContent: 'left',
                             }} >
-                  <CButton style={{   width: '150%' }} onClick={handleSubmit} color="success" type='submit'>Refresh</CButton>
+                  
                 </div>
                 <CInputGroup size="sm" className="mb-3">
                         <div style={{ height: 400, width: '100%' }}>
                             <DataGrid
-                                rows={log}
+                                rows={assetvalue}
                                 columns={columns}
                                 initialState={{
                                 pagination: {
@@ -226,29 +216,7 @@ function LoadData(){
                             />
                         </div>
                 </CInputGroup>
-                <div className="d-grid">
-                      <Dialog
-                        open={open}
-                        onClose={handleClose}
-                        PaperComponent={PaperComponent}
-                        aria-labelledby="draggable-dialog-title"
-                      >
-                        <DialogTitle style={{ cursor: 'move' }} id="draggable-dialog-title">
-                          Position
-                        </DialogTitle>
-                        <DialogContent>
-                          <DialogContentText>
-                            Are you sure you want to Delete ?
-                          </DialogContentText>
-                        </DialogContent>
-                        <DialogActions>
-                          <Button autoFocus onClick={handleClose}>
-                            No
-                          </Button>
-                          <Button>Yes</Button>
-                        </DialogActions>
-                      </Dialog>
-                </div>
+              
                 
               </CCardBody>
             </CCol>
@@ -261,4 +229,4 @@ function LoadData(){
   )
 }
 
-export default LogView
+export default DepreciatedView

@@ -33,6 +33,7 @@ function Position() {
   const {state} = useLocation();
   let rowId = ""
   
+
   try {
      rowId = state.params;
   }
@@ -41,7 +42,7 @@ function Position() {
   }
 
      var userID = ""
-  
+  var userRole = ""
     const [message,setMessage] = useState("")
     const [colorMessage,setColorMessage] = useState('red')
 
@@ -54,15 +55,40 @@ function Position() {
       departmentname: ""
     })
 
-    function getUserInfo() {
+    function CheckRole() {
+      try {
+  
+        userRole = decrypt(window.localStorage.getItem('Kgr67W@'), appSettings.secretkeylocal)
+  
+      }
+      catch(err) {
+        WriteLog("Error","Position","CheckRole Local Storage is tampered", err.message,userID)
+        navigate('/dashboard')
+      }
+    }
 
-  if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
-      userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
-      
-  }
-  else{ 
-      navigate('/login')
-  }
+
+function getUserInfo() {
+try {
+    CheckRole()
+      if (userRole == "Admin" || userRole == "IT")
+        {
+            if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
+              userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
+            
+            }else{ 
+              navigate('/login')
+          }
+        }
+      else {
+        navigate('/dashboard')
+      }
+        
+      }
+  catch(err) {
+    navigate('/dashboard')
+    }
+
 }
     useEffect(() => {
    

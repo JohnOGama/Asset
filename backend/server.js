@@ -202,7 +202,7 @@ app.post('/log/viewaLogUserInfo',(req,res) => {
         + " inner join tblDepartments dept on dept.departmentDisplayID = pos.departmentDisplayID"
         + " where (logtype = 'Info') and (log.active=1) and dept.departmentDisplayID = ?"
         + " ORDER BY log.dateCreated desc limit 4"
-  
+
      connection.query(sql,[req.body.departmentID],(err,result) => {
          if(err) {
             // console.log(err)
@@ -226,6 +226,42 @@ app.post('/log/viewaLogUserInfo',(req,res) => {
      })
  });
 
+ app.post('/log/viewaAllLogActivityInfo',(req,res) => {
+
+    const sql = "SELECT log.logID as id,log.logtype,log.module,log.logfunction,log.logvalues,"
+        + "COALESCE(DATE_FORMAT(log.dateCreated, '%m/%d/%Y'),'') as dateatecreated,"
+        + "concat('Hi ',users.firstname) as fname,users.imgFilename,"
+        + "(select userCreated.imgFilename from tblUsers userCreated  where userCreated.userDisplayID = log.createdBy limit 1 )"
+        + " as usercreatedImg  FROM tblLogs log"
+        + " INNER JOIN tblUsers users on users.userDisplayID = log.userID"
+        + " left join tblUsers userCreated on users.userDisplayID = log.createdBy"
+        + " inner join tblPositions pos on pos.positionDisplayID = users.positionID"
+        + " inner join tblDepartments dept on dept.departmentDisplayID = pos.departmentDisplayID"
+        + " where (logtype = 'Info') and (log.active=1)"
+        + " ORDER BY log.dateCreated desc limit 4"
+
+     connection.query(sql,(err,result) => {
+         if(err) {
+            // console.log(err)
+             res.json({message: "No Record Found",
+                 message2: err.message});
+         } else {
+             if(result.length > 0) {
+                //console.log(result[0])
+                 if (bShowConsole == true ) {
+                     console.log(result)
+                 } else 
+                 {
+                     /// Error Logs here
+                 }
+          
+                 res.json({result,message: "Record Found"});
+             } else {
+                 res.json({message: "No Record Found"});
+             }
+         }
+     })
+ });
 app.post('/log/getlogID',(req,res) => {
 
    const sql = "SELECT * FROM tblLogs"
@@ -1593,7 +1629,7 @@ app.post('/assets/viewallassetsavailable',(req,res) => {
 
     const sql = "select assets.assetID as id,assets.serialNo, assets.AssetCode,assets.assetName,"
         + "assets.description,FORMAT(assets.amount,2) as 'Amount',assetstatus.statusName,"
-        + "supplier.name as suppliername,assets.pictureFile,"
+        + "supplier.name as suppliername,TRIM(assets.pictureFile) as pictureFile ,"
         + "category.assetCategName,"
         + "(select COALESCE(DATE_FORMAT(assetdetails.plancheckout, '%m/%d/%Y'),'') as result from   tblUserAssetDetails assetdetails"
         + " inner join tblAssetStatus stats on assetdetails.assetStatusID COLLATE utf8mb4_unicode_ci  = stats.assetStatusID"
@@ -1608,7 +1644,10 @@ app.post('/assets/viewallassetsavailable',(req,res) => {
         + " inner join tblAssetStatus stats on assetdetails.assetStatusID COLLATE utf8mb4_unicode_ci = stats.assetStatusID"
         + " where stats.statusName = 'Deployed'"
         + " and (assetdetails.assetID COLLATE utf8mb4_unicode_ci = assets.assetID) Limit 1) as DeployTo,"
-        + " assets.assetID as idselect"
+        + " assets.assetID as idselect,"
+        + "(select typeName as typeName from tblAssetType Atype"
+        + " where Atype.typeID COLLATE utf8mb4_unicode_ci = assets.typeID"
+        + " ) as assettype "
         + " from tblAssets assets"
         + " INNER JOIN tblAssetStatus assetstatus on assets.assetStatusID = assetstatus.assetStatusID" 
         + " INNER JOIN tblAssetCategory category on assets.assetCategID = category.assetCategID"
@@ -1965,14 +2004,16 @@ app.post('/assets/putassetsdetail',(req,res) => {
     const id = randomUUID()
 
     const sql = "INSERT INTO tblUserAssetDetails(detailID,userSelectedID,assetID,"
-    + "plancheckout,useridcheckout,assetStatusID,notescheckout) values (?)";
+    + "positionID,departmentID,plancheckout,useridcheckout,assetStatusID,notescheckout) values (?)";
 
     const dcheckout = new Date(req.body.checkout)
-   
+
     const values = [
         id,
         req.body.varuserid,
         req.body.assetid,
+        req.body.positionID,
+        req.body.departmentID,
         dcheckout,
         req.body.userID,
         req.body.assetdeploy,
@@ -2129,7 +2170,6 @@ app.post('/assets/checkinNotification',(req,res) => {
         + " inner join tblAssetStatus stats on assetsdetails.assetStatusID COLLATE utf8mb4_unicode_ci = stats.assetStatusID"
         + " where stats.statusName = 'For Deploy' and assetsdetails.userSelectedID = ?"
     
-
     connection.query(sql,[req.body.userID],(err,result) => {
 
         if(err) {
@@ -2609,8 +2649,9 @@ app.post('/pullout/getallpulloutbydepartment',(req,res) => {
 
 app.post('/email/getemailinfo',(req,res) => {
 
-    const sql = "SELECT users.lastname as userName,users.email FROM tblUsers users"
-    + " where users.userDisplayID = ?"
+    const sql = "SELECT users.lastname as userName,users.email,users.positionID,positions.departmentDisplayID as deptID FROM tblUsers users"
+        + " inner join tblPositions positions on positions.positionDisplayID = users.positionID"
+        + " where users.userDisplayID = ?"
     
     connection.query(sql,[req.body.rowId],(err,result) => {
         if(err) {
@@ -3052,3 +3093,48 @@ app.post('/type/getAssetType',(req,res) => {
 
 
 /// Eod of Asset Type 
+
+
+////////// Depreciated //////
+
+
+app.post('/depreciated/viewDepreciated',(req,res) => {
+    // Dashboard
+        
+    const sql = "select assets.assetID as id,assets.assetCode,assets.assetName,"
+        + "stat.statusName,categ.assetCategName,FORMAT(TRUNCATE(assets.amount,2),2) as amount,"
+        + "FORMAT(TRUNCATE(assets.amountDepreciatedYr,2),2) as depreciated,"
+        + "DATE_FORMAT(assets.dateDepreciated,'%m/%d/%Y') as Dto,DATE_FORMAT(assets.datePurchase,'%m/%d/%Y') as Dfrom,"
+        + "CASE"
+        + " WHEN (year(assets.dateDepreciated) - year( CURDATE())) > 0 THEN (year(assets.dateDepreciated) - year( CURDATE()))"
+        + " ELSE  '0'"
+        + " END as 'RemainingYR',"
+        + " CASE"
+        + " WHEN (year(assets.dateDepreciated) - year( CURDATE())) < 0 THEN (year(assets.dateDepreciated) - year( CURDATE()))"
+        + " ELSE  '0'"
+        + " END as 'Depreciated'"
+        + " from tblAssets assets"
+        + " inner join tblAssetStatus stat on stat.assetStatusID = assets.assetStatusID"
+        + " inner join tblAssetCategory categ on categ.assetCategID = assets.assetCategID"
+        + " where assets.active = 1"
+
+
+        connection.query(sql,(err,result) => {
+            if(err) {
+                res.json({
+                    message: "No Record Found",
+                    message2: err.message});
+            } else {
+                if(result.length > 0) {
+                    //console.log(result[0]);
+                    res.json({result,message: "Record Found"});
+                } else {
+                    res.json({message: "No Record Found"});
+                }
+            }
+        })
+    });
+        
+
+
+/////// End of Depreciated

@@ -48,7 +48,7 @@ import { decrypt } from 'n-krypta';
 import { Typography } from '@mui/material';
 import userAvatar from "../../../assets/images/avatars/8.jpg"
 // encrypt, compare
-const LogUserInfoView = () => {
+const LogAllInfoView = () => {
 
     const navigate = useNavigate();
     var userID = ""
@@ -63,6 +63,7 @@ const LogUserInfoView = () => {
     const [open, setOpen] = React.useState(false);
     //const [rowselected,SetRowSelected] = useState("")
 
+
     function CheckRole() {
       try {
   
@@ -70,30 +71,29 @@ const LogUserInfoView = () => {
   
       }
       catch(err) {
-        WriteLog("Error","LogUserInfoView","CheckRole Local Storage is tampered", err.message,userID)
+        WriteLog("Error","LogAllInfoView","CheckRole Local Storage is tampered", err.message,userID)
         navigate('/dashboard')
       }
     }
 
- 
 
 function getUserInfo() {
 
-  try {
+try {
     CheckRole()
-      //if (userRole == "Admin" || userRole == "IT")
-      //  {
+      if (userRole == "Admin" || userRole == "IT")
+        {
             if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
               userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
               departmentID = decrypt(window.localStorage.getItem('LkgdW23!'), appSettings.secretkeylocal)
-  
+
             }else{ 
               navigate('/login')
           }
-    //    }
-    //  else {
-    //    navigate('/dashboard')
-   //   }
+        }
+      else {
+        navigate('/dashboard')
+      }
         
       }
   catch(err) {
@@ -167,15 +167,15 @@ function LoadData(){
   {
     getUserInfo()
   }
-  const url = 'http://localhost:3001/log/viewaLogUserInfo'
-  axios.post(url,{departmentID})
+  const url = 'http://localhost:3001/log/viewaAllLogActivityInfo'
+  axios.post(url)
   .then(res => {
     const dataResponse = res.data.message;
     if(dataResponse == "Record Found") {
         setLog(res.data.result)
     } 
   }).catch(err => {
-    WriteLog("Error","LogView","Load log/viewallLogs","Error in try/catch " + err.message,userID)
+    WriteLog("Error","LogAllInfoView","LoadData log/viewaAllLogActivityInfo","Error in try/catch " + err.message,userID)
   })
 }
 
@@ -266,4 +266,4 @@ function LoadData(){
   )
 }
 
-export default LogUserInfoView
+export default LogAllInfoView

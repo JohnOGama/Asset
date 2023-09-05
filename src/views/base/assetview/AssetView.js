@@ -8,8 +8,8 @@ import { DataGrid } from '@mui/x-data-grid';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DeleteOutlineTwoToneIcon from '@mui/icons-material/DeleteOutlineTwoTone';
 
-import imgDefault from '../../../assets/images/macbook.png'
-
+import defaultAvatarAsset from '../../../assets/images/macbook.png'
+//'../../../assets/images/macbook.png'
 //
 
 import {
@@ -29,6 +29,7 @@ import {
   //CInputGroupText,
   CInputGroup,
   CImage,
+  CFormLabel,
   //CFormLabel,
   //CFormFloating,
   //CLink
@@ -45,12 +46,14 @@ import { decrypt  } from 'n-krypta';
 //import { Icon } from '@mui/material';
 //import { buildTimeValue } from '@testing-library/user-event/dist/types/utils';
 import WriteLog from 'src/components/logs/LogListener';
+import { Avatar } from '@mui/material';
 
 const AssetView = () => {
 
   const navigate = useNavigate();
   
     var userID = ""
+    var userRole = ""
 
   const [message,setMessage] = useState("")
   const [colorMessage,setColorMessage] = useState('red')
@@ -59,15 +62,40 @@ const AssetView = () => {
   //const [disposeFound,setdisposeFound] = useState(false)
   //const [deployFound,setdeployFound] = useState(false)
 
+  function CheckRole() {
+    try {
+
+      userRole = decrypt(window.localStorage.getItem('Kgr67W@'), appSettings.secretkeylocal)
+
+    }
+    catch(err) {
+      WriteLog("Error","AssetView","CheckRole Local Storage is tampered", err.message,userID)
+      navigate('/dashboard')
+    }
+  }
+
+
   function getUserInfo() {
 
-  if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
-      userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
-      
-  }
-  else{ 
-      navigate('/login')
-  }
+    try {
+      CheckRole()
+        if (userRole == "Admin" || userRole == "IT")
+          {
+              if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
+                userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
+              
+              }else{ 
+                navigate('/login')
+            }
+          }
+        else {
+          navigate('/dashboard')
+        }
+          
+        }
+    catch(err) {
+      navigate('/dashboard')
+      }
 }
   useEffect(() => {
       getUserInfo()
@@ -199,16 +227,17 @@ function handleClick(rowidselected,source) {
       field: 'pictureFile',
       headerName: 'Image',
       width: 30,
-      renderCell: () => {
+      sortable: false,
+      filterable:false,
+      renderCell: (params) => {
         return (
             <div>
-            <CImage src={ 
-                            colorMessage
-                            ?  imgDefault
-                            : imgDefault    
-                        }
-                        alt="" style={{  width: '150%',height: '150%', textAlign: "center", margin: "auto"}}    />
-            
+              <Avatar src= {
+                params.row.pictureFile
+                ?
+                  require(`../../../../backend/uploads/${params.row.pictureFile}`)
+                  : defaultAvatarAsset
+              }/>
             </div>
         );
       }
@@ -237,6 +266,13 @@ function handleClick(rowidselected,source) {
       width: 130,
       editable: false,
     },
+    {
+      field: 'assettype',
+      headerName: 'Type',
+      width: 130,
+      editable: false,
+    },
+    
     
     {
       field: 'suppliername',

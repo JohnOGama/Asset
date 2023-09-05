@@ -13,6 +13,7 @@ import {
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
+var userRole = window
 const _nav = [
   {
     component: CNavItem,
@@ -34,21 +35,16 @@ const _nav = [
     to: '/base',
     icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />,
     items: [
-     /* {
+      {
         component: CNavItem,
         name: 'Asset',
         to: '/base/assetview',
       },
-      {
+   /*   {
         component: CNavItem,
         name: 'Disposal',
         to: '/base/disposeview',
       },*/
-      {
-        component: CNavItem,
-        name: 'Asset Checkout',
-        to: '/base/assetuser',
-      },
       {
         component: CNavItem,
         name: 'Asset Checkin',
@@ -56,15 +52,23 @@ const _nav = [
       },
       {
         component: CNavItem,
-        name: 'My Assets',
-        to: '/base/assetbyuser',
-      },
-      {
-        component: CNavItem,
         name: 'Pullout',
         to: '/base/assetpullout',
       },
-     
+     /*     
+      {
+        component: CNavItem,
+        name: 'Asset Checkout',
+        to: '/base/assetuser',
+      },
+
+      {
+        component: CNavItem,
+        name: 'My Assets',
+        to: '/base/assetbyuser',
+      },
+
+      */
       
     ],
   },
@@ -347,11 +351,7 @@ const _nav = [
         name: 'Update Profile',
         to: '/pages/updateprofile',
       },
-      {
-        component: CNavItem,
-        name: 'Login',
-        to: '/login',
-      },
+/*
       {
         component: CNavItem,
         name: 'Register',
@@ -367,6 +367,7 @@ const _nav = [
         name: 'Error 500',
         to: '/500',
       },
+*/
     ],
   },
   /*

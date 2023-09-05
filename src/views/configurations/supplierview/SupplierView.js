@@ -40,6 +40,7 @@ function SupplierView() {
     const navigate = useNavigate();
  
     var userID = ""
+    var userRole = ""
     //const [success,SetSuccess] = useState("");
     //const [errors,setErrors] = useState({})
     const [message,setMessage] = useState("")
@@ -49,15 +50,40 @@ function SupplierView() {
     const [open, setOpen] = React.useState(false);
     const [rowselected,SetRowSelected] = useState("")
 
+    function CheckRole() {
+      try {
+  
+        userRole = decrypt(window.localStorage.getItem('Kgr67W@'), appSettings.secretkeylocal)
+  
+      }
+      catch(err) {
+        WriteLog("Error","SupplierView","CheckRole Local Storage is tampered", err.message,userID)
+        navigate('/dashboard')
+      }
+    }
+
+
     function getUserInfo() {
 
-      if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
-          userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
-          
-      }
-      else{ 
-          navigate('/login')
-      }
+      try {
+        CheckRole()
+          if (userRole == "Admin" || userRole == "IT")
+            {
+                if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
+                  userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
+                
+                }else{ 
+                  navigate('/login')
+              }
+            }
+          else {
+            navigate('/dashboard')
+          }
+            
+          }
+      catch(err) {
+        navigate('/dashboard')
+        }
     }
 
     

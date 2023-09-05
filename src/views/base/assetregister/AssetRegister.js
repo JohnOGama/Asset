@@ -128,6 +128,7 @@ const AssetRegister = () => {
   const [dateDepreciated, setDateDepreciated] = useState("");
   
   var userID = ""
+  var userRoles = ""
 
   const [values,setValues] = useState ({
     assetcategID: '',
@@ -160,15 +161,40 @@ const AssetRegister = () => {
    // console.log("")
   },[dateDepreciated]);
 
-  function getUserInfo() {
+  function CheckRole() {
+    try {
 
-    if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
-        userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
+      userRoles = userID = decrypt(window.localStorage.getItem('Kgr67W@'), appSettings.secretkeylocal)
+
+    }
+    catch(err) {
+      WriteLog("Error","AssetRegister","CheckRole Local Storage is tampered", err.message,userID)
+      navigate('/dashboard')
+    }
+    
+  }
+
+  function getUserInfo() {
+    try {
+    CheckRole()
+      if (userRoles == "Admin" || userRoles == "IT")
+        {
+            if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
+              userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
+            
+            }else{ 
+              navigate('/login')
+          }
+        }
+      else {
+        navigate('/dashboard')
+      }
         
+      }
+    catch(err) {
+      navigate('/dashboard')
     }
-    else{ 
-        navigate('/login')
-    }
+    
   }
 
   useEffect(() => {

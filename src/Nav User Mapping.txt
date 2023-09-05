@@ -1,0 +1,48 @@
+
+
+****** User Only
+
+base/assetuserassign
+base/assetpullout
+configurations/LogUserInfoView
+configurations/viewpulloutuser
+
+pages/updateprofile
+
+******* Admin and IT
+
+/base/AssetByUser
+/base/AssetDispose
+/base/AssetEdit
+/base/AssetPullout
+/base/AssetRegister
+/base/assetuser
+/base/AssetUserAssign
+/base/AssetView
+/base/DisposeView
+
+/configurations/AssetCategory
+/configurations/AssetStatus
+/configurations/CategoryView
+/configurations/Department
+/configurations/Department
+/configurations/DepartmentView
+/configurations/DepreciatedView
+/configurations/Log
+/configurations/LogAllInfoView
+/configurations/LogUserInfoView
+/configurations/LogView
+/configurations/Position
+/configurations/PositionView
+/configurations/StatusView
+/configurations/Supplier
+/configurations/SupplierView
+/configurations/UserCategory
+/configurations/UserCategoryView
+/configurations/UserEdit
+/configurations/UserView
+/configurations/ViewPullout
+
+ {/*require(`../../../../backend/uploads/${val.pictureFile}`) */},
+
+  require(`../../../../backend/uploads/${params.row.pictureFile}`)

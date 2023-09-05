@@ -140,6 +140,7 @@ const AssetEdit = () => {
   const [assetStat,setAssetStat] = useState("");
  
     var userID = ""
+    var userRole = ""
 
   const [datePurchase, setDatePurchase] = useState("");
   const [dateDepreciated, setDateDepreciated] = useState("");
@@ -179,15 +180,39 @@ const AssetEdit = () => {
     amountdepnumberformat: '',
   });
 
+
+  function CheckRole() {
+    try {
+
+      userRole = decrypt(window.localStorage.getItem('Kgr67W@'), appSettings.secretkeylocal)
+
+    }
+    catch(err) {
+      WriteLog("Error","AssetUser","CheckRole Local Storage is tampered", err.message,userID)
+      navigate('/dashboard')
+    }
+  }
+
 function getUserInfo() {
 
-    if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
-        userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
+  try {
+    CheckRole()
+      if (userRole == "Admin" || userRole == "IT")
+        {
+            if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
+              userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
+            
+            }else{ 
+              navigate('/login')
+          }
+        }
+      else {
+        navigate('/dashboard')
+      }
         
-    }
-    else
-    { 
-        navigate('/login')
+      }
+  catch(err) {
+    navigate('/dashboard')
     }
 }
 

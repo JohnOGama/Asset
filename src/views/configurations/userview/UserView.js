@@ -37,6 +37,7 @@ import Draggable from 'react-draggable';
 
     const navigate = useNavigate();
      var userID = ""
+     var userRole = ""
      var rowSelectedID = "" // user selected
      const [irowSelectedID,setRowSelected] = useState("")
     
@@ -47,16 +48,40 @@ import Draggable from 'react-draggable';
     const [users,setUsers] = useState([])
     const [open, setOpen] = React.useState(false);
     
+  function CheckRole() {
+    try {
 
+      userRole = decrypt(window.localStorage.getItem('Kgr67W@'), appSettings.secretkeylocal)
+
+    }
+    catch(err) {
+      WriteLog("Error","UserView","CheckRole Local Storage is tampered", err.message,userID)
+      navigate('/dashboard')
+    }
+  }
 function getUserInfo() {
 
-  if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
-      userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
-      
-  }
-  else{ 
-      navigate('/login')
-  }
+  try {
+    CheckRole()
+      if (userRole == "Admin" || userRole == "IT")
+        {
+            if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
+              userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
+            
+            }else{ 
+              navigate('/login')
+          }
+        }
+      else {
+        navigate('/dashboard')
+      }
+        
+      }
+  catch(err) {
+    navigate('/dashboard')
+    }
+
+
 }
 
     useEffect(() => {
@@ -194,7 +219,6 @@ function getUserInfo() {
       getUserInfo()
     }
 
-      console.log(irowSelectedID)
       const url = 'http://localhost:3001/users/deleteUser'
       axios.post(url,{irowSelectedID})
       .then(res => {

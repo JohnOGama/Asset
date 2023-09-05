@@ -76,7 +76,7 @@ const WidgetsDropdown = () => {
   }, [])
   
   useEffect(() => {
-    if(userRole == "Admin") {
+    if(userRole == "Admin" || userRole == "IT" ) {
       LoadAssets()
       //LoadAssets()
       LoadAssetsperCategory()
@@ -86,9 +86,6 @@ const WidgetsDropdown = () => {
       LoadStatAvailable()
       LoadPullout()
       LoadCountPullout()
-    } else if(userRoles == "IT") {
-      
-      LoadAssets()
     }
     else if(userRole == "User"){
       LoadAssetsbyUser()
@@ -302,7 +299,7 @@ const WidgetsDropdown = () => {
               </CDropdownToggle>
               <CDropdownMenu>
               <CDropdownItem  href="#/base/assetregister"> New Asset</CDropdownItem> 
-                <CDropdownItem  href="#/base/assetview"> Asset</CDropdownItem> 
+               {/* <CDropdownItem  href="#/base/assetview"> Asset</CDropdownItem> */}
                 <CDropdownItem href="#/base/assetuser">Checkout</CDropdownItem>
                 <CDropdownItem href="#/configurations/viewpullout">Pullout out By User</CDropdownItem>
                 

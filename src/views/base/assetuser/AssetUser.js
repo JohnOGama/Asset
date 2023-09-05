@@ -73,6 +73,7 @@ const AssetUser = () => {
   
   //const [userID,setUserID] = useState("")
   var userID = ""
+  var userRole = ""
   
 
   const [message,setMessage] = useState("")
@@ -96,7 +97,9 @@ const AssetUser = () => {
     const [receiverInfo,setReceiverInfo] = useState ({
       receiverID: '',
       receiveremail: '',
-      receivername: ''
+      receivername: '',
+      positionID: '',
+      deptID: ''
       })
   
 
@@ -131,19 +134,42 @@ const AssetUser = () => {
 
     }, [])
 
+
+    function CheckRole() {
+      try {
+  
+        userRole = userID = decrypt(window.localStorage.getItem('Kgr67W@'), appSettings.secretkeylocal)
+  
+      }
+      catch(err) {
+        WriteLog("Error","AssetUser","CheckRole Local Storage is tampered", err.message,userID)
+        navigate('/dashboard')
+      }
+    }
+
     function getUserInfo() {
-      let id = "";
-      let display = "";
-      
-      if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
-          userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
-          
-      }
-      else
-      { 
-          navigate('/login')
-      }
-      }
+
+      try {
+        CheckRole()
+          if (userRole == "Admin" || userRole == "IT")
+            {
+                if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
+                  userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
+                
+                }else{ 
+                  navigate('/login')
+              }
+            }
+          else {
+            navigate('/dashboard')
+          }
+            
+          }
+        catch(err) {
+          navigate('/dashboard')
+        }
+        
+    }
 
   useEffect(() => {
     getUserInfo()
@@ -286,8 +312,9 @@ function GetEmailInfo(param) {
               setReceiverInfo({...receiverInfo,
                 receiverID: response.data.result[0].userID,
                 receiveremail: response.data.result[0].email,
-                receivername: response.data.result[0].userName})
-
+                receivername: response.data.result[0].userName,
+                positionID: response.data.result[0].positionID,
+                deptID: response.data.result[0].deptID})
 
       } else if (dataResponse == "No Record Found") {
         WriteLog("Error","AssetUser","GetEmailInfo /email/getemailinfo","then/catch \n " + response.data.message,userID)
@@ -311,7 +338,10 @@ function GetEmailInfo(param) {
          
           
           InsertAssetDetail();
-          sendEmail(userSelected.userid);
+         
+            sendEmail(userSelected.userid);
+          
+          
       }else {
         setMessage(" All Fields must not be Empty")
         setColorMessage("red")  
@@ -346,10 +376,23 @@ function GetEmailInfo(param) {
         SetTotalSelected(num)
         
         GetEmailInfo(userSelected.userid)
-        setOpen(true)
+
+        if(num === 0)
+        { 
+          setMessage("Select Asset to Checkout")
+          setColorMessage('blue')
+  
+        }
+      else {
+        setMessage("")
+        setColorMessage('')
+        setOpen(true);
+      }
+
+        
       }
       catch(err) {
-        console.log(err)
+        WriteLog("Error","AssetUser","handleSubmit /assets/searchuser","Error in try/catch \n" + err.message,userID)
         setOpen(false);
       }
 
@@ -361,16 +404,20 @@ function GetEmailInfo(param) {
   }
 
   function InsertAssetDetail() {
+  
     getUserInfo()
+
     const varuserid = userSelected.userid
     const varnotes = userSelected.notes
+    const positionID = receiverInfo.positionID
+    const departmentID = receiverInfo.deptID
   
     try {
       
       rowselected.forEach((irow, index) => {
             const assetid = irow
             const url = 'http://localhost:3001/assets/putassetsdetail'
-            axios.post(url,{varuserid,assetid,checkout,userID,assetdeploy,varnotes})
+            axios.post(url,{varuserid,assetid,positionID,departmentID,checkout,userID,assetdeploy,varnotes})
             .then(response => {
               const dataResponse = response.data.message;
               if(dataResponse == "Insert Success") {  
@@ -383,6 +430,11 @@ function GetEmailInfo(param) {
                 + "\n Checkout To :  " + varuserid 
                 + "\n Status :  " + assetdeploy 
                 + "\n Desc : " + varnotes,userID)
+
+              const writeOnce = window.localStorage.getItem('Kvsf45_')
+              if (writeOnce == "0" ) {
+                window.localStorage.setItem('Kvsf45_','1')
+              }
   
                 UpdateAssetDeploy(assetid);
               }else if (dataResponse == "Insert Error") {
@@ -439,7 +491,9 @@ function GetEmailInfo(param) {
   function sendEmail(userid) {
 
     let strDate =   utils_getDate();
-    
+    const allow_email_checkout = appSettings.ALLOW_SENDEMAIL_CHECKOUT
+    const success_insert = window.localStorage.getItem('Kvsf45_')
+
     try {
     var templateParams = {
     email_to: receiverInfo.receiveremail,
@@ -449,26 +503,40 @@ function GetEmailInfo(param) {
     notes: userSelected.notes,
     date: strDate
 };
- 
-    emailjs.send(appSettings.YOUR_SERVICE_ID, appSettings.YOUR_TEMPLATE_ID, templateParams,appSettings.public_key)
-    .then(function(response) {
-      WriteUserInfo("Info","AssetUser",userid,
-                  "Email sent Asset Check In: "
-                  + `\nNotes : ` + templateParams.notes
-                  /*+ "Response : " + response.text + "\n "
-                  + "Status : " + response.status */ ,userID)
-       //console.log('SUCCESS!', response.status, response.text);
-    }, function(error) {
-      WriteUserInfo("Error","AssetUser",userid,
-      "Info : " 
-      + "Failed sending email to selected user : " + userid + "\n"
-      + "Plan receive asset : " + templateParams.date + "\n "
-      + "Notes : " + templateParams.notes + "\n "
-      + "Response : " + error
-      ,userID)
-      // console.log('FAILED...', error);
-    });
 
+    if(success_insert == "1") {
+    if(allow_email_checkout == "send") {
+
+      emailjs.send(appSettings.YOUR_SERVICE_ID, appSettings.YOUR_TEMPLATE_ID, templateParams,appSettings.public_key)
+      .then(function(response) {
+        WriteUserInfo("Info","AssetUser",userid,
+        "Email sent Asset Check Out by IT: "
+        + `\nNotes : ` + templateParams.notes,userID)
+      }, function(error) {
+        WriteUserInfo("Error","AssetUser",userid,
+        "Info : " 
+        + "Failed sending email to selected user : " + userid + "\n"
+        + "Plan receive asset : " + templateParams.date + "\n "
+        + "Notes : " + templateParams.notes + "\n "
+        + "Response : " + error
+        ,userID)
+
+      });
+
+    }
+    else
+    {
+
+      WriteUserInfo("Info","AssetUser",userid,
+      "Asset Check Out by IT: "
+      + `\nNotes : ` + templateParams.notes,userID)
+    }
+  }
+  else {
+    WriteUserInfo("Info","AssetUser",userid,
+    "Asset Check Out by IT: "
+    + `\nNotes : ` + templateParams.notes,userID)
+  }
   }
   catch(err) {
     console.log(err)

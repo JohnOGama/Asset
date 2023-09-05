@@ -72,6 +72,7 @@ import WidgetsBrand from '../widgets/WidgetsBrand'
 import WidgetsDropdown from '../widgets/WidgetsDropdown'
 import WidgetsDropdownUser from 'src/views/widgets/WidgetsDropdownUser';
 import AssetView from '../base/assetview/AssetView'
+import DepreciatedView from '../configurations/depreciatedview/DepreciatedView';
 
 //import  {Context} from 'src/components/Store'
 //import CryptoJS from "crypto-js";
@@ -79,7 +80,7 @@ import {  decrypt } from 'n-krypta';
 //encrypt, , compare
 import appSettings from 'src/AppSettings' // read the app config
 import LogView from '../configurations/logview/LogView'
-import LogActivity from '../configurations/logactivity/LogActivity'
+
 import WriteLog from 'src/components/logs/LogListener';
 
 ////// For User ////
@@ -87,6 +88,7 @@ import WriteLog from 'src/components/logs/LogListener';
 import AssetByUser from '../base/assetbyuser/AssetByUser';
 import AssetPullout from '../base/assetpullout/AssetPullout';
 import LogUserInfoView from '../configurations/loguserinfoview/LogUserInfoView';
+import LogAllInfoView from '../configurations/logallinfoview/LogAllInfoView';
 //// End for User
 
 const Dashboard = () => {
@@ -304,231 +306,516 @@ catch(err) {
 
     <div>
       {(() => {
-        if (userRoles == "Admin" ) {
+        if (userRoles == "Admin"  ) {
           return (
             <>
             <WidgetsDropdown/>
 
-            <CRow>
-        <CCol>
-          <CCard className="card-title mb-0">
-            <CCardHeader>
-              <h6>
-              <span className="message" style={{ color: '#5da4f5'}}> <> Assets </></span> 
-                {' & '}  
-              <span className="message" style={{ color: '#5da4f5'}}> <> Activity </></span> 
-              </h6>
-            </CCardHeader>
-            <CCardBody>
-              <CRow>
-                <CCol xs={9} md={6} xl={8}>
-                  <AssetView/>
-                </CCol>
+          <CRow>
+            <CCol>
+              <CCard className="card-title mb-0">
+                <CCardHeader>
+                  <h6>
+                  <span className="message" style={{ color: '#5da4f5'}}> <> Assets </></span> 
+                    {' & '}  
+                  <span className="message" style={{ color: '#5da4f5'}}> <> Activity </></span> 
+                  </h6>
+                </CCardHeader>
+                <CCardBody>
+                  <CRow>
+                    <CCol xs={9} md={6} xl={8}>
+                      <AssetView/>
+                    </CCol>
 
-                <CCol xs={4} md={6} xl={4}>
+                    <CCol xs={4} md={6} xl={4}>
 
-                <LogUserInfoView/>
+                    <LogAllInfoView/>
+                    
+                    
 
-                </CCol>
-              </CRow>
-            </CCardBody>
-          </CCard>
-        </CCol>
-            </CRow>
+                    </CCol>
+                  </CRow>
+                
+
+                  
+                </CCardBody>
+              </CCard>
+            </CCol>
+          </CRow>
+
+          <br></br>
+          {/* 
+          Assets Depreciation Monitoring
+          */ }
+          <CRow>
+            <CCol>  
+            <CCard>
+              <CCardHeader>
+                <h6>
+                <span className="message" style={{ color: '#5da4f5'}}> <> Assets Depreciation Monitoring </></span> 
+                </h6>
+              </CCardHeader>
+                <CCardBody> 
+                  <DepreciatedView/>
+                </CCardBody>
+            </CCard>
+            </CCol>
             
+          </CRow>
+          
+          <br></br>
+{/* 
+  Card Log Error
+*/ }
+          <CRow>
+            <CCol>
+            <CCard>
+                <CCardHeader>
+                  <h6>
+                  <span className="message" style={{ color: '#5da4f5'}}> <> Log Error </></span> 
+                  </h6>
+                </CCardHeader>
+                <CCardBody>
+                  <CCol>
+                    <LogView />
+                  </CCol>
+                </CCardBody>
+            </CCard>
+            </CCol>
+          </CRow>
+
             <br></br>
-            <CRow>
-        <CCol xs={6}>
-          <CCard className="mb-4">
-            <CCardHeader>
-              <h6>
-              <span className="message" style={{ color: '#5da4f5'}}> <>Supplier</> </span> 
-              </h6>
-            </CCardHeader>
-            <CCardBody>
-              <CChartBar
-                data={{
-                  labels: supplierasset?.map((supplier) => supplier.name),
-                  datasets: [
-                    {
-                      label: 'Asset Value',
-                      backgroundColor: supplierasset?.map((supplier) => randomColor()),
-                      //'#f87979',
-                      data: supplierasset?.map((supplier) => supplier.assetvalue),
-                    },
-                  ],
-                }}
-                labels="months"
-              />
-            </CCardBody>
-          </CCard>
-        </CCol>
-        <CCol xs={6}>
-          <CCard className="mb-4">
-            <CCardHeader>
-              <h6>
-                <span className="message" style={{ color: '#5da4f5'}}> <> Assets Deployed by Department</></span> 
-              </h6>
-            </CCardHeader>
-            
-            <CCardBody>
-              <CChartBar
-                  data={{
-                    labels: deptasset?.map((dept) => dept.name),
 
-                    datasets: [
-                      {
-                        label: 'Asset Value',
-                        backgroundColor: deptasset?.map((dept) => randomColor()),
-                        //'#f87979',
-                        data: deptasset?.map((dept) => dept.assetcount_department),
-                      },
-                    ],
-                  }}
-                  labels="months"
-                />
-            </CCardBody>
-          </CCard>
-        </CCol>
-            </CRow>
+{/* 
+  Supplier and Assets Deployed by Department
+*/ }
 
             <CRow>
-        <CAccordion flush={false}>
-                  <CAccordionItem itemKey={1}>
-                    <CAccordionHeader>
-                    <span className="message" style={{ color: 'green'}}> <> Check In</></span> 
-                    -
-                    <span className="message" style={{ color: '#ed8b13'}}>  <> Checkout </> </span>
-                    -
-                    <span className="message" style={{ color: 'red'}}>  <> Pullout </> </span>
-                    </CAccordionHeader>
-                    <CAccordionBody>
-                        <CRow>
-                        
-                            <div className="small text-medium-emphasis">January - December</div>
-                            <div className="small text-medium-emphasis">Every Year</div>
-
-                        </CRow>
-                        <CCol>
-                            <CChartLine
-                              style={{ height: '300px', marginTop: '40px' }}
-                              data={{
-                                labels: checkinpullout?.map((checkinpullout) => checkinpullout.MonthName),
-                                datasets: [
-                                  {
-                                    label: 'Received by User',
-                                    backgroundColor: hexToRgba(getStyle('--cui-success'), 10),
-                                    borderColor: getStyle('--cui-success'),
-                                    pointHoverBackgroundColor: getStyle('--cui-success'),
-                                    borderWidth: 2,
-                                    data: checkinpullout?.map((checkinpullout) => checkinpullout.CheckInCount),
-                                    fill: true,
-                                  },
-                                  {
-                                    label: 'PullOut by User',
-                                    backgroundColor: 'transparent',
-                                    borderColor: getStyle('--cui-warning'),
-                                    pointHoverBackgroundColor: getStyle('--cui-warning'),
-                                    borderWidth: 2,
-                                    data: checkinpullout?.map((checkinpullout) => checkinpullout.PullOutCount),
-                                  },
-                                  {
-                                    label: 'Dispose By IT',
-                                    backgroundColor: 'transparent',
-                                    borderColor: getStyle('--cui-danger'),
-                                    pointHoverBackgroundColor: getStyle('--cui-danger'),
-                                    borderWidth: 2,
-                                    data: checkinpullout?.map((checkinpullout) => checkinpullout.Dispose),
-                                  },
-                                ],
-                              }}
-                              options={{
-                                maintainAspectRatio: false,
-                                plugins: {
-                                  legend: {
-                                    display: false,
-                                  },
-                                },
-                                scales: {
-                                  x: {
-                                    grid: {
-                                      drawOnChartArea: false,
-                                    },
-                                  },
-                                  y: {
-                                    ticks: {
-                                      beginAtZero: true,
-                                      maxTicksLimit: 5,
-                                      stepSize: Math.ceil(250 / 5),
-                                      max: 250,
-                                    },
-                                  },
-                                },
-                                elements: {
-                                  line: {
-                                    tension: 0.4,
-                                  },
-                                  point: {
-                                    radius: 0,
-                                    hitRadius: 10,
-                                    hoverRadius: 4,
-                                    hoverBorderWidth: 3,
-                                  },
-                                },
-                              }}
-                            />
-                        </CCol>
-              
-
-                    </CAccordionBody>
-                  </CAccordionItem>
-
-        </CAccordion>
-            </CRow>
-
-            <CRow>
-        <CAccordion flush={false}>
-                  <CAccordionItem itemKey={1}>
-                    <CAccordionHeader>
+              <CCol xs={6}>
+                <CCard className="mb-4">
+                  <CCardHeader>
                     <h6>
-                    <span className="message" style={{ color: '#5da4f5'}}> <> See Other Reports</></span> 
+                    <span className="message" style={{ color: '#5da4f5'}}> <>Supplier</> </span> 
                     </h6>
-                    </CAccordionHeader>
-                    <CAccordionBody>
-                        <CRow>
-                        <CCol xs={3}>
-                            <CCard className="mb-4">
-                              <CCardHeader>Dispose</CCardHeader>
-                              <CCardBody>
-                                <CChartPie
-                                  data={{
-                                    labels: assetdispose?.map((assdispose) => assdispose.ADName),
-                                    datasets: [
-                                      {
-                                        data: assetdispose?.map((assdispose) => assdispose.totamount),
-                                        backgroundColor: assetdispose?.map((assdispose) => randomColor()),
-                                        //hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+                  </CCardHeader>
+                  <CCardBody>
+                    <CChartBar
+                      data={{
+                        labels: supplierasset?.map((supplier) => supplier.name),
+                        datasets: [
+                          {
+                            label: 'Asset Value',
+                            backgroundColor: supplierasset?.map((supplier) => randomColor()),
+                            //'#f87979',
+                            data: supplierasset?.map((supplier) => supplier.assetvalue),
+                          },
+                        ],
+                      }}
+                      labels="months"
+                    />
+                  </CCardBody>
+                </CCard>
+              </CCol>
+              <CCol xs={6}>
+                <CCard className="mb-4">
+                  <CCardHeader>
+                    <h6>
+                      <span className="message" style={{ color: '#5da4f5'}}> <> Assets Deployed by Department</></span> 
+                    </h6>
+                  </CCardHeader>
+                  
+                  <CCardBody>
+                    <CChartBar
+                        data={{
+                          labels: deptasset?.map((dept) => dept.name),
+
+                          datasets: [
+                            {
+                              label: 'Asset Value',
+                              backgroundColor: deptasset?.map((dept) => randomColor()),
+                              //'#f87979',
+                              data: deptasset?.map((dept) => dept.assetcount_department),
+                            },
+                          ],
+                        }}
+                        labels="months"
+                      />
+                  </CCardBody>
+                </CCard>
+              </CCol>
+            </CRow>
+
+{/* 
+  Checkin - checkout - pullout
+*/ }
+            <CRow>
+              <CAccordion flush={false}>
+                        <CAccordionItem itemKey={1}>
+                          <CAccordionHeader>
+                          <span className="message" style={{ color: 'green'}}> <> Check In</></span> 
+                          -
+                          <span className="message" style={{ color: '#ed8b13'}}>  <> Checkout </> </span>
+                          -
+                          <span className="message" style={{ color: 'red'}}>  <> Pullout </> </span>
+                          </CAccordionHeader>
+                          <CAccordionBody>
+                              <CRow>
+                              
+                                  <div className="small text-medium-emphasis">January - December</div>
+                                  <div className="small text-medium-emphasis">Every Year</div>
+
+                              </CRow>
+                              <CCol>
+                                  <CChartLine
+                                    style={{ height: '300px', marginTop: '40px' }}
+                                    data={{
+                                      labels: checkinpullout?.map((checkinpullout) => checkinpullout.MonthName),
+                                      datasets: [
+                                        {
+                                          label: 'Received by User',
+                                          backgroundColor: hexToRgba(getStyle('--cui-success'), 10),
+                                          borderColor: getStyle('--cui-success'),
+                                          pointHoverBackgroundColor: getStyle('--cui-success'),
+                                          borderWidth: 2,
+                                          data: checkinpullout?.map((checkinpullout) => checkinpullout.CheckInCount),
+                                          fill: true,
+                                        },
+                                        {
+                                          label: 'PullOut by User',
+                                          backgroundColor: 'transparent',
+                                          borderColor: getStyle('--cui-warning'),
+                                          pointHoverBackgroundColor: getStyle('--cui-warning'),
+                                          borderWidth: 2,
+                                          data: checkinpullout?.map((checkinpullout) => checkinpullout.PullOutCount),
+                                        },
+                                        {
+                                          label: 'Dispose By IT',
+                                          backgroundColor: 'transparent',
+                                          borderColor: getStyle('--cui-danger'),
+                                          pointHoverBackgroundColor: getStyle('--cui-danger'),
+                                          borderWidth: 2,
+                                          data: checkinpullout?.map((checkinpullout) => checkinpullout.Dispose),
+                                        },
+                                      ],
+                                    }}
+                                    options={{
+                                      maintainAspectRatio: false,
+                                      plugins: {
+                                        legend: {
+                                          display: false,
+                                        },
                                       },
-                                    ],
-                                  }}
-                                />
-                              </CCardBody>
-                            </CCard>
-                          </CCol>
-                        </CRow>
-                        
+                                      scales: {
+                                        x: {
+                                          grid: {
+                                            drawOnChartArea: false,
+                                          },
+                                        },
+                                        y: {
+                                          ticks: {
+                                            beginAtZero: true,
+                                            maxTicksLimit: 5,
+                                            stepSize: Math.ceil(250 / 5),
+                                            max: 250,
+                                          },
+                                        },
+                                      },
+                                      elements: {
+                                        line: {
+                                          tension: 0.4,
+                                        },
+                                        point: {
+                                          radius: 0,
+                                          hitRadius: 10,
+                                          hoverRadius: 4,
+                                          hoverBorderWidth: 3,
+                                        },
+                                      },
+                                    }}
+                                  />
+                              </CCol>
+                    
+
+                          </CAccordionBody>
+                        </CAccordionItem>
+
+              </CAccordion>
+            </CRow>
+
+{/* 
+  See Other Reports
+*/ }
+
+            <CRow>
+              <CAccordion flush={false}>
+                        <CAccordionItem itemKey={1}>
+                          <CAccordionHeader>
+                          <h6>
+                          <span className="message" style={{ color: '#5da4f5'}}> <> See Other Reports</></span> 
+                          </h6>
+                          </CAccordionHeader>
+                          <CAccordionBody>
+                              <CRow>
+                              <CCol xs={3}>
+                                  <CCard className="mb-4">
+                                    <CCardHeader>Dispose</CCardHeader>
+                                    <CCardBody>
+                                      <CChartPie
+                                        data={{
+                                          labels: assetdispose?.map((assdispose) => assdispose.ADName),
+                                          datasets: [
+                                            {
+                                              data: assetdispose?.map((assdispose) => assdispose.totamount),
+                                              backgroundColor: assetdispose?.map((assdispose) => randomColor()),
+                                              //hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+                                            },
+                                          ],
+                                        }}
+                                      />
+                                    </CCardBody>
+                                  </CCard>
+                                </CCol>
+                              </CRow>
+                              
 
 
-                    </CAccordionBody>
-                  </CAccordionItem>
+                          </CAccordionBody>
+                        </CAccordionItem>
 
-        </CAccordion>
-        </CRow>
+              </CAccordion>
+            </CRow>
 
             </>
            
           )
-        } else if (userRoles == "User" || userRoles == "IT") {
+
+        }
+          else if( userRoles == "IT") {
+            return (
+              <>
+              <WidgetsDropdown/>
+  
+              <CRow>
+                <CCol>
+                  <CCard className="card-title mb-0">
+                    <CCardHeader>
+                      <h6>
+                      <span className="message" style={{ color: '#5da4f5'}}> <> Assets </></span> 
+                        {' & '}  
+                      <span className="message" style={{ color: '#5da4f5'}}> <> Activity </></span> 
+                      </h6>
+                    </CCardHeader>
+                    <CCardBody>
+                      <CRow>
+                        <CCol xs={9} md={6} xl={8}>
+                          <AssetView/>
+                        </CCol>
+        
+                        <CCol xs={4} md={6} xl={4}>
+        
+                        <LogAllInfoView/>
+        
+                        </CCol>
+                      </CRow>
+                    </CCardBody>
+                  </CCard>
+                </CCol>
+              </CRow>
+              
+              <br></br>
+              <CRow>
+                <CCol xs={6}>
+                  <CCard className="mb-4">
+                    <CCardHeader>
+                      <h6>
+                      <span className="message" style={{ color: '#5da4f5'}}> <>Supplier</> </span> 
+                      </h6>
+                    </CCardHeader>
+                    <CCardBody>
+                      <CChartBar
+                        data={{
+                          labels: supplierasset?.map((supplier) => supplier.name),
+                          datasets: [
+                            {
+                              label: 'Asset Value',
+                              backgroundColor: supplierasset?.map((supplier) => randomColor()),
+                              //'#f87979',
+                              data: supplierasset?.map((supplier) => supplier.assetvalue),
+                            },
+                          ],
+                        }}
+                        labels="months"
+                      />
+                    </CCardBody>
+                  </CCard>
+                </CCol>
+                <CCol xs={6}>
+                  <CCard className="mb-4">
+                    <CCardHeader>
+                      <h6>
+                        <span className="message" style={{ color: '#5da4f5'}}> <> Assets Deployed by Department</></span> 
+                      </h6>
+                    </CCardHeader>
+                    
+                    <CCardBody>
+                      <CChartBar
+                          data={{
+                            labels: deptasset?.map((dept) => dept.name),
+        
+                            datasets: [
+                              {
+                                label: 'Asset Value',
+                                backgroundColor: deptasset?.map((dept) => randomColor()),
+                                //'#f87979',
+                                data: deptasset?.map((dept) => dept.assetcount_department),
+                              },
+                            ],
+                          }}
+                          labels="months"
+                        />
+                    </CCardBody>
+                  </CCard>
+                </CCol>
+              </CRow>
+  
+              <CRow>
+                <CAccordion flush={false}>
+                          <CAccordionItem itemKey={1}>
+                            <CAccordionHeader>
+                            <span className="message" style={{ color: 'green'}}> <> Check In</></span> 
+                            -
+                            <span className="message" style={{ color: '#ed8b13'}}>  <> Checkout </> </span>
+                            -
+                            <span className="message" style={{ color: 'red'}}>  <> Pullout </> </span>
+                            </CAccordionHeader>
+                            <CAccordionBody>
+                                <CRow>
+                                
+                                    <div className="small text-medium-emphasis">January - December</div>
+                                    <div className="small text-medium-emphasis">Every Year</div>
+        
+                                </CRow>
+                                <CCol>
+                                    <CChartLine
+                                      style={{ height: '300px', marginTop: '40px' }}
+                                      data={{
+                                        labels: checkinpullout?.map((checkinpullout) => checkinpullout.MonthName),
+                                        datasets: [
+                                          {
+                                            label: 'Received by User',
+                                            backgroundColor: hexToRgba(getStyle('--cui-success'), 10),
+                                            borderColor: getStyle('--cui-success'),
+                                            pointHoverBackgroundColor: getStyle('--cui-success'),
+                                            borderWidth: 2,
+                                            data: checkinpullout?.map((checkinpullout) => checkinpullout.CheckInCount),
+                                            fill: true,
+                                          },
+                                          {
+                                            label: 'PullOut by User',
+                                            backgroundColor: 'transparent',
+                                            borderColor: getStyle('--cui-warning'),
+                                            pointHoverBackgroundColor: getStyle('--cui-warning'),
+                                            borderWidth: 2,
+                                            data: checkinpullout?.map((checkinpullout) => checkinpullout.PullOutCount),
+                                          },
+                                          {
+                                            label: 'Dispose By IT',
+                                            backgroundColor: 'transparent',
+                                            borderColor: getStyle('--cui-danger'),
+                                            pointHoverBackgroundColor: getStyle('--cui-danger'),
+                                            borderWidth: 2,
+                                            data: checkinpullout?.map((checkinpullout) => checkinpullout.Dispose),
+                                          },
+                                        ],
+                                      }}
+                                      options={{
+                                        maintainAspectRatio: false,
+                                        plugins: {
+                                          legend: {
+                                            display: false,
+                                          },
+                                        },
+                                        scales: {
+                                          x: {
+                                            grid: {
+                                              drawOnChartArea: false,
+                                            },
+                                          },
+                                          y: {
+                                            ticks: {
+                                              beginAtZero: true,
+                                              maxTicksLimit: 5,
+                                              stepSize: Math.ceil(250 / 5),
+                                              max: 250,
+                                            },
+                                          },
+                                        },
+                                        elements: {
+                                          line: {
+                                            tension: 0.4,
+                                          },
+                                          point: {
+                                            radius: 0,
+                                            hitRadius: 10,
+                                            hoverRadius: 4,
+                                            hoverBorderWidth: 3,
+                                          },
+                                        },
+                                      }}
+                                    />
+                                </CCol>
+                      
+        
+                            </CAccordionBody>
+                          </CAccordionItem>
+        
+                </CAccordion>
+              </CRow>
+  
+              <CRow>
+                <CAccordion flush={false}>
+                          <CAccordionItem itemKey={1}>
+                            <CAccordionHeader>
+                            <h6>
+                            <span className="message" style={{ color: '#5da4f5'}}> <> See Other Reports</></span> 
+                            </h6>
+                            </CAccordionHeader>
+                            <CAccordionBody>
+                                <CRow>
+                                <CCol xs={3}>
+                                    <CCard className="mb-4">
+                                      <CCardHeader>Dispose</CCardHeader>
+                                      <CCardBody>
+                                        <CChartPie
+                                          data={{
+                                            labels: assetdispose?.map((assdispose) => assdispose.ADName),
+                                            datasets: [
+                                              {
+                                                data: assetdispose?.map((assdispose) => assdispose.totamount),
+                                                backgroundColor: assetdispose?.map((assdispose) => randomColor()),
+                                                //hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+                                              },
+                                            ],
+                                          }}
+                                        />
+                                      </CCardBody>
+                                    </CCard>
+                                  </CCol>
+                                </CRow>
+                                
+        
+        
+                            </CAccordionBody>
+                          </CAccordionItem>
+        
+                </CAccordion>
+              </CRow>
+  
+              </>
+             
+            )
+          }
+         else if (userRoles == "User" ) {
           return (
         <>
            <WidgetsDropdownUser/>
@@ -555,22 +842,6 @@ catch(err) {
       })()}
     </div>
 
-    /*
-    <div>
-    <WidgetsDropdown />
-<>
-      
-      
-
-      
-
-
-     
-
-      
-  </div>
-  </>
-  */
   );
 
 }

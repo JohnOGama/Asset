@@ -9,16 +9,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 
-// input Mask
 
-//import PropTypes, { bool } from 'prop-types';
-//import { IMaskInput } from 'react-imask';
-//import { NumericFormat } from 'react-number-format';
-//import Box from '@mui/material/Box';
-//import Input from '@mui/material/Input';
-//import InputLabel from '@mui/material/InputLabel';
 import TextField from '@mui/material/TextField';
-//import FormControl from '@mui/material/FormControl';
 
 import { DataGrid } from '@mui/x-data-grid';
 
@@ -38,24 +30,14 @@ import {
   CCardHeader,
   CCol,
   CRow,
-  //CAccordion,
-  //CAccordionBody,
-  //CAccordionHeader,
-  //CAccordionItem,
   CForm,
   CButton,
   CFormSelect,
-  //CFormInput,
-  //CInputGroupText,
+
   CInputGroup,
-  //CFormLabel,
-  //CFormFloating
+
 } from '@coreui/react'
 
-/// For sending email imports 
-//import {NextResponse} from 'next/server'
-//import {CheckoutEmail } from 'src/views/configurations/checkoutemail/CheckoutEmail';
-//import { Resend } from 'resend';
 import emailjs from '@emailjs/browser'
 import utils_getDate from '../../../components/DateFunc';
 //import {NextApiRequest,NextApiResponse} from 'next'
@@ -75,6 +57,7 @@ const DisposeView = () => {
   const navigate = useNavigate();
   
   var userID = ""
+  var userRole = ""
 
   const [message,setMessage] = useState("")
   const [colorMessage,setColorMessage] = useState('red')
@@ -89,19 +72,39 @@ const DisposeView = () => {
       receiveremail: '',
       receivername: ''
       })
-  
-function getUserInfo() {
-let id = "";
-let display = "";
 
-if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
-    userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
-    
+function CheckRole() {
+  try {
+
+    userRole = decrypt(window.localStorage.getItem('Kgr67W@'), appSettings.secretkeylocal)
+
+  }
+  catch(err) {
+    WriteLog("Error","DisposeView","CheckRole Local Storage is tampered", err.message,userID)
+    navigate('/dashboard')
+  }
 }
-else
-{ 
-    navigate('/login')
-}
+
+function getUserInfo() {
+  try {
+    CheckRole()
+      if (userRole == "Admin" || userRole == "IT")
+        {
+            if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
+              userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
+            
+            }else{ 
+              navigate('/login')
+          }
+        }
+      else {
+        navigate('/dashboard')
+      }
+        
+      }
+  catch(err) {
+    navigate('/dashboard')
+    }
 }
 
 useEffect(() => {
@@ -178,15 +181,28 @@ try {
         CheckDispose(irow)
         }
        })
+    
+       const check_approve_dispose = window.localStorage.getItem('Kvsf45_')
+       if(check_approve_dispose == "1")
+       {
+          sendEmail()
+       }
+       else if((!check_approve_dispose == "1") || (!check_approve_dispose == "0"))
+       {
+        WriteLog("Error","DisposeView","Get_LocalStorage_Dispose","LocalStorage is tampered \n ",userID)
+       }
+       else {
+        WriteLog("Error","DisposeView","Get_LocalStorage_Dispose","Local Storage issue \n ",userID)
+       }
+       
 
 }
 catch(err) {
-    console.log(err.message)
-}
-finally {
+    
     setOpen(false)
     navigate('/dashboard')
 }
+
 }
 
   function handleSubmit(event) {
@@ -239,6 +255,7 @@ finally {
           
           if(dataResponse == "Record Found"){ 
             AssetDispose(rowId,res.data.result[0].assetID)
+
           } else if(dataResponse == "No Record Found") {
             setMessage("Asset already mark as Dispose contact Support Team")
             setColorMessage('red')
@@ -270,6 +287,7 @@ finally {
         if(dataResponse == "Update Error") {
           WriteLog("Error","DisposeView","AssetDispose_Single /dispose/AssetDispose_Approve", res.message2,userID)
         } else if( dataResponse == "Update Success") {
+          window.localStorage.setItem('Kvsf45_','1')
           WriteLog("Message","DisposeView","AssetDispose /dispose/AssetDispose_Approve", 
           "Asset Dispose "
           + "\n AssetID: " + assetid
@@ -376,12 +394,30 @@ const columns = React.useMemo(() => [
     date: strDate
 };
  
+  const allow_send_email_approve_dispose = appSettings.ALLOW_SENDEMAIL_APPROVE_DISPOSE
+  if(allow_send_email_approve_dispose == "send")
+  {
     emailjs.send(appSettings.YOUR_SERVICE_ID, appSettings.YOUR_TEMPLATE_ID, templateParams,appSettings.public_key)
     .then(function(response) {
-       console.log('SUCCESS!', response.status, response.text);
+       
+      WriteUserInfo("Info","DisposeView",userID,
+      "Approve Asset Dispose : "
+      + `\nNotes : ` + templateParams.notes,userID)
+
     }, function(error) {
-       console.log('FAILED...', error);
+      WriteUserInfo("Error","DisposeView",userID,
+      "Info : " 
+      + "Failed sending email Approve Dispose : " + userID + "\n"
+      + "Notes : " + templateParams.notes + "\n "
+      + "Response : " + error
+      ,userID)
     });
+  }
+  else {
+    WriteUserInfo("Info","DisposeView",userID,
+    "Approve Asset Dispose : "
+    + `\nNotes : ` + templateParams.notes,userID)
+  }
 
   }
   catch(err) {

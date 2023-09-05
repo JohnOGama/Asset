@@ -39,21 +39,47 @@ import WriteLog from 'src/components/logs/LogListener';
     const navigate = useNavigate();
   
     var userID = ""
+    var userRole = ""
     const [message,setMessage] = useState("")
     const [colorMessage,setColorMessage] = useState('red')
 
     const [status,setStatus] = useState([])
     const [open, setOpen] = React.useState(false);
     const [rowselected,SetRowSelected] = useState("")
-    function getUserInfo() {
 
-      if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
-          userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
-          
+    function CheckRole() {
+      try {
+  
+        userRole = decrypt(window.localStorage.getItem('Kgr67W@'), appSettings.secretkeylocal)
+  
       }
-      else{ 
-          navigate('/login')
+      catch(err) {
+        WriteLog("Error","StatusView","CheckRole Local Storage is tampered", err.message,userID)
+        navigate('/dashboard')
       }
+    }
+
+    function getUserInfo() {
+      try {
+        CheckRole()
+          if (userRole == "Admin" || userRole == "IT")
+            {
+                if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
+                  userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
+                
+                }else{ 
+                  navigate('/login')
+              }
+            }
+          else {
+            navigate('/dashboard')
+          }
+            
+          }
+      catch(err) {
+        navigate('/dashboard')
+        }
+    
     }
 
     useEffect(() => {

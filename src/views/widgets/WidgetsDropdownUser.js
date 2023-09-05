@@ -236,7 +236,6 @@ const WidgetsDropdownUser = () => {
                 <CIcon icon={cilOptions} className="text-high-emphasis-inverse" />
               </CDropdownToggle>
               <CDropdownMenu>
-                <CDropdownItem  href="#/base/assetbyuser"> Asset</CDropdownItem> 
                 <CDropdownItem href="#/base/assetuserassign"> CheckIn</CDropdownItem>
                 <CDropdownItem href="#/base/assetpullout">Pullout</CDropdownItem>
                 

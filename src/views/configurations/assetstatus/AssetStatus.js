@@ -29,6 +29,7 @@ function AssetStatus() {
   const navigate = useNavigate();
   const {state} = useLocation();
   let rowId = ""
+  var userRole = ""
   
   try {
      rowId = state.params;
@@ -47,15 +48,39 @@ function AssetStatus() {
     description: ""
   })
 
+  function CheckRole() {
+    try {
+
+      userRole = decrypt(window.localStorage.getItem('Kgr67W@'), appSettings.secretkeylocal)
+
+    }
+    catch(err) {
+      WriteLog("Error","AssetStatus","CheckRole Local Storage is tampered", err.message,userID)
+      navigate('/dashboard')
+    }
+  }
+
   function getUserInfo() {
 
-    if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
-        userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
-        
-    }
-    else{ 
-        navigate('/login')
-    }
+    try {
+      CheckRole()
+        if (userRole == "Admin" || userRole == "IT")
+          {
+              if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
+                userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
+              
+              }else{ 
+                navigate('/login')
+            }
+          }
+        else {
+          navigate('/dashboard')
+        }
+          
+        }
+    catch(err) {
+      navigate('/dashboard')
+      }
   }
 
     useEffect(() => {

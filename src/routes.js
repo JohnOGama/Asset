@@ -1,7 +1,10 @@
 import React from 'react'
 import Supplier from './views/configurations/supplier/Supplier'
-import Login from './views/pages/login/Login'
 
+import t from "../src/views/pages/page404/Page404"
+
+
+const Page404 = React.lazy(() => import('../src/views/pages/page404/Page404'))
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Dashboard1 = React.lazy(() => import('./views/dashboard/dashboard1/Dashboard1'))
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
@@ -39,8 +42,6 @@ const Tables = React.lazy(() => import('./views/base/tables/Tables'))
 const Tooltips = React.lazy(() => import('./views/base/tooltips/Tooltips'))
 
 
-
-
 // Buttons
 const Buttons = React.lazy(() => import('./views/buttons/buttons/Buttons'))
 const ButtonGroups = React.lazy(() => import('./views/buttons/button-groups/ButtonGroups'))
@@ -64,6 +65,8 @@ const UserCategoryView = React.lazy(() => import('./views/configurations/usercat
 const UserCategory = React.lazy(() => import('./views/configurations/usercategory/UserCategory'))
 const SupplierView = React.lazy(() => import('./views/configurations/supplierview/SupplierView'))
 const LogUserInfoView = React.lazy(() => import('./views/configurations/loguserinfoview/LogUserInfoView'))
+const LogAllInfoView = React.lazy(() => import('./views/configurations/logallinfoview/LogAllInfoView'))
+const DepreciatedView = React.lazy(() => import('./views/configurations/depreciatedview/DepreciatedView'))
 //Forms
 const ChecksRadios = React.lazy(() => import('./views/forms/checks-radios/ChecksRadios'))
 const FloatingLabels = React.lazy(() => import('./views/forms/floating-labels/FloatingLabels'))
@@ -94,15 +97,22 @@ const UpdateProfile = React.lazy(() => import('./views/pages/updateprofile/Updat
 const Widgets = React.lazy(() => import('./views/widgets/Widgets'))
 
 const routes = [
+  
+  { path: '*', exact: true, element: Page404 },
   { path: '/', exact: true, name: 'Home' },
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
-  { path: '/dashboard/dashboard1', name: 'Dashboard1', element: Dashboard1 },
+ // { path: '/dashboard/dashboard1', name: 'Dashboard1', element: Dashboard1 },
   
+ /*
   { path: '/theme', name: 'Theme', element: Colors, exact: true },
   { path: '/theme/colors', name: 'Colors', element: Colors },
   { path: '/theme/typography', name: 'Typography', element: Typography },
   { path: '/base', name: 'Base', element: Cards, exact: true },
   //{ path: '/base/accordion', name: 'Accordion', element: Accordion },
+*/
+  //For Testing 
+  { path: '/base/snipe', name: 'Snipe', element: Snipe },
+
   { path: '/base/assetregister', name: 'AssetRegister', element: AssetRegister },
   { path: '/base/assetuser', name: 'AssetUser', element: AssetUser },
   { path: '/base/assetview', name: 'AssetView', element: AssetView },
@@ -113,10 +123,9 @@ const routes = [
   { path: '/base/assetdispose', name: 'AssetDispose', element: AssetDispose },
   { path: '/base/disposeview', name: 'DisposeView', element: DisposeView },
 
-  //For Testing 
-  { path: '/base/snipe', name: 'Snipe', element: Snipe },
   
-
+  
+/*
   { path: '/base/logout', name: 'Logout', element: Logout },
   { path: '/base/breadcrumbs', name: 'Breadcrumbs', element: Breadcrumbs },
   { path: '/base/cards', name: 'Cards', element: Cards },
@@ -136,7 +145,10 @@ const routes = [
   { path: '/buttons/buttons', name: 'Buttons', element: Buttons },
   { path: '/buttons/dropdowns', name: 'Dropdowns', element: Dropdowns },
   { path: '/buttons/button-groups', name: 'Button Groups', element: ButtonGroups },
+*/
+
   /// For Configurations
+
   { path: '/configurations/categoryview', name: 'CategoryView', element: CategoryView },
   { path: '/configurations/assetcategory', name: 'AssetCategory', element: AssetCategory },
   { path: '/configurations/assetstatus', name: 'AssetStatus', element: AssetStatus },
@@ -156,8 +168,10 @@ const routes = [
   { path: '/configurations/supplierview', name: 'SupplierView', element: SupplierView },
   { path: '/configurations/supplier', name: 'Supplier', element: Supplier },
   { path: '/configurations/loguserinfoview', name: 'LogUserInfoView', element: LogUserInfoView },
+  { path: '/configurations/logallinfoview', name: 'LogAllInfoView', element: LogAllInfoView },
+  { path: '/configurations/depreciatedview', name: 'DepreciatedView', element: DepreciatedView },
   
-  
+/*
   { path: '/charts', name: 'Charts', element: Charts },
   { path: '/forms', name: 'Forms', element: FormControl, exact: true },
   { path: '/forms/form-control', name: 'Form Control', element: FormControl },
@@ -178,6 +192,8 @@ const routes = [
   { path: '/notifications/modals', name: 'Modals', element: Modals },
   { path: '/notifications/toasts', name: 'Toasts', element: Toasts },
   { path: '/widgets', name: 'Widgets', element: Widgets },
+*/
+
   // pages for update profile
   { path: '/pages/updateprofile', name: 'UpdateProfile', element: UpdateProfile },
 

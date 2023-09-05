@@ -3,25 +3,8 @@ import  { useEffect, useState } from 'react'
 import axios from 'axios'
 import * as React from 'react'
 
-//import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
-//import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-//import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-//import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-
-
-// input Mask
-
-//import PropTypes, { bool } from 'prop-types';
-//import { IMaskInput } from 'react-imask';
-//import { NumericFormat } from 'react-number-format';
-//import Box from '@mui/material/Box';
-//import Input from '@mui/material/Input';
-//import InputLabel from '@mui/material/InputLabel';
-//import TextField from '@mui/material/TextField';
-//import FormControl from '@mui/material/FormControl';
 
 import { DataGrid } from '@mui/x-data-grid';
-
 
 //
 
@@ -62,12 +45,15 @@ import {  decrypt } from 'n-krypta';
 //encrypt, compare
 
 import WriteLog from 'src/components/logs/LogListener';
+import utils_getDate from 'src/components/DateFunc';
+import WriteUserInfo from 'src/components/logs/LogListenerUser';
 
 const AssetUserAssign = () => {
 
   const navigate = useNavigate();
 
   let userID = ""
+
 
   //const [success,SetSuccess] = useState("");
   //const [errors,setErrors] = useState({})
@@ -79,15 +65,42 @@ const AssetUserAssign = () => {
   const [assetstatfordeploy,setAssetForDeploy] = useState("") // for deploy
   const [rowselected,setRowSelected] = useState({})
 
-  function getUserInfo() {
 
-  if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
-      userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
-      
+  function CheckRole() {
+    try {
+
+      userRole = decrypt(window.localStorage.getItem('Kgr67W@'), appSettings.secretkeylocal)
+
+    }
+    catch(err) {
+      WriteLog("Error","AssetUserAssign","CheckRole Local Storage is tampered", err.message,userID)
+      navigate('/dashboard')
+    }
   }
-  else{ 
-      navigate('/login')
-  }
+
+
+
+function getUserInfo() {
+
+try {
+    //CheckRole()
+      //if (userRole == "Admin" || userRole == "IT")
+        //{
+            if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
+              userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
+            
+            }else{ 
+              navigate('/login')
+          }
+       // }
+     // else {
+    //    navigate('/dashboard')
+    //  }
+        
+      }
+  catch(err) {
+    navigate('/dashboard')
+    } 
 }
 
 
@@ -148,21 +161,26 @@ const AssetUserAssign = () => {
   const handleClickOpen = (event) => {
     try {
       event.preventdefault
-    setOpen(true);
-    let num = 0
+   
+    var num = 0
       rowselected.forEach((irow, index) => { 
       //num = num + 1;
       num = index + 1
     })
     SetTotalSelected(num)
+
+
+      setOpen(true);
+    
   }
   catch(err) {
     console.log(err)
   }
   };
 
+
   useEffect(() => { 
-    console.log()
+   // console.log()
   },[iselected])
   
 
@@ -174,51 +192,130 @@ const AssetUserAssign = () => {
   const handleCheckin = (event) => {
 
     event.preventdefault
-    setOpen(true);
+   
   try {
 
       if(userID == "") 
-  {
-    getUserInfo()
-  }
-       rowselected.forEach((irow) => {
-     
-        const assetid = irow
-        const url = 'http://localhost:3001/assets/checkinassetsdetail'
-        axios.post(url,{userID,assetid,assetstatfordeploy,assetstat})
-        .then(response => {
-          const dataResponse = response.data.message;
-          if(dataResponse == "Update Success")
-          {
+      {
+        getUserInfo()
+      }
 
-            UpdateAssetDeployed(assetid)
-            // Then write sa History for markings
-            WriteLog("Message","AssetUserAssign","handleCheckin /assets/checkinassetsdetail", 
-                    "User asset received or checkin "
-                    + "\n AssetID: " + assetid 
-                    + "\n Status From :  " + assetstatfordeploy 
-                    + "\n Status To :  " + assetstat
-                    + "\n Receive by : " + userID ,userID)
-          }
-          else if (dataResponse == "Update Error") {
-            WriteLog("Error","AssetUserAssign","handleCheckin /assets/checkinassetsdetail'",response.data.message2,userID)
-          }
-        }).catch(err => {
-          WriteLog("Error","AssetUserAssign","handleCheckin /assets/checkinassetsdetail'",err.message,userID)
-      })
-    })
-   
+          rowselected.forEach((irow) => {
+       
+          const assetid = irow
+          const url = 'http://localhost:3001/assets/checkinassetsdetail'
+          axios.post(url,{userID,assetid,assetstatfordeploy,assetstat})
+          .then(response => {
+            const dataResponse = response.data.message;
+            if(dataResponse == "Update Success")
+            {
+
+              UpdateAssetDeployed(assetid)
+              const writeOnce = window.localStorage.getItem('Kvsf45_')
+              if (writeOnce == "0" ) {
+                window.localStorage.setItem('Kvsf45_','1')
+              }
+          
+              WriteLog("Message","AssetUserAssign","handleCheckin /assets/checkinassetsdetail", 
+                      "User asset received or checkin "
+                      + "\n AssetID: " + assetid 
+                      + "\n Status From :  " + assetstatfordeploy 
+                      + "\n Status To :  " + assetstat
+                      + "\n Receive by : " + userID ,userID)
+              
+            }
+            else if (dataResponse == "Update Error") {
+              WriteLog("Error","AssetUserAssign","handleCheckin /assets/checkinassetsdetail'",response.data.message2,userID)
+              window.localStorage.setItem('Kvsf45_',"0")
+            }
+          }).catch(err => {
+            WriteLog("Error","AssetUserAssign","handleCheckin /assets/checkinassetsdetail'",err.message,userID)
+        })
+
       
+          })
+        sendEmail()
+        setOpen(false);
+        LoadData() 
+
+
+    
+
   }catch(err) {
     setOpen(false)
-
-  }
-  finally {
-    setOpen(false);
     navigate('/dashboard')
   }
 
   };
+
+function sendEmail()
+{
+
+    try {
+     
+      let strDate = utils_getDate()
+      const allow_send_email_checkin_asset_by_user = appSettings.ALLOW_SENDEMAIL_CHECKIN_BY_USER
+      
+     const checkin_success = window.localStorage.getItem('Kvsf45_')
+
+    
+
+      //senderInfo.receiveremail,
+      // senderInfo.receiveremail,
+      var templateParams = {
+        email_to: appSettings.email_sender,
+        email_sender: "",
+        reply_to : "",
+        name: appSettings.ASSET_RECEIVERNAME,
+        notes: "Asset is now CheckIn on my end",
+        date: strDate
+
+      }
+
+
+      if(checkin_success ==  "1" ){
+      
+          if(allow_send_email_checkin_asset_by_user == "send") {
+              emailjs.send(appSettings.YOUR_SERVICE_ID, appSettings.YOUR_TEMPLATE_ID, templateParams,appSettings.public_key)
+              .then(function(response) {
+                WriteLog("Error","e","templateParams ","checkin_success ",userID)
+                WriteUserInfo("Info","AssetUserAssign",userID,
+                "CheckIn Asset : "
+                + `\nNotes : ` + templateParams.notes,userID)
+  
+              }, function(error) {
+              
+                WriteUserInfo("Error","DisposeView",userID,
+                "Info : " 
+                + "Failed sending email Approve Dispose : " + userID + "\n"
+                + "Notes : " + templateParams.notes + "\n "
+                + "Response : " + error
+                ,userID)
+              });
+           }
+           else {
+          
+            WriteUserInfo("Info","AssetUserAssign",userID,
+            "CheckIn Asset : "
+            + `\nNotes : ` + templateParams.notes,userID)
+  
+           }
+
+      }
+      else {
+        
+     
+        WriteUserInfo("Info","AssetUserAssign",userID,
+        "CheckIn Asset : "
+        + `\nNotes : ` + templateParams.notes,userID) 
+
+      }
+    }
+    catch(err) {
+      WriteLog("Error","AssetUserAssign","LocalStorage checkin tampered",err.message,userID)
+    }
+
+}
 
   function UpdateAssetDeployed(assetid) {
     try {

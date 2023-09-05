@@ -53,6 +53,7 @@ function AssetPullout() {
   const navigate = useNavigate();
 
   var userID = ""
+  var userRole = ""
   let displayname = ""
 
 
@@ -65,15 +66,39 @@ function AssetPullout() {
     const [assetID,setAssetStatID] = useState(""); /// receive selected status
     const [notes,setNotes] = useState(""); // receive notes 
 
-function getUserInfo() {
 
-  if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
-      userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
-      
+  function CheckRole() {
+    try {
+
+      userRole = decrypt(window.localStorage.getItem('Kgr67W@'), appSettings.secretkeylocal)
+
+    }
+    catch(err) {
+      WriteLog("Error","AssetPullout","CheckRole Local Storage is tampered", err.message,userID)
+      navigate('/dashboard')
+    }
   }
-  else{ 
-      navigate('/login')
-  }
+    
+function getUserInfo() {
+try {
+    CheckRole()
+      //if (userRole == "Admin" || userRole == "IT")
+        //{
+            if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
+              userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
+            
+            }else{ 
+              navigate('/login')
+          }
+    //    }
+    //  else {
+   //     navigate('/dashboard')
+   //   }
+        
+      }
+  catch(err) {
+    navigate('/dashboard')
+    }
 }
 
 useEffect(() => {
@@ -202,7 +227,15 @@ try {
           + "\n Detail ID  :  " + detailid 
           + "\n Reason for Pullout :  " + notes
           + "\n User : " + userID ,userID)
+
+          const writeOnce = window.localStorage.getItem('Kvsf45_')
+          if (writeOnce == "0" ) {
+            window.localStorage.setItem('Kvsf45_','1')
+          }
+
         }
+
+
         else if (dataResponse == "Update Error") {
           // only capturing the error
           WriteLog("Error","AssetPullout","handlePullout /assets/pulloutasset_selectedbyuser'",
@@ -216,6 +249,7 @@ try {
       })
     })
 
+    /*
     rowselecteddetail.forEach((nrow, index) => {
 
       try {
@@ -244,6 +278,9 @@ try {
       }
       
     })
+    */
+
+    sendEmail()
 
     setOpen(false);
 }catch(err) {
@@ -400,6 +437,11 @@ function UpdateMain_Asset(varassetid) {
 
     let strDate =   utils_getDate();
     displayname = window.localStorage.getItem('display')
+    const allow_send_email_pullout_asset_by_user = appSettings.ALLOW_SENDEMAIL_PULLOUT_BY_USER
+      
+     const checkin_success = window.localStorage.getItem('Kvsf45_')
+
+
     try {
         var templateParams = {
         email_to: appSettings.ASSET_EMAIL,
@@ -411,12 +453,31 @@ function UpdateMain_Asset(varassetid) {
         user_name: displayname
     };
 
-    emailjs.send(appSettings.USER_SERVICE_ID, appSettings.USER_TEMPLATE_ID, templateParams,appSettings.public_key)
-    .then(function(response) {
-       console.log('SUCCESS!', response.status, response.text);
-    }, function(error) {
-       console.log('FAILED...', error);
-    });
+    if(checkin_success == "1") {
+
+          if(allow_send_email_pullout_asset_by_user == "1") {
+
+          
+
+          emailjs.send(appSettings.USER_SERVICE_ID, appSettings.USER_TEMPLATE_ID, templateParams,appSettings.public_key)
+          .then(function(response) {
+            console.log('SUCCESS!', response.status, response.text);
+          }, function(error) {
+            console.log('FAILED...', error);
+          });
+        }
+        else {
+          WriteUserInfo("Info","AssetPullout",userID,
+          "Asset Pullout: "
+          + `\nNotes : ` + templateParams.notes,userID)
+        }
+    }
+    else 
+    {
+      WriteUserInfo("Info","AssetPullout",userID,
+      "Asset Pullout: "
+      + `\nNotes : ` + templateParams.notes,userID)
+    }
 
   }
   catch(err) {
