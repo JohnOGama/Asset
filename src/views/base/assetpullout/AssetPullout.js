@@ -47,6 +47,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Paper from '@mui/material/Paper';
 import Draggable from 'react-draggable';
 import { ButtonGroup } from '@mui/material';
+import WriteUserInfo from 'src/components/logs/LogListenerUser';
 
 
 function AssetPullout() {
@@ -467,6 +468,7 @@ function UpdateMain_Asset(varassetid) {
           });
         }
         else {
+          
           WriteUserInfo("Info","AssetPullout",userID,
           "Asset Pullout: "
           + `\nNotes : ` + templateParams.notes,userID)
