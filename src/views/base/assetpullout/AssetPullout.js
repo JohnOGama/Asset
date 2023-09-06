@@ -456,9 +456,7 @@ function UpdateMain_Asset(varassetid) {
 
     if(checkin_success == "1") {
 
-          if(allow_send_email_pullout_asset_by_user == "1") {
-
-          
+          if(allow_send_email_pullout_asset_by_user == "send") {
 
           emailjs.send(appSettings.USER_SERVICE_ID, appSettings.USER_TEMPLATE_ID, templateParams,appSettings.public_key)
           .then(function(response) {
@@ -487,8 +485,6 @@ function UpdateMain_Asset(varassetid) {
   }
   }
   
-
-
   return (
 
     <CCol >

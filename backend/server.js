@@ -128,7 +128,7 @@ app.post('/log/putUserNotif', (req,res)   => {
     
     const id = randomUUID()
 
-    const sql = "INSERT INTO tblLogs(logID,logtype,module,userID,"
+    const sql = "INSERT INTO tblLogs(logID,logtype,module,userID,receiverName,departmentID,"
             + "logvalues,createdBy,dateCreated) values (?)";
 
     const values = [
@@ -136,8 +136,11 @@ app.post('/log/putUserNotif', (req,res)   => {
         req.body.logtype,
         req.body.module,
         req.body.userNotifID,
+        req.body.receiver_name,
+        req.body.receiver_dept,
         req.body.logvalues,
         req.body.userID,
+    
         utils_getDate()
     ];
       
@@ -191,17 +194,17 @@ app.post('/log/viewallLogs',(req,res) => {
 
 app.post('/log/viewaLogUserInfo',(req,res) => {
 
-    const sql = "SELECT log.logID as id,log.logtype,log.module,log.logfunction,log.logvalues,"
-        + "COALESCE(DATE_FORMAT(log.dateCreated, '%m/%d/%Y'),'') as dateatecreated,"
-        + "concat('Hi ',users.firstname) as fname,users.imgFilename,"
-        + "(select userCreated.imgFilename from tblUsers userCreated  where userCreated.userDisplayID = log.createdBy limit 1 )"
-        + " as usercreatedImg  FROM tblLogs log"
+    const sql = "SELECT  log.logID as id,log.logtype,log.module,log.logfunction,log.logvalues,log.userID,"
+        + "users.imgFilename,(select userCreated.imgFilename from tblUsers userCreated"
+        + " where userCreated.userDisplayID = log.createdBy limit 1 )as usercreatedImg,"
+        + "(select concat('Hi ',userCreated.firstname) as fname  from tblUsers userCreated"
+        + " where userCreated.userDisplayID = log.createdBy limit 1 ) as userNameCreated,log.createdBy"
+        + " FROM tblLogs log"
         + " INNER JOIN tblUsers users on users.userDisplayID = log.userID"
-        + " left join tblUsers userCreated on users.userDisplayID = log.createdBy"
         + " inner join tblPositions pos on pos.positionDisplayID = users.positionID"
         + " inner join tblDepartments dept on dept.departmentDisplayID = pos.departmentDisplayID"
         + " where (logtype = 'Info') and (log.active=1) and dept.departmentDisplayID = ?"
-        + " ORDER BY log.dateCreated desc limit 4"
+        + " ORDER BY log.dateCreated desc"
 
      connection.query(sql,[req.body.departmentID],(err,result) => {
          if(err) {
@@ -327,10 +330,10 @@ app.get('/listofusers',function(req,res)
 app.post('/getuserbyactive',(req,res) => {
 
     const sql = "SELECT userDisplayID, concat(lastname,', ' , firstname) as fullname FROM tblUsers where active = 1";
-    const userid = req.body.userid;
 
 
-    connection.query(sql,[userid],(err,result) => {
+
+    connection.query(sql,(err,result) => {
 
         if(err) {
             res.json({message: "No Record Found",
@@ -1420,6 +1423,7 @@ app.post('/assets/getCountassetsper_category_ByUser',(req,res) => {
     })
 });
 
+/*
 app.post('/assets/getAssetStatus',(req,res) => {
     const sql = "SELECT assetStatusID,statusName FROM tblAssetStatus WHERE statusName = 'Available'";
     connection.query(sql,(err,result) => {
@@ -1437,6 +1441,9 @@ app.post('/assets/getAssetStatus',(req,res) => {
         }
     })
 });
+
+*/
+
 
 app.post('/assets/upDateImage', upload.single("file"), (req,res)   => {
     try {
@@ -1602,6 +1609,7 @@ app.post('/assets/getallassetsavailable',(req,res) => {
                 + " where (assetstatus.statusName = 'Available' OR assetstatus.statusName = 'Replace' OR assetstatus.statusName = 'Return' )"
                 + " and (assets.assetID COLLATE utf8mb4_unicode_ci not in (select det.assetid from tblUserAssetDetails det where det.pulloutnotify = 1))"
                 + " and (assets.active=1)"
+                + " order by assets.assetName asc"
     connection.query(sql,(err,result) => {
         if(err) {
             res.json({
@@ -1864,9 +1872,9 @@ app.post('/assets/viewallassetsassignbyuserfordeploy_deployed',(req,res) => {
  app.post('/assets/viewallassetsassignfordeploy',(req,res) => {
 
      
-    const sql = "select assets.assetID as id,assets.assetCode,assets.assetName,"
+    const sql = "select details.detailID as id,assets.assetCode,assets.assetName,"
         + "stats.statusName,category.assetCategName,userdeploy.displayName,"
-        + "COALESCE(DATE_FORMAT(details.plancheckout, '%m/%d/%Y'),'') as datecheckout  from tblUsers users"
+        + "COALESCE(DATE_FORMAT(details.plancheckout, '%m/%d/%Y'),'') as datecheckout,details.useridcheckout  from tblUsers users"
         + " inner join tblUserAssetDetails details on details.userSelectedID COLLATE utf8mb4_unicode_ci = users.userDisplayID"
         + " inner join tblAssetStatus stats on stats.assetStatusID COLLATE utf8mb4_unicode_ci = details.assetStatusID"
         + " inner join tblAssets assets on assets.assetID COLLATE utf8mb4_unicode_ci = details.assetID"
@@ -1964,40 +1972,6 @@ app.post('/assets/searchuser',(req,res) => {
 });
 
 
-  // need to remove later no longer use
-app.post('/assets/putuser',(req,res) => {
-
-    const id = randomUUID()
-
-    const sql = "INSERT INTO tblUserAssets(`userAssetID`,`userSelectedID`,`notes`,"
-    + "`dateInsert`,`insertedBy`) values (?)";
-
-    const ddateinsert = new Date(req.body.datePurchase)
- 
-    const values = [
-        id,
-        req.body.varuserid,
-        req.body.varnotes,
-        utils_getDate(),
-        req.body.userID
-    ];
-      
-    connection.query(sql,[values],(err,result) => {
-        if(err) {
-            console.log(err)
-            res.json({
-                message: "Insert Error",
-                message2: err.message});
-        }else {
-            //console.log("Success")
-            //console.log(values)
-            res.json({
-                message: "Insert Success"});
-        }
-
-     })
-
-})
 
 app.post('/assets/putassetsdetail',(req,res) => {
 
@@ -2039,16 +2013,21 @@ app.post('/assets/putassetsdetail',(req,res) => {
 
 app.post('/assets/updateassetdeploy',(req,res) => {
 
-    const sqlUpdate = "UPDATE tblAssets SET `assetStatusID` = ?,`updatedBy` = ?,`dateUpdated` = ?"
-            + " where assetID = ?"
-      
+    const sqlUpdate = "UPDATE tblAssets SET assetStatusID = ?,updatedBy = ?,dateUpdated = ?"
+            + " where assetID = ? and active=1"
+/*
+      console.log(req.body.assetdeploy)
+      console.log(req.body.userID)
+      console.log(req.body.varassetid)
+*/                          
     connection.query(sqlUpdate,[ req.body.assetdeploy, req.body.userID, utils_getDate(),req.body.varassetid],(err,result) => {
         if(err) {
             res.json({
                 message: "Update Error",
                 message2: err.message});
         }else {
-            res.json({
+            
+            res.json({result,
                 message: "Update Success"});
         }
      })
@@ -2083,20 +2062,28 @@ app.post('/assets/updateuserasset',(req,res) => {
 app.post('/assets/checkinassetsdetail',(req,res) => {
 
 
-    const sqlUpdate = "UPDATE tblUserAssetDetails SET `checkinby` = ?,`datecheckin` = ?,`assetStatusID` = ?"
-            + " where userSelectedID = ? and assetStatusID = ? and assetID = ?"
+    const sqlUpdate = "UPDATE tblUserAssetDetails SET checkinby = ?,datecheckin = ?,assetStatusID = ?"
+            + " where detailID = ?"
+    //console.log("A - " + req.body.userID)
+    //console.log("b - " + req.body.assetstat)
+    //console.log("d - " + req.body.detailID)
 
-    connection.query(sqlUpdate,[ req.body.userID,utils_getDate(), req.body.assetstat,
-        req.body.userID,req.body.assetstatfordeploy,req.body.assetid],(err,result) => {
+    connection.query(sqlUpdate,[req.body.userID,utils_getDate(), req.body.assetstat,
+        req.body.detailID],(err,result) => {
         if(err) {
             res.json({
                 message: "Update Error",
                 message2: err.message});
         }else {
             //console.log("Success")
-            //console.log(values)
+            if(result.affectedRows == 1) {
             res.json({
                 message: "Update Success"});
+            }else {
+                res.json({
+                    message: "Update Error",
+                    message2: err.message});
+            }
         }
 
      })
@@ -2148,6 +2135,34 @@ app.post('/assets/pulloutNotification',(req,res) => {
         } else {
             if(result.length > 0) {
                 //console.log(result[0]);
+                res.json({result,message: "Record Found"});
+            } else {
+                res.json({message: "No Record Found"});
+            }
+        }
+
+     })
+    }
+    catch(err) {
+        console.log("Error")
+    }
+
+})
+
+app.post('/assets/getAssetID_By_detailID',(req,res) => {
+
+    try {
+   
+       const sql = "SELECT detail.assetID FROM assets.tblUserAssetDetails detail"
+        + " where detail.detailID = ? and detail.checkinby is null"
+    connection.query(sql,[req.body.paramdetailID],(err,result) => {
+
+        if(err) {
+            res.json({
+                message: "No Record Found",
+                message2: err.message});
+        } else {
+            if(result.length > 0) {
                 res.json({result,message: "Record Found"});
             } else {
                 res.json({message: "No Record Found"});

@@ -15,6 +15,12 @@ const appSettings = {
     //window.localStorage.removeItem('userimg');
     //window.localStorage.removeItem('Kgr67W@'); // This is a user Role
     //window.localStorage.removeItem('LkgdW23!'); // This is for DepartmentID
+    //window.localStorage.removeItem('Kvsf45_'); // for sending email once only
+    
+
+    // 1 - Allow writelog
+    // 0 - Not allow to write
+    ALLOW_WRITELOG: '0',
 
     // allow to send email
     // value : send --- will send email

@@ -8,9 +8,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
-
 // input Mask
-
 
 import TextField from '@mui/material/TextField';
 
@@ -65,6 +63,8 @@ import {  decrypt } from 'n-krypta';
 
 import WriteLog from 'src/components/logs/LogListener';
 import WriteUserInfo from '../../../components/logs/LogListenerUser'
+import { Alert } from '@coreui/coreui';
+import { FormControl } from '@mui/material';
 
 const AssetUser = () => {
 
@@ -80,14 +80,13 @@ const AssetUser = () => {
   const [colorMessage,setColorMessage] = useState('red')
   
   //const bShowConsole = false;
-  const [assetStat,setAssetStat] = useState("");
+  //const [assetStat,setAssetStat] = useState("");
+  const [assetsAvailable, setAssetsAvailable] = useState([])
   const [assetdeploy,setAssetDeploy] = useState("");
 
   const [users, setUsers] = useState([]);
   const [checkout, setCheckout] = useState("");
- // const [notes, setNotes] = useState("");
   const [rowselected,setRowSelected] = useState({})
-  const [bValue,setbValue] = useState(false)
 
   const [userSelected,setUserSelected] = useState ({
     userid: '',
@@ -103,37 +102,41 @@ const AssetUser = () => {
       })
   
 
-  //var email = ""
-  //var name = ""
-  //var notes = ""
+
+  useEffect(() => {
+    CheckRole()
+    getUserInfo()
+    GetUsersActive()
+   // GetAssetStatus_Available()
+    GetStatus_ForDeploy()
+   // GetAllAssets_Available()
+    }, [])
 
 
     useEffect(() => {
-      //console.log("")
-    },[userSelected]);
+      
+      try {
 
-  useEffect(() => {
-    //console.log("")
-  },[checkout]);
+        const url = 'http://localhost:3001/assets/getallassetsavailable'
+        axios.post(url)
+        .then(response => {
+          const dataResponse = response.data.message;
+          if(dataResponse == "Record Found") {
+            setAssetsAvailable(response.data.result)
+            
+          } else if (dataResponse == "No Record Found") {
+             setMessage("No assets available")
+             setColorMessage('red')
+          }
+        }).catch(err => {
+          WriteLog("Error","AssetUser","useEffect /assets/getallassetsavailable","then/catch \n " + err.message,userID)
+        })
+      }
+      catch(err) {
+        WriteLog("Error","AssetUser","useEffect /assets/getallassetsavailable","try/catch \n" + err.message,userID)
+      }
 
-
-
-
-  useEffect(() => {
-   // console.log("")
-  },[rowselected]);
-
-  useEffect(() => {
-   // console.log("")
-  },[bValue]);
-
-
-  useEffect(() => {
-    
-      getUserInfo()
-
-    }, [])
-
+      }, [])
 
     function CheckRole() {
       try {
@@ -155,6 +158,7 @@ const AssetUser = () => {
             {
                 if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
                   userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
+                  window.localStorage.setItem('Kvsf45_','0')
                 
                 }else{ 
                   navigate('/login')
@@ -171,230 +175,146 @@ const AssetUser = () => {
         
     }
 
-  useEffect(() => {
-    getUserInfo()
-    const url = 'http://localhost:3001/getuserbyactive'
-    axios.post(url,{userID})
-    .then(res => {
-      const dataResponse = res.data.message;
-      if(dataResponse == "Record Found") {
-        setUsers(res.data.result)
-      } else if (dataResponse == "No Record Found") {
-        //setMessage("No users active")
-        //navigate('/500');
+    function GetUsersActive() {
+        try {
+        const url = 'http://localhost:3001/getuserbyactive'
+        axios.post(url,{userID})
+        .then(res => {
+          const dataResponse = res.data.message;
+          if(dataResponse == "Record Found") {
+            setUsers(res.data.result)
+          } else if (dataResponse == "No Record Found") {
+            WriteLog("Error","AssetUser","useeffect /getuserbyactive'", dataResponse,userID)
+          }
+        }).catch(err => {
+          WriteLog("Error","AssetUser","useeffect /getuserbyactive'","Error in then/catch " + err.message,userID)
+        })
+      } catch(err) {
+        WriteLog("Error","AssetUser","GetUsersActive /getuserbyactive'","Error in try/catch " + err.message,userID)
       }
-    }).catch(err => {
-      WriteLog("Error","AssetUser","useeffect /getuserbyactive'",err.message,userID)
-    })
-  },[])
 
-  useEffect(() => {
-    getUserInfo()
-    try {
-
-    const url = 'http://localhost:3001/assets/getAssetStatus'
-    axios.post(url)
-    .then(response => {
-      const dataResponse = response.data.message;
-      if(dataResponse == "Record Found") {
-        setAssetStat(response.data.result[0]['assetStatusID'])
-       
-      } else if (dataResponse == "No Record Found") {
-        //SetSuccess("No Category")
-        //navigate('/500');
-      }
-    }).catch(err => {
-      WriteLog("Error","AssetUser","useeffect /assets/getAssetStatus",err.message,userID)
-    })
-  }
-  catch(err) {
-    WriteLog("Error","AssetUser","useeffect /assets/getAssetStatus",err.message,userID)
-  }
-  },[])
- 
-useEffect(() => {
-  getUserInfo()
-  try {
-  const url = 'http://localhost:3001/assets/getassetfordeploystatus'
-  axios.post(url)
-  .then(response => {
-    const dataResponse = response.data.message;
-    if(dataResponse == "Record Found") {
-      setAssetDeploy(response.data.result[0]['assetStatusID'])
-      
-    } else if (dataResponse == "No Record Found") {
-      WriteLog("Error","AssetUser","useeffect /assets/getassetfordeploystatus",response.data.message2,userID)
     }
-  }).catch(err => {
-    WriteLog("Error","AssetUser","useeffect /assets/getassetfordeploystatus","then/catch \n" + err.message,userID)
-  })
-}
-catch(err) {
-  WriteLog("Error","AssetUser","useeffect /assets/getassetfordeploystatus","try/catch \n" + err.message,userID)
-}
-},[])
 
-  
-  useEffect(() => {
-    getUserInfo()
-    try {
+    /*
+    function GetAssetStatus_Available() {
+      try {
 
-    const url = 'http://localhost:3001/assets/getallassetsavailable'
-    axios.post(url)
-    .then(response => {
-      const dataResponse = response.data.message;
-      if(dataResponse == "Record Found") {
-        setAssetsAvailable(response.data.result)
-        
-      } else if (dataResponse == "No Record Found") {
-         setMessage("No assets available")
-         setColorMessage('red')
+        const url = 'http://localhost:3001/assets/getAssetStatus'
+        axios.post(url)
+        .then(response => {
+          const dataResponse = response.data.message;
+          if(dataResponse == "Record Found") {
+            setAssetStat(response.data.result[0].assetStatusID)
+           
+          } else if (dataResponse == "No Record Found") {
+            WriteLog("Error","AssetUser","GetAssetStatus_Available /assets/getAssetStatus",dataResponse,userID)
+          }
+        }).catch(err => {
+          WriteLog("Error","AssetUser","GetAssetStatus_Available /assets/getAssetStatus","Error in then/catch " + err.message,userID)
+        })
       }
-    }).catch(err => {
-      WriteLog("Error","AssetUser","useeffect /assets/getallassetsavailable","then/catch \n " + err.message,userID)
-    })
-  }
-  catch(err) {
-    WriteLog("Error","AssetUser","useeffect /assets/getallassetsavailable","try/catch \n" + err.message,userID)
-  }
-  },[])
+      catch(err) {
+        WriteLog("Error","AssetUser","GetAssetStatus_Available /assets/getAssetStatus","Error in try/catch " + err.message,userID)
+      }
+    }
+*/
+
+    function GetStatus_ForDeploy() {
+        try {
+          const url = 'http://localhost:3001/assets/getassetfordeploystatus'
+          axios.post(url)
+          .then(response => {
+            const dataResponse = response.data.message;
+            if(dataResponse == "Record Found") {
+              setAssetDeploy(response.data.result[0].assetStatusID)
+              
+            } else if (dataResponse == "No Record Found") {
+              WriteLog("Error","AssetUser","useeffect /assets/getassetfordeploystatus",response.data.message2,userID)
+            }
+          }).catch(err => {
+            WriteLog("Error","AssetUser","useeffect /assets/getassetfordeploystatus","then/catch \n" + err.message,userID)
+          })
+      }
+      catch(err) {
+        WriteLog("Error","AssetUser","useeffect /assets/getassetfordeploystatus","try/catch \n" + err.message,userID)
+      }
+    }
+ 
+    const GetAllAssets_Available = () =>  {
+      try {
+
+        const url = 'http://localhost:3001/assets/getallassetsavailable'
+        axios.post(url)
+        .then(response => {
+          const dataResponse = response.data.message;
+          if(dataResponse == "Record Found") {
+            setAssetsAvailable(response.data.result)
+            
+          } else if (dataResponse == "No Record Found") {
+             setMessage("No assets available")
+             setColorMessage('red')
+          }
+        }).catch(err => {
+          WriteLog("Error","AssetUser","GetAllAssets_Available /assets/getallassetsavailable","then/catch \n " + err.message,userID)
+        })
+      }
+      catch(err) {
+        WriteLog("Error","AssetUser","GetAllAssets_Available /assets/getallassetsavailable","try/catch \n" + err.message,userID)
+      }
+    }
 
 
   function handleInput(e){
-
+     // user selected and notes
     setUserSelected({...userSelected,[e.target.name]: e.target.value})
-    
+   
   }
-
-
-function UpdateAssetDeploy(varassetid) {
-  try {
-    
-  
-    getUserInfo()
-    const url = 'http://localhost:3001/assets/updateassetdeploy'
-    axios.post(url,{assetdeploy,varassetid,userID})
-    .then(response => { 
-      const updateResponse = response.data.message;
-    if (updateResponse == "Update Error") {
-        
-      WriteLog("Error","AssetUser","UpdateAssetDeploy /assets/updateassetdeploy",response.data.message2,userID)
-      }
-
-    }).catch(err => {
-      WriteLog("Error","AssetUser","UpdateAssetDeploy /assets/updateassetdeploy",err.message,userID)
-    })
-
-  }
-  catch(err) {
-    WriteLog("Error","AssetUser","UpdateAssetDeploy /assets/updateassetdeploy","Error in try/catch",userID)
-  }
-
-}
 
 useEffect(() => {
-// console.log
-}, [receiverInfo])
-
-
-function GetEmailInfo(param) {
-  getUserInfo()
-  try {
-    const rowId = param
-    const url = 'http://localhost:3001/email/getemailinfo'
-    axios.post(url,{rowId})
-    .then(response => {
-      const dataResponse = response.data.message;
-      if(dataResponse == "Record Found") {
-    
-              //email = response.data.result[0].email
-              //name =  response.data.result[0].userName
-              setReceiverInfo({...receiverInfo,
-                receiverID: response.data.result[0].userID,
-                receiveremail: response.data.result[0].email,
-                receivername: response.data.result[0].userName,
-                positionID: response.data.result[0].positionID,
-                deptID: response.data.result[0].deptID})
-
-      } else if (dataResponse == "No Record Found") {
-        WriteLog("Error","AssetUser","GetEmailInfo /email/getemailinfo","then/catch \n " + response.data.message,userID)
-      }
-    }).catch(err => {
-      WriteLog("Error","AssetUser","GetEmailInfo /assets/getallassetsavailable","then/catch \n " + err.message,userID)
-    })
-
-  }
-  catch(err) {
-    WriteLog("Error","AssetUser","GetEmailInfo /assets/updateassetdeploy","Error in try/catch",userID)
-  }
-}
+  //console.log()
+}, [assetsAvailable])
 
   function handleClick() {
-    try {
-
-      if((!checkout == "") && 
-      (!userSelected.userid) == "") 
-      {
-         
-          
-          InsertAssetDetail();
-         
-            sendEmail(userSelected.userid);
-          
-          
-      }else {
-        setMessage(" All Fields must not be Empty")
-        setColorMessage("red")  
-      }
-
-
-      
-    }
-    catch(err) {
-      console.log(err.message)
-    }
-    finally {
-      setOpen(false)
-      navigate('/base/assetview')
-    }
+    setOpen(false)
+      InsertAssetDetail();
+      sendEmail(userSelected.userid);
+    
+      navigate('/dashboard')
   }
 
   function handleSubmit(event) {
     try {
 
-      event.preventDefault();
+     event.preventDefault();
 
-      setMessage("")
-      setColorMessage("red")  
+   
+     if (Object.keys(rowselected).length > 0) {
+        const varuserID = userSelected.userid
+        const dateCheckout = checkout
+        const notes = userSelected.notes
+          if((varuserID !== "") && 
+            (dateCheckout !== "") && 
+            (notes !== ""))
+          {
 
-      try {
- 
-        let num = 0
-        rowselected.forEach((irow, index) => { 
-          num = num + 1;
-        })
-        SetTotalSelected(num)
-        
-        GetEmailInfo(userSelected.userid)
+            setMessage("")
+            setColorMessage('')
+            SetTotalSelected(Object.keys(rowselected).length)
+            GetEmailInfo_UserSelected(varuserID)
+            setOpen(true)
 
-        if(num === 0)
-        { 
-          setMessage("Select Asset to Checkout")
-          setColorMessage('blue')
+          } else {
+            setOpen(false)
+            setMessage(" All Fields must not be Empty")
+            setColorMessage("orange") 
+          }
   
+        } else 
+        {
+          setMessage("No Asset Selected")
+          setColorMessage("orange")
         }
-      else {
-        setMessage("")
-        setColorMessage('')
-        setOpen(true);
-      }
 
-        
-      }
-      catch(err) {
-        WriteLog("Error","AssetUser","handleSubmit /assets/searchuser","Error in try/catch \n" + err.message,userID)
-        setOpen(false);
-      }
 
     }
     catch(err) {
@@ -403,9 +323,43 @@ function GetEmailInfo(param) {
 
   }
 
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  function GetEmailInfo_UserSelected(param) {
+    try {
+      const rowId = param
+      const url = 'http://localhost:3001/email/getemailinfo'
+      axios.post(url,{rowId})
+      .then(response => {
+        const dataResponse = response.data.message;
+        if(dataResponse == "Record Found") {
+      
+                //email = response.data.result[0].email
+                //name =  response.data.result[0].userName
+                setReceiverInfo({...receiverInfo,
+                  receiverID: response.data.result[0].userID,
+                  receiveremail: response.data.result[0].email,
+                  receivername: response.data.result[0].userName,
+                  positionID: response.data.result[0].positionID,
+                  deptID: response.data.result[0].deptID})
+  
+        } else if (dataResponse == "No Record Found") {
+          WriteLog("Error","AssetUser","GetEmailInfo /email/getemailinfo","then/catch \n " + response.data.message,userID)
+        }
+      }).catch(err => {
+        WriteLog("Error","AssetUser","GetEmailInfo /assets/getallassetsavailable","then/catch \n " + err.message,userID)
+      })
+  
+    }
+    catch(err) {
+      WriteLog("Error","AssetUser","GetEmailInfo /assets/updateassetdeploy","Error in try/catch",userID)
+    }
+  }
+
   function InsertAssetDetail() {
   
-    getUserInfo()
 
     const varuserid = userSelected.userid
     const varnotes = userSelected.notes
@@ -415,6 +369,7 @@ function GetEmailInfo(param) {
     try {
       
       rowselected.forEach((irow, index) => {
+
             const assetid = irow
             const url = 'http://localhost:3001/assets/putassetsdetail'
             axios.post(url,{varuserid,assetid,positionID,departmentID,checkout,userID,assetdeploy,varnotes})
@@ -424,17 +379,21 @@ function GetEmailInfo(param) {
               //  console.log(" Assets inserted successful");
                 // let update the Assets to status to deploy
   
+             
+             
+                const writeOnce = window.localStorage.getItem('Kvsf45_')
+                if (writeOnce == "0" ) {
+                  window.localStorage.setItem('Kvsf45_','1')
+                }
+                
                 WriteLog("Message","AssetUser","InsertAssetDetail /assets/putassetsdetail", 
                 "Asset Checkout "
                 + "\n AssetID: " + assetid 
                 + "\n Checkout To :  " + varuserid 
                 + "\n Status :  " + assetdeploy 
                 + "\n Desc : " + varnotes,userID)
+                
 
-              const writeOnce = window.localStorage.getItem('Kvsf45_')
-              if (writeOnce == "0" ) {
-                window.localStorage.setItem('Kvsf45_','1')
-              }
   
                 UpdateAssetDeploy(assetid);
               }else if (dataResponse == "Insert Error") {
@@ -442,20 +401,48 @@ function GetEmailInfo(param) {
                 //console.log("Error in Inserting asset ===> " + assetid )
               }
             }).catch(err => {
-              WriteLog("Error","AssetUser","InsertAssetDetail /assets/putassetsdetail",err.message,userID)
+              WriteLog("Error","AssetUser","InsertAssetDetail /assets/putassetsdetail", " Error in then/catch " + err.message,userID)
             })
   
       })
     }catch(err) {
-      WriteLog("Error","AssetUser","InsertAssetDetail /assets/putassetsdetail",err.message,userID)
+      WriteLog("Error","AssetUser","InsertAssetDetail /assets/putassetsdetail"," Error in try/catch " +  err.message,userID)
     }
   
   }
 
 
+
+  function UpdateAssetDeploy(varassetid) {
+    try {
+      
+      getUserInfo()
+      const url = 'http://localhost:3001/assets/updateassetdeploy'
+      axios.post(url,{assetdeploy,varassetid,userID})
+      .then(response => { 
+        const updateResponse = response.data.message;
+        if (updateResponse == "Update Success") {
+          WriteLog("Message","AssetUser","UpdateAssetDeploy /assets/updateassetdeploy",updateResponse,userID)
+        }
+        
+        else if(updateResponse == "Update Error") {
+          
+        WriteLog("Error","AssetUser","UpdateAssetDeploy /assets/updateassetdeploy",response.data.message2,userID)
+        }
+  
+      }).catch(err => {
+        WriteLog("Error","AssetUser","UpdateAssetDeploy /assets/updateassetdeploy",err.message,userID)
+      })
+  
+    }
+    catch(err) {
+      WriteLog("Error","AssetUser","UpdateAssetDeploy /assets/updateassetdeploy","Error in try/catch" + err.message,userID)
+    }
+  
+  }
+
   /// For Data Grid 
 
-  const [assetsAvailable, setAssetsAvailable] = useState([])
 
 
   const columns = [
@@ -493,58 +480,57 @@ function GetEmailInfo(param) {
     let strDate =   utils_getDate();
     const allow_email_checkout = appSettings.ALLOW_SENDEMAIL_CHECKOUT
     const success_insert = window.localStorage.getItem('Kvsf45_')
-
+    WriteLog("For Testing","Check/prepare for sending email : " + window.localStorage.getItem('Kvsf45_'),"","","",)
+    WriteLog("For Testing","using const for sending email : " + success_insert,"","","",)
     try {
-    var templateParams = {
-    email_to: receiverInfo.receiveremail,
-    email_sender: appSettings.email_sender,
-    reply_to : appSettings.reply_to,
-    name: receiverInfo.receivername,
-    notes: userSelected.notes,
-    date: strDate
-};
+      var templateParams = {
+      email_to: receiverInfo.receiveremail,
+      email_sender: appSettings.email_sender,
+      reply_to : appSettings.reply_to,
+      name: receiverInfo.receivername,
+      notes: userSelected.notes,
+      date: strDate
+      };
 
-    if(success_insert == "1") {
-    if(allow_email_checkout == "send") {
+    if(success_insert !== "0") {
+      if(allow_email_checkout == "send") {
 
       emailjs.send(appSettings.YOUR_SERVICE_ID, appSettings.YOUR_TEMPLATE_ID, templateParams,appSettings.public_key)
       .then(function(response) {
-        WriteUserInfo("Info","AssetUser",userid,
-        "Email sent Asset Check Out by IT: "
-        + `\nNotes : ` + templateParams.notes,userID)
+
+        WriteUserInfo("Info","AssetUser",userid,receiverInfo.receivername,receiverInfo.deptID,
+        "Asset Check Out by IT "
+        + "\nNotes : " + templateParams.notes,userID)
+
       }, function(error) {
-        WriteUserInfo("Error","AssetUser",userid,
+        WriteLog("Error","AssetUser","sendEmail ","Error in sending emailjs \n" +
         "Info : " 
         + "Failed sending email to selected user : " + userid + "\n"
         + "Plan receive asset : " + templateParams.date + "\n "
-        + "Notes : " + templateParams.notes + "\n "
-        + "Response : " + error
-        ,userID)
+        + "Notes : " + templateParams.notes + "\n"
+        + error.message,
+        userID)
 
       });
 
-    }
-    else
-    {
+      }
+      else
+      {
+        WriteUserInfo("Info","AssetUser",userid,receiverInfo.receivername,receiverInfo.deptID,
+        "Asset Check Out by IT "
+        + "\nNotes : " + templateParams.notes,userID)
+      }
 
-      WriteUserInfo("Info","AssetUser",userid,
-      "Asset Check Out by IT: "
-      + `\nNotes : ` + templateParams.notes,userID)
     }
-  }
-  else {
-    WriteUserInfo("Info","AssetUser",userid,
-    "Asset Check Out by IT: "
-    + `\nNotes : ` + templateParams.notes,userID)
-  }
+    
+
   }
   catch(err) {
-    console.log(err)
+
+    WriteLog("Error","AssetUser","send emailjs","Error in try/catch " + err.message,userID)
   }
   }
   
-
-
   // For Dialog Box
 
 function PaperComponent(props) {
@@ -561,11 +547,6 @@ function PaperComponent(props) {
 const [open, setOpen] = React.useState(false);
 const [iselected,SetTotalSelected] = useState(0)
 
-
-const handleClose = () => {
-  setOpen(false);
-};
-
   return (
     
       <CCol xs={12}>
@@ -577,14 +558,13 @@ const handleClose = () => {
             <strong><span className="message" style={{ color: colorMessage}}><p>{message}</p></span> </strong>
             </h6>
           </CCardHeader>
+           <CCardBody>
           <CForm onSubmit={handleSubmit}>
               <CRow >
-                <CCol >
-                  <CCardBody>
-                    
+              
+                <CCol xs={4} md={3} xl={3}  >
                     <CFormSelect size="sm" className="mb-3" aria-label="Small select example"
                       name='userid' onChange={handleInput} >
-                        <option> Select User </option>
                       {
                            
                           users.map((val,result) => 
@@ -592,38 +572,40 @@ const handleClose = () => {
                           )
                       }
                     </CFormSelect>
-                    <CInputGroup size="sm" className="mb-3">
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
-                          <DatePicker size="sm"
-                            name='checkout  '
-                            label="Plan Checkout "
-                            fullWidth true
-                            onChange={(checkout) => setCheckout(checkout)}
-                          />
-                      </LocalizationProvider>
-                    </CInputGroup>
-                    <CInputGroup size="sm" className="mb-3" >
-                      <TextField onChange={handleInput} name="notes" id="outlined-textarea" 
-                      fullWidth label="Notes" placeholder="You have asset(s) to be pickup on schedule date" multiline  rows={5}
-     
-                      />
-                    </CInputGroup>
-                    <div className="d-grid" style={{
+                      <CInputGroup size="sm" className="mb-3">
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DatePicker size="sm"
+                              name='checkout  '
+                              label="Plan Checkout "
+                              fullWidth true
+                              onChange={(checkout) => setCheckout(checkout)}
+                            />
+                        </LocalizationProvider>
+                      </CInputGroup>
+               
+                      <CInputGroup size="sm" className="mb-3" >
+                        <TextField onChange={handleInput} name="notes" id="outlined-textarea" 
+                        fullWidth label="Notes" placeholder="You have asset(s) to be pickup on schedule date" multiline  rows={5}
+      
+                        />
+                      </CInputGroup>
+           
+                      <div className="d-grid" style={{
                             
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                             }} >
-                      <CButton color="success"  type='submit' >Assign Asset</CButton>
+                      <CButton color="success" type='submit' >Assign Asset</CButton>
                     </div>
-
-                  </CCardBody>
+                
                 </CCol>
-                <CCol>
-                  <CCardBody>
-
-                <CInputGroup size="sm" className="mb-3">
-                <div style={{ height: 400, width: '100%' }}>
+                      
+                <CCol xs={6} md={9} xl={9} >
+          
+             
+               
+            
 
                   <DataGrid
                     rows={assetsAvailable}
@@ -640,9 +622,10 @@ const handleClose = () => {
                     disableRowSelectionOnClick
                     onRowSelectionModelChange={id => setRowSelected(id)}
                   />
-
-                </div>
-                </CInputGroup>
+       
+               
+           
+             
                 <Dialog
                         open={open}
                         onClose={handleClose}
@@ -657,9 +640,7 @@ const handleClose = () => {
                             Are you sure you want to Checkout  asset(s) ?
                             <br></br>
                             Selected : {iselected}
-                            <br></br>
-                            <br></br>
-                            Note : Selected user will receive email notification
+
                           </DialogContentText>
                         </DialogContent>
                         <DialogActions>
@@ -669,11 +650,14 @@ const handleClose = () => {
                           <Button onClick={handleClick}>Checkout</Button>
                         </DialogActions>
                   </Dialog>
-                  </CCardBody>
+                
+            
+            
 
               </CCol>
             </CRow>
           </CForm>
+          </CCardBody>
         </CCard>
       </CCol>
 
