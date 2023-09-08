@@ -380,6 +380,7 @@ function GetAsset_Status_Deploy () {
     window.localStorage.removeItem('125df')
     window.localStorage.removeItem('8786bgd')
     window.localStorage.removeItem("Kvsf45_")
+    setOpen(true)
     }
     catch(err) {
       // means no laman
@@ -389,7 +390,7 @@ function GetAsset_Status_Deploy () {
     setColorMessage('')
     GetAssetByDetail(detailID,assetname)
    
-    setOpen(true)
+
 
   }
 
@@ -432,8 +433,6 @@ function GetAsset_Status_Deploy () {
             const dataResponse = response.data.message;
             if(dataResponse == "Update Success") {
 
-              
-
   
               var writeOnce = window.localStorage.getItem('Kvsf45_')
              
@@ -471,6 +470,13 @@ function GetAsset_Status_Deploy () {
             } else if (dataResponse == "Update Error") {
               WriteLog("Error","AssetUserAssign","handleCheckIn /assets/checkinassetsdetail",response.data.message2,userID)
              
+              window.localStorage.removeItem('0ghds-134U')
+              window.localStorage.removeItem('bbg54WQ')
+              window.localStorage.removeItem('125df')
+              window.localStorage.removeItem('8786bgd')
+              window.localStorage.removeItem('ooe34d')
+              window.localStorage.setItem('Kvsf45_','0')
+
             }
     
 
@@ -558,7 +564,7 @@ function GetAsset_Status_Deploy () {
           WriteLog(
             "Error",
             "AssetUserAssign",
-            "UpdateAssetDeployed /assets/getAssetID_By_detailID",
+            "GetAssetbyDetail /assets/getAssetID_By_detailID",
             " Error in then/catch " + err.message,
             userID
           );
@@ -577,7 +583,7 @@ function GetAsset_Status_Deploy () {
       WriteLog(
         "Error",
         "AssetUserAssign",
-        "UpdateAssetDeployed /assets/getAssetID_By_detailID",
+        "GetAssetbyDetail /assets/getAssetID_By_detailID",
         " Error in try/catch " + err.message,
         userID
       );
@@ -667,7 +673,7 @@ function UpdateAssetDeployed(paramassetid) {
         email_sender: "",
         reply_to: "",
         name: appSettings.ASSET_RECEIVERNAME,
-        notes: " Asset Name ( " + receiver_assetName + " ) is now CheckIn on my end",
+        notes: " Asset Name ( " + receiver_assetName + " ) \n is now CheckIn on my end",
         date: strDate,
       };
 
@@ -813,9 +819,7 @@ function UpdateAssetDeployed(paramassetid) {
                       }}
                       pageSizeOptions={[5]}
 
-                      onRowSelectionModelChange={(id,assetID) => setRowSelected({...rowselected,
-                      id: id,
-                      asseid: assetID})}
+                   
                     />
                   </div>
                 </CInputGroup>

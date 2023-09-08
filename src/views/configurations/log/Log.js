@@ -65,18 +65,18 @@ function Log() {
 
       try {
         CheckRole()
-    //      if (userRole == "Admin" || userRole == "IT")
-    //        {
+          if (userRole == "Admin")
+            {
                 if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
                   userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
                 
                 }else{ 
                   navigate('/login')
               }
-  //          }
-   //       else {
-   //         navigate('/dashboard')
-  //        }
+            }
+          else {
+            navigate('/dashboard')
+          }
             
           }
       catch(err) {

@@ -1,5 +1,12 @@
 
 
+
+
+******* Admin 
+configurations/log
+configurations/logview
+
+
 ****** User Only
 
 base/assetuserassign
@@ -7,14 +14,19 @@ base/assetpullout
 configurations/LogUserInfoView
 configurations/viewpulloutuser
 
+****** ALL 
 pages/updateprofile
+login
+logout
+
+
 
 ******* Admin and IT
 
 /base/AssetByUser
 /base/AssetDispose
 /base/AssetEdit
-/base/AssetPullout
+
 /base/AssetRegister
 /base/assetuser
 /base/AssetUserAssign

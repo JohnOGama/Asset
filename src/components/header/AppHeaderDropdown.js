@@ -86,19 +86,13 @@ const AppHeaderDropdown = () => {
   };
 
   const handleLogout = () => {
-    setOpen(true);
+    setOpen(false);
   try {
-    window.localStorage.removeItem('id')
-    window.localStorage.removeItem('display')
-    window.localStorage.removeItem('userimg')
-
-      setOpen(false);
+    localStorage.clear();
       navigate('/login');
   }catch(err) {
     setOpen(false)
     
-  }finally {
-    setOpen(false)
   }
 
   };

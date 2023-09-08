@@ -47,6 +47,7 @@ useEffect(() => {
     }
     
   } else{
+    localStorage.clear();
     window.localStorage.setItem('id',"0")
   }
 

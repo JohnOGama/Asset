@@ -1909,7 +1909,7 @@ app.post('/assets/viewallassetsassignbyuserfordeploy_deployed',(req,res) => {
 
   app.post('/assets/viewallassetsassigndeployed_user',(req,res) => {
 
-    const sql = "select details.detailID as id,assets.assetCode,assets.assetName,"
+    const sql = "select details.detailID as id,details.assetID,details.useridcheckout,assets.assetCode,assets.assetName,"
     + "stats.statusName,category.assetCategName,userdeploy.displayName,"
     + "COALESCE(DATE_FORMAT(details.datecheckin, '%m/%d/%Y'),'') as datecheckin  from tblUsers users"
     + " inner join tblUserAssetDetails details on details.userSelectedID COLLATE utf8mb4_unicode_ci = users.userDisplayID"
@@ -2531,6 +2531,41 @@ app.post('/CheckInPullOut/Count_CheckInPullOut',(req,res) => {
 });
 
 
+
+app.post('/pullout/getAssetID_By_UserPullout',(req,res) => {
+
+    try {
+   
+       const sql = "SELECT detail.assetID,users.firstname,users.userDisplayID as userid,detail.assetStatusID,"
+       + "detail.departmentID FROM assets.tblUserAssetDetails detail"
+       + " inner join tblUsers users on users.userDisplayID COLLATE utf8mb4_unicode_ci = detail.pulloutBy"
+        + " where detail.detailID = ?"
+
+ 
+    connection.query(sql,[req.body.paramdetailID],(err,result) => {
+
+        if(err) {
+            res.json({
+                message: "No Record Found",
+                message2: err.message});
+        } else {
+            if(result.length > 0) {
+                res.json({result,message: "Record Found"});
+            } else {
+                res.json({message: "No Record Found"});
+            }
+        }
+
+     })
+    }
+    catch(err) {
+        console.log("Error")
+    }
+
+})
+
+
+
 app.post('/pullout/viewallpullout',(req,res) => {
 
     const sql = "select assetdetails.detailID as id,"
@@ -2545,7 +2580,6 @@ app.post('/pullout/viewallpullout',(req,res) => {
     + " left join tblUsers usersreceive on usersreceive.userDisplayID COLLATE utf8mb4_unicode_ci = assetdetails.receivedby"
     + " inner join tblAssetCategory category on category.assetCategID COLLATE utf8mb4_unicode_ci = assets.assetCategID"
     + " where assets.active=1 and assetdetails.pulloutnotify = 1"
-    //assetdetails.pulloutnotify = 1"
     + " order by pulloutdate desc"
 
     connection.query(sql,(err,result) => {
@@ -2585,6 +2619,33 @@ app.post('/pullout/updatepulloutnotification', (req,res)   => {
      })
 })
 
+app.post('/pullout/updateAsset_ByUser_pulloutnotificationstatus', (req,res)   => {
+    
+
+    const sqlUpdate = "UPDATE tblAssets SET assetStatusID = ?,"
+            + "updatedBy =?,dateUpdated =?"
+            + " where assetID = ?"
+
+  
+
+    connection.query(sqlUpdate,[req.body.statusID,
+                                req.body.userID,
+                            utils_getDate(),
+                            req.body.rowId],(err,result) => {
+        if(err) {
+            res.json({
+                message: "Update Error",
+                message2: err.message});
+        }else {
+      
+            //console.log(values)
+            res.json({
+                message: "Update Success"});
+        }
+
+     })
+})
+
 app.post('/pullout/checkpulloutnotification',(req,res) => {
 
     const sql = "SELECT details.assetID,stat.statusName FROM tblUserAssetDetails details"
@@ -2598,6 +2659,7 @@ app.post('/pullout/checkpulloutnotification',(req,res) => {
                 message: "No Record Found",
                 message2: err.message});
         } else {
+            console.log(result)
             if(result.length > 0) {
                 res.json({result,message: "Record Found"});
             } else {

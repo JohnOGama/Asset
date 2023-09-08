@@ -442,6 +442,9 @@ const AssetUserAssign = () => {
           if (dataResponse == "Record Found") {
             setAssets(res.data.result);
           }
+          else {
+            etAssets([]);
+          }
         })
         .catch((err) => {
           WriteLog(

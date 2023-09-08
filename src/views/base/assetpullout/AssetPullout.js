@@ -49,6 +49,7 @@ import Draggable from 'react-draggable';
 import { ButtonGroup } from '@mui/material';
 import WriteUserInfo from 'src/components/logs/LogListenerUser';
 
+import ChecklistIcon from '@mui/icons-material/Checklist';
 
 function AssetPullout() {
   const navigate = useNavigate();
@@ -57,44 +58,61 @@ function AssetPullout() {
   var userRole = ""
   let displayname = ""
 
+  var receiver_detailID = ""
+  var receiver_assetID = ""
+  var receiver_name = ""
+  var receiver_deptID = ""
+  var receiver_userID = ""
+  var checkin_success = ""
+  var receiver_assetName = ""
+
 
     const [success,SetSuccess] = useState("");
     const [errors,setErrors] = useState({})
     const [message,setMessage] = useState("")
     const [colorMessage,setColorMessage] = useState('red')
 
+
+  const [assets, setAssets] = useState([])
     const [assetstatus, setAssetStatus] = useState([]); // bind to status options
     const [assetID,setAssetStatID] = useState(""); /// receive selected status
     const [notes,setNotes] = useState(""); // receive notes 
 
 
+    useEffect(() => {
+      getUserInfo();
+      LoadAsset();
+    }, [])
+
   function CheckRole() {
     try {
-
-      userRole = decrypt(window.localStorage.getItem('Kgr67W@'), appSettings.secretkeylocal)
-
+ 
+              userRole = decrypt(window.localStorage.getItem('Kgr67W@'), appSettings.secretkeylocal)
+        
     }
     catch(err) {
       WriteLog("Error","AssetPullout","CheckRole Local Storage is tampered", err.message,userID)
       navigate('/dashboard')
     }
+
   }
     
 function getUserInfo() {
 try {
     CheckRole()
-      //if (userRole == "Admin" || userRole == "IT")
-        //{
+
+      if (userRole === "User")
+        {
             if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
               userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
             
             }else{ 
               navigate('/login')
           }
-    //    }
-    //  else {
-   //     navigate('/dashboard')
-   //   }
+        }
+      else {
+        navigate('/dashboard')
+      }
         
       }
   catch(err) {
@@ -102,24 +120,20 @@ try {
     }
 }
 
-useEffect(() => {
-    getUserInfo()
-  }, [])
 
+function handleSubmit(event) {
+    try {
+
+      event.preventDefault();
+
+      setMessage("")
+      setColorMessage("red")  
       
-    function handleSubmit(event) {
-        try {
-    
-          event.preventDefault();
-    
-          setMessage("")
-          setColorMessage("red")  
-          
-        }
-        catch(err) {
-          console.log(err)
-        }
     }
+    catch(err) {
+      console.log(err)
+    }
+}
 
 /// select / option 
 
@@ -161,41 +175,31 @@ function PaperComponent(props) {
 }
 
 const [open, setOpen] = React.useState(false);
-const [iselected,SetTotalSelected] = useState(0)
-
-const handleClickOpen = () => {
-  try {
-  
-  let num = 0
-
-    rowselecteddetail.forEach((irow, index) => { 
-      num = num + 1;
-    })
-    
-    if(num > 0) {
-      setOpen(true);
-      SetTotalSelected(num)
-    }
-    else
-    {
-      setMessage('No asset selected')
-      setColorMessage('red')
-    }
 
 
+function handle_Asset_Detail(detailID,assetname)
+{
+
+  try  {
+    window.localStorage.removeItem('0ghds-134U')
+    window.localStorage.removeItem('bbg54WQ')
+    window.localStorage.removeItem('125df')
+    window.localStorage.removeItem('8786bgd')
+    window.localStorage.removeItem("Kvsf45_")
+    setMessage('')
+    setColorMessage('')
+    GetAssetByDetail(detailID,assetname)
+    setOpen(true)
+  }
+  catch(err) {
+   setOpen(false)
+    WriteLog("Error","AssetUserAssign","handle_Asset_Detail","No localsotrage for processing asstassign checkin")
+  }
+
+
+ 
 
 }
-catch(err) {
-  console.log(err)
-}
-};
-
-useEffect(() => { 
- // console.log()
-},[iselected])
-
-
-
 /// For Dialog
 const handleClose = () => {
   setOpen(false);
@@ -205,22 +209,37 @@ function handleViewPullout() {
   navigate('/configurations/viewpulloutuser')
 }
 
-const handlePullout = () => {
-  setOpen(true);
+const handlePullout = (event) => {
+
+  event.preventDefault;
+  setOpen(false)
+
 try {
-      if(userID == "") 
+      if(userID === "") 
   {
     getUserInfo()
   }
+    window.localStorage.setItem('Kvsf45_','0')
+    receiver_detailID = decrypt(window.localStorage.getItem('0ghds-134U'),appSettings.secretkeylocal)
+    receiver_name = decrypt(window.localStorage.getItem('bbg54WQ'),appSettings.secretkeylocal)
+    receiver_deptID = decrypt(window.localStorage.getItem('125df'),appSettings.secretkeylocal)
+    receiver_userID = decrypt(window.localStorage.getItem('8786bgd'),appSettings.secretkeylocal)
+    receiver_assetID = decrypt(window.localStorage.getItem('uuer474'),appSettings.secretkeylocal) 
+    receiver_assetName = decrypt(window.localStorage.getItem('ooe34d'),appSettings.secretkeylocal) 
 
-    rowselecteddetail.forEach((irow, index) => {
-      const detailid = irow
-     
+    const detailid = receiver_detailID
       const url = 'http://localhost:3001/assets/pulloutasset_selectedbyuser'
       axios.post(url,{userID,detailid,assetID,notes})
       .then(response => {
         const dataResponse = response.data.message;
         if(dataResponse == "Update Success") {
+
+          const writeOnce = window.localStorage.getItem('Kvsf45_')
+          if (writeOnce === "0" ) {
+            window.localStorage.setItem('Kvsf45_','1')
+            checkin_success = window.localStorage.getItem('Kvsf45_');
+
+          }
 
           WriteLog("Message","AssetPullout","handlePullout /assets/pulloutasset_selectedbyuser", 
           " User advice for pullout "
@@ -229,14 +248,10 @@ try {
           + "\n Reason for Pullout :  " + notes
           + "\n User : " + userID ,userID)
 
-          const writeOnce = window.localStorage.getItem('Kvsf45_')
-          if (writeOnce == "0" ) {
-            window.localStorage.setItem('Kvsf45_','1')
-          }
+          sendEmail(checkin_success)
+          LoadAsset();
 
         }
-
-
         else if (dataResponse == "Update Error") {
           // only capturing the error
           WriteLog("Error","AssetPullout","handlePullout /assets/pulloutasset_selectedbyuser'",
@@ -244,54 +259,43 @@ try {
           + "\n Detail ID  :  " + detailid 
           + "\n Reason for Pullout :  " + notes
           + "\n " + response.data.message2,userID)
+
+          window.localStorage.removeItem('0ghds-134U')
+              window.localStorage.removeItem('bbg54WQ')
+              window.localStorage.removeItem('125df')
+              window.localStorage.removeItem('8786bgd')
+              window.localStorage.removeItem('ooe34d')
+              window.localStorage.setItem('Kvsf45_','0')
+
         }
       }).catch(err => {
         WriteLog("Error","AssetPullout","handlePullout /assets/pulloutasset_selectedbyuser'","Error in then/catch " + err.message,userID)
+
+
+        window.localStorage.removeItem('0ghds-134U')
+        window.localStorage.removeItem('bbg54WQ')
+        window.localStorage.removeItem('125df')
+        window.localStorage.removeItem('8786bgd')
+        window.localStorage.removeItem('ooe34d')
+        window.localStorage.setItem('Kvsf45_','0')
+
+
       })
-    })
-
-    /*
-    rowselecteddetail.forEach((nrow, index) => {
-
-      try {
-        if(userID == "") 
-        {
-        getUserInfo()
-        }
-
-        const detailID = nrow
-        const url = 'http://localhost:3001/assets/asset_bydetail'
-        axios.post(url,{detailID})
-        .then(res => {
-      
-          const dataResponse = res.data.message;
-          
-          if(dataResponse == "Record Found") {
-            const varasset = res.data.result[0]['assetID']
-           
-            UpdateMain_Asset(varasset)
-          } 
-        }).catch(err => {
-          WriteLog("Error","AssetPullout","handlePullout /assets/asset_bydetail'"," Error in then/catch(UpdateMain_Asset) " + err.message,userID)
-        })
-      }catch(err) {
-        WriteLog("Error","AssetPullout","handlePullout /assets/asset_bydetail'",err.message,userID)
-      }
-      
-    })
-    */
-
-    sendEmail()
-
-    setOpen(false);
+    
 }catch(err) {
   setOpen(false)
   WriteLog("Error","AssetPullout","handlePullout /assets/asset_bydetail'","Error in main try/catch  " + err.message,userID)
+
+
+  window.localStorage.removeItem('0ghds-134U')
+  window.localStorage.removeItem('bbg54WQ')
+  window.localStorage.removeItem('125df')
+  window.localStorage.removeItem('8786bgd')
+  window.localStorage.removeItem('ooe34d')
+  window.localStorage.setItem('Kvsf45_','0')
+
 }
-finally {
-  sendEmail()
-  navigate('/base/assetbyuser')
-}
+
 };
 
 function UpdateMain_Asset(varassetid) {
@@ -325,14 +329,25 @@ function UpdateMain_Asset(varassetid) {
 /// EO for Dialog Box
 
 
-
 /// For Data Grid 
 
-  const [assets, setAssets] = useState([])
-  const [rowselecteddetail,setRowSelecteddetail] = useState({})
 
   const columns = [
-    
+    {
+      field: 'id',
+      headerName: 'Actions',
+      type: 'actions',
+      disableClickEventBubbling: true,
+      renderCell: (params) => {
+        return (
+            <div>
+              
+            <ChecklistIcon cursor="pointer" onClick={()=> handle_Asset_Detail(params.row.id,params.row.assetName)}/>
+
+            </div>
+        );
+      }
+    },
     {
       field: 'assetCode',
       headerName: 'Code',
@@ -371,11 +386,6 @@ function UpdateMain_Asset(varassetid) {
     },
   ];
 
-
-  useEffect(() => {
-    LoadAsset()
-  },[])
-
   function LoadAsset()
   {
     try {
@@ -390,8 +400,7 @@ function UpdateMain_Asset(varassetid) {
         if(dataResponse == "Record Found") {
           setAssets(res.data.result)
         } else if (dataResponse == "No Record Found") {
-          //SetSuccess("No Assets Deployed")
-          //navigate('/500');
+          setAssets([]);
         }
       }).catch(err => {
         WriteLog("Error","AssetPullout","LoadAsset /assets/viewallassetsassigndeployed_user'","Error in then/catch \n" + err.message,userID)
@@ -433,15 +442,103 @@ function UpdateMain_Asset(varassetid) {
     }
   }
 
+  function GetAssetByDetail(paramdetailID,assetName) {
+    try {
+      if (userID === "") {
+        getUserInfo();
+      }
 
-  function sendEmail() {
+      window.localStorage.setItem('0ghds-134U',encrypt(paramdetailID,appSettings.secretkeylocal))
+      window.localStorage.setItem('ooe34d',encrypt(assetName,appSettings.secretkeylocal))
+      
+      const url = "http://localhost:3001/assets/getAssetID_By_detailID";
+      axios.post(url, {paramdetailID})
+        .then((res) => {
+          const dataResponse = res.data.message;
+          if (dataResponse == "Record Found") {
+          
+          window.localStorage.setItem('bbg54WQ',encrypt(res.data.result[0].firstname,appSettings.secretkeylocal))
+          window.localStorage.setItem('125df',encrypt(res.data.result[0].departmentID,appSettings.secretkeylocal))
+          window.localStorage.setItem('8786bgd',encrypt(res.data.result[0].userid,appSettings.secretkeylocal))
+          window.localStorage.setItem('uuer474',encrypt(res.data.result[0].assetID,appSettings.secretkeylocal))
+          window.localStorage.setItem('ooe34d',encrypt(assetName,appSettings.secretkeylocal))
+          
+          } else if (dataResponse == "No Record Found") {
+
+            window.localStorage.removeItem('0ghds-134U')
+            window.localStorage.removeItem('bbg54WQ')
+            window.localStorage.removeItem('125df')
+            window.localStorage.removeItem('8786bgd')
+            window.localStorage.removeItem('uuer474')
+            window.localStorage.removeItem('ooe34d')
+            window.localStorage.setItem('Kvsf45_','0')
+
+            WriteLog(
+              "Message",
+              "AssetPullout",
+              "GetAssetbyDetail /assets/getAssetID_By_detailID",
+              dataResponse,
+              userID
+            );
+
+          } 
+          else {
+            WriteLog(
+              "Error",
+              "AssetPullout",
+              "GetAssetbyDetail /assets/getAssetID_By_detailID",
+              " Suppose to be a success or error only, need tocheck this!!",
+              userID
+            );
+          }
+        })
+        .catch((err) => {
+          WriteLog(
+            "Error",
+            "AssetPullout",
+            "GetAssetByDetail /assets/getAssetID_By_detailID",
+            " Error in then/catch " + err.message,
+            userID
+          );
+         
+          window.localStorage.removeItem('0ghds-134U')
+          window.localStorage.removeItem('bbg54WQ')
+          window.localStorage.removeItem('125df')
+          window.localStorage.removeItem('8786bgd')
+          window.localStorage.removeItem('uuer474')
+          window.localStorage.removeItem('ooe34d')
+          window.localStorage.setItem('Kvsf45_','0')
+        });
+      
+    }
+    catch(err) {
+      WriteLog(
+        "Error",
+        "AssetPullout",
+        "GetAssetByDetail /assets/getAssetID_By_detailID",
+        " Error in try/catch " + err.message,
+        userID
+      );
+
+      window.localStorage.removeItem('0ghds-134U')
+      window.localStorage.removeItem('bbg54WQ')
+      window.localStorage.removeItem('125df')
+      window.localStorage.removeItem('8786bgd')
+      window.localStorage.removeItem('uuer474')
+      window.localStorage.removeItem('ooe34d')
+      window.localStorage.removeItem("Kvsf45_")
+
+    }
+  }
+
+
+  function sendEmail(paramcheckin_success) {
 
     let strDate =   utils_getDate();
     displayname = window.localStorage.getItem('display')
     const allow_send_email_pullout_asset_by_user = appSettings.ALLOW_SENDEMAIL_PULLOUT_BY_USER
       
-     const checkin_success = window.localStorage.getItem('Kvsf45_')
-
+     
 
     try {
         var templateParams = {
@@ -449,35 +546,43 @@ function UpdateMain_Asset(varassetid) {
         email_sender: appSettings.email_sender,
         reply_to : appSettings.reply_to,
         name: appSettings.ASSET_RECEIVERNAME,
-        notes: notes,
+        notes: "Pullout Asset (" + receiver_assetName + ") \n" + notes,
         date: strDate,
         user_name: displayname
     };
 
-    if(checkin_success == "1") {
+    if(paramcheckin_success === "1") {
 
-          if(allow_send_email_pullout_asset_by_user == "send") {
+          if(allow_send_email_pullout_asset_by_user === "send") {
 
           emailjs.send(appSettings.USER_SERVICE_ID, appSettings.USER_TEMPLATE_ID, templateParams,appSettings.public_key)
           .then(function(response) {
-            console.log('SUCCESS!', response.status, response.text);
+
+            WriteUserInfo("Info", "AssetPullout", receiver_userID,
+            receiver_name,receiver_deptID,
+            templateParams.notes,userID)
+
           }, function(error) {
-            console.log('FAILED...', error);
+            
+
+            WriteLog(
+              "Error",
+              "AssetPullout",
+              "Failed sending pullout email",
+              error.message,
+              userID
+            );
+
           });
         }
         else {
           
-          WriteUserInfo("Info","AssetPullout",userID,
-          "Asset Pullout: "
-          + `\nNotes : ` + templateParams.notes,userID)
+          WriteUserInfo("Info", "AssetPullout", receiver_userID,
+          receiver_name,receiver_deptID,
+          templateParams.notes,userID)
         }
     }
-    else 
-    {
-      WriteUserInfo("Info","AssetPullout",userID,
-      "Asset Pullout: "
-      + `\nNotes : ` + templateParams.notes,userID)
-    }
+    
 
   }
   catch(err) {
@@ -522,7 +627,7 @@ function UpdateMain_Asset(varassetid) {
                             justifyContent: 'left',
                           
                             }}>
-                      <CButton onClick={handleClickOpen} style={{ margin:'5px', width: '120%' }}  color="success"> Pullout</CButton>
+
                       <CButton onClick={handleViewPullout} style={{  margin:'5px', width: '120%' }} color="success"> View  </CButton>
                       </ButtonGroup>
 
@@ -539,8 +644,6 @@ function UpdateMain_Asset(varassetid) {
                         <DialogContent>
                           <DialogContentText>
                             Are you sure you want to Pullout  asset(s) ?
-                            <br></br>
-                            Selected : ({ iselected })
                           </DialogContentText>
                         </DialogContent>
                         <DialogActions>
@@ -569,9 +672,9 @@ function UpdateMain_Asset(varassetid) {
                           },
                         }}
                         pageSizeOptions={[5]}
-                        checkboxSelection
+                      //  checkboxSelection
                         disableRowSelectionOnClick
-                        onRowSelectionModelChange={id => setRowSelecteddetail(id)}
+                       // onRowSelectionModelChange={id => setRowSelecteddetail(id)}
                         
                       />
 

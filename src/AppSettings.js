@@ -24,6 +24,16 @@ const appSettings = {
     //window.localStorage.removeItem('8786bgd') // recever_userid
      //window.localStorage.removeItem('uuer474') // recever_assetid
     //window.localStorage.removeItem('ooe34d') // recever_assetname
+
+// for pullout
+//window.localStorage.removeItem('0ghds-134U')  detaildID for userAssign
+//window.localStorage.removeItem('bbg54WQ') recever_name
+//window.localStorage.removeItem('125df') recever_departmentID
+//window.localStorage.removeItem('8786bgd') // recever_userid
+//window.localStorage.removeItem('uuer474') // recever_assetid
+//window.localStorage.removeItem('ooe34d') // recever_assetname
+//window.localStorage.removeItem('jkfrf34') // recever_assetname
+
     
     
 
@@ -38,6 +48,7 @@ const appSettings = {
     ALLOW_SENDEMAIL_CHECKIN_BY_USER: 'no',
     ALLOW_SENDEMAIL_APPROVE_DISPOSE: 'no',
     ALLOW_SENDEMAIL_PULLOUT_BY_USER: 'no',
+    ALLOW_SENDEMAIL_CHECKIN_BY_IT: 'no',
 
     // For next-server
     email_key: 're_BReLyfj9_7cLbVV2Rxf5aji3CcnmUvinH',
@@ -55,6 +66,14 @@ const appSettings = {
     USER_SERVICE_ID: 'service_ivu0u7x',
     ASSET_RECEIVERNAME: 'Asset Team',
     USER_TEMPLATE_ID : 'template_n3o5jrb',
+
+        // for ITCheckin / Pullout by User
+    //email_source : 'asset@test.dev',
+    IT_ASSETCHECKIN_EMAIL: 'dg0at1818@gmail.com',
+    IT_ASSETCHECKIN_REPLY_TO: 'test@test.com',
+    IT_ASSETCHECKIN_USER_SERVICE_ID: 'service_ivu0u7x',
+    IT_ASSETCHECKIN_ASSET_RECEIVERNAME: ' User Name here',
+    IT_ASSETCHECKIN_USER_TEMPLATE_ID : 'template_n3o5jrb',
 
         // for UserCheckIn
         // email quota :-) :-)
