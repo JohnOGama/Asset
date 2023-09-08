@@ -326,22 +326,22 @@ const handleChange = (event) => {
       const amountdepreciated = formatvalues.amountdepnumberformat;
       const supplierid = values.supplierID;
 
-     // console.log(supplierid)
+      console.log(supplierid)
      // console.log(values)
 
-        if((!assetStat == "") && 
-          (!assetcategID == "") &&
-          (!serialno == "") && 
-          (!assetcode == "") && 
-          (!assetname == "") && 
-          (!description == "") && 
-          (!amount == "") && 
-          (!amountdepreciated == "") && 
-          (!datePurchase == "") && 
-          (!dateDepreciated == "") && 
-          (!file == "") && 
-          (!supplierid == ""))
-        {
+          if((!assetStat == "") && 
+            (!assetcategID == "") &&
+            (!serialno == "") && 
+            (!assetcode == "") && 
+            (!assetname == "") && 
+            (!description == "") && 
+            (!amount == "") && 
+            (!amountdepreciated == "") && 
+            (!datePurchase == "") && 
+            (!dateDepreciated == "") && 
+            (!file == "") && 
+            (!supplierid == ""))
+          {
           
           const url = 'http://localhost:3001/assets/putAssets'
           axios.post(url,{assetStat,supplierid,assetcategID,serialno,assetcode,assetname,description,

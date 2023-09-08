@@ -194,11 +194,12 @@ app.post('/log/viewallLogs',(req,res) => {
 
 app.post('/log/viewaLogUserInfo',(req,res) => {
 
-    const sql = "SELECT  log.logID as id,log.logtype,log.module,log.logfunction,log.logvalues,log.userID,"
+    const sql = "SELECT  log.logID as id,log.logtype,log.module,log.logfunction,log.logvalues,log.userID,log.receiverName,"
         + "users.imgFilename,(select userCreated.imgFilename from tblUsers userCreated"
         + " where userCreated.userDisplayID = log.createdBy limit 1 )as usercreatedImg,"
-        + "(select concat('Hi ',userCreated.firstname) as fname  from tblUsers userCreated"
-        + " where userCreated.userDisplayID = log.createdBy limit 1 ) as userNameCreated,log.createdBy"
+        + "(select userCreated.firstname from tblUsers userCreated"
+        + " where userCreated.userDisplayID = log.createdBy limit 1 ) as userNameCreated,"
+        + " log.createdBy"
         + " FROM tblLogs log"
         + " INNER JOIN tblUsers users on users.userDisplayID = log.userID"
         + " inner join tblPositions pos on pos.positionDisplayID = users.positionID"
@@ -1423,7 +1424,7 @@ app.post('/assets/getCountassetsper_category_ByUser',(req,res) => {
     })
 });
 
-/*
+
 app.post('/assets/getAssetStatus',(req,res) => {
     const sql = "SELECT assetStatusID,statusName FROM tblAssetStatus WHERE statusName = 'Available'";
     connection.query(sql,(err,result) => {
@@ -1442,7 +1443,7 @@ app.post('/assets/getAssetStatus',(req,res) => {
     })
 });
 
-*/
+
 
 
 app.post('/assets/upDateImage', upload.single("file"), (req,res)   => {
@@ -1871,8 +1872,7 @@ app.post('/assets/viewallassetsassignbyuserfordeploy_deployed',(req,res) => {
 
  app.post('/assets/viewallassetsassignfordeploy',(req,res) => {
 
-     
-    const sql = "select details.detailID as id,assets.assetCode,assets.assetName,"
+    const sql = "select details.detailID as id,assets.assetID,details.userSelectedID,assets.assetCode,assets.assetName,"
         + "stats.statusName,category.assetCategName,userdeploy.displayName,"
         + "COALESCE(DATE_FORMAT(details.plancheckout, '%m/%d/%Y'),'') as datecheckout,details.useridcheckout  from tblUsers users"
         + " inner join tblUserAssetDetails details on details.userSelectedID COLLATE utf8mb4_unicode_ci = users.userDisplayID"
@@ -2015,19 +2015,19 @@ app.post('/assets/updateassetdeploy',(req,res) => {
 
     const sqlUpdate = "UPDATE tblAssets SET assetStatusID = ?,updatedBy = ?,dateUpdated = ?"
             + " where assetID = ? and active=1"
-/*
-      console.log(req.body.assetdeploy)
-      console.log(req.body.userID)
-      console.log(req.body.varassetid)
-*/                          
-    connection.query(sqlUpdate,[ req.body.assetdeploy, req.body.userID, utils_getDate(),req.body.varassetid],(err,result) => {
+ 
+            console.log(req.body.assetstat)
+            console.log(req.body.userID)
+            console.log(req.body.varassetID)
+
+    connection.query(sqlUpdate,[ req.body.assetstat, req.body.userID, utils_getDate(),req.body.varassetID],(err,result) => {
         if(err) {
             res.json({
                 message: "Update Error",
                 message2: err.message});
         }else {
             
-            res.json({result,
+            res.json({
                 message: "Update Success"});
         }
      })
@@ -2043,7 +2043,7 @@ app.post('/assets/updateuserasset',(req,res) => {
 
    
       
-    connection.query(sqlUpdate,[ req.body.userID,utils_getDate(), req.body.varnotes,req.body.varuserid],(err,result) => {
+    connection.query(sqlUpdate,[req.body.userID,utils_getDate(), req.body.varnotes,req.body.varuserid],(err,result) => {
         if(err) {
             res.json({
                 message: "Update Error",
@@ -2062,12 +2062,13 @@ app.post('/assets/updateuserasset',(req,res) => {
 app.post('/assets/checkinassetsdetail',(req,res) => {
 
 
-    const sqlUpdate = "UPDATE tblUserAssetDetails SET checkinby = ?,datecheckin = ?,assetStatusID = ?"
-            + " where detailID = ?"
-    //console.log("A - " + req.body.userID)
-    //console.log("b - " + req.body.assetstat)
-    //console.log("d - " + req.body.detailID)
-
+    const sqlUpdate = "UPDATE tblUserAssetDetails SET checkinby =?,datecheckin=?,assetStatusID=?"
+            + " where detailID=?"
+ /*           
+    console.log("A - " + req.body.userID)
+    console.log("b - " + req.body.assetstat)
+    console.log("d - " + req.body.detailID)
+*/
     connection.query(sqlUpdate,[req.body.userID,utils_getDate(), req.body.assetstat,
         req.body.detailID],(err,result) => {
         if(err) {
@@ -2075,16 +2076,12 @@ app.post('/assets/checkinassetsdetail',(req,res) => {
                 message: "Update Error",
                 message2: err.message});
         }else {
-            //console.log("Success")
-            if(result.affectedRows == 1) {
+            //console.log("success")
+           // if(result.affectedRows == 1) {
             res.json({
                 message: "Update Success"});
-            }else {
-                res.json({
-                    message: "Update Error",
-                    message2: err.message});
             }
-        }
+        //}
 
      })
 
@@ -2153,8 +2150,13 @@ app.post('/assets/getAssetID_By_detailID',(req,res) => {
 
     try {
    
-       const sql = "SELECT detail.assetID FROM assets.tblUserAssetDetails detail"
-        + " where detail.detailID = ? and detail.checkinby is null"
+       const sql = "SELECT detail.assetID,users.firstname,users.userDisplayID as userid,"
+       + "detail.departmentID FROM assets.tblUserAssetDetails detail"
+       + " inner join tblUsers users on users.userDisplayID COLLATE utf8mb4_unicode_ci = detail.useridcheckout"
+        + " where detail.detailID = ?"
+
+  //  console.log(req.body.paramdetailID)
+
     connection.query(sql,[req.body.paramdetailID],(err,result) => {
 
         if(err) {

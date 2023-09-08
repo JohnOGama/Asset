@@ -1,6 +1,7 @@
 // eslint-disable-next-line
 import { useEffect, useState } from "react";
 import axios from "axios";
+
 import * as React from "react";
 
 import { DataGrid } from "@mui/x-data-grid";
@@ -30,20 +31,32 @@ import DialogTitle from "@mui/material/DialogTitle";
 import Paper from "@mui/material/Paper";
 import Draggable from "react-draggable";
 
-import { useNavigate } from "react-router-dom";
+import { json, useNavigate } from "react-router-dom";
+
 
 import appSettings from "src/AppSettings"; // read the app config
-import { decrypt } from "n-krypta";
+import { decrypt, encrypt } from "n-krypta";
 //encrypt, compare
 
 import WriteLog from "src/components/logs/LogListener";
 import utils_getDate from "src/components/DateFunc";
 import WriteUserInfo from "src/components/logs/LogListenerUser";
 
+
+import ChecklistIcon from '@mui/icons-material/Checklist';
+import e from "cors";
+
 const AssetUserAssign = () => {
   const navigate = useNavigate();
 
   let userID = "";
+
+  var receiver_detailID = ""
+  var receiver_assetID = ""
+  var receiver_name = ""
+  var receiver_deptID = ""
+  var receiver_userID = ""
+
 
   //const [success,SetSuccess] = useState("");
   //const [errors,setErrors] = useState({})
@@ -53,7 +66,10 @@ const AssetUserAssign = () => {
   const [assets, setAssets] = useState([]);
   const [assetstat, setAssetStat] = useState(""); // deployed
   const [assetstatfordeploy, setAssetForDeploy] = useState(""); // for deploy
-  const [rowselected, setRowSelected] = useState({});
+  const [rowselected, setRowSelected] = useState({
+    id: '',
+    assetid: ''
+  });
   const [iselected, SetTotalSelected] = useState(0); // count how many are selected
 
   const [open, setOpen] = React.useState(false);
@@ -110,360 +126,63 @@ const AssetUserAssign = () => {
   useEffect(() => {
     getUserInfo();
     LoadData();
+   //GetAsset_Status_For_Deploy();
+   // GetAsset_Status_Deploy()
   }, []);
 
+  //// Get_Status_Deploy
   useEffect(() => {
+  
     try {
-      if (userID == "") {
+
+      if (userID === "") {
         getUserInfo();
       }
-      const url = "http://localhost:3001/assets/viewallassetsassignfordeploy";
+      const url = "http://localhost:3001/assets/getassetstatdeploy";
       axios
-        .post(url, { userID })
+        .post(url)
         .then((res) => {
-          const dataResponse = res.data.message;
-
-          if (dataResponse == "Record Found") {
-            setAssets(res.data.result);
+          const deployResponse = res.data.message;
+          if (deployResponse == "Record Found") {
+            setAssetStat(res.data.result[0]["assetStatusID"]);
+          } else if (deployResponse == "No Record Found") {
+            WriteLog(
+              "Message",
+              "AssetUserAssign",
+              "useEffect /assets/getassetstatdeploy",
+              deployResponse,
+              userID
+            );
           }
         })
         .catch((err) => {
           WriteLog(
-            "Error",
+            "Message",
             "AssetUserAssign",
-            "LoadData /assets/viewallassetsassignfordeploy",
+            "useEffect /assets/getassetstatdeploy",
             err.message,
             userID
           );
         });
-    } catch (err) {
+  
+    }
+    catch(err) {
       WriteLog(
         "Error",
         "AssetUserAssign",
-        "LoadData /assets/viewallassetsassignfordeploy",
-        err.message,
+        "GetAsset_Status_Deploy /assets/getAssetID_By_detailID",
+        " Error in try/catch " + err.message,
         userID
       );
     }
-  }, []);
+  }, [])
 
-  useEffect(() => {
-    //console.log
-  }, [assets]);
+/// GetAsset_Status_For_Deploy
+useEffect(() => {
 
-  const handleClickOpen = (event) => {
-    try {
-      event.preventdefault;
+  try {
 
-      var num = 0;
-      rowselected.forEach((irow, index) => {
-        //num = num + 1;
-        num = index + 1;
-      });
-      SetTotalSelected(num);
-
-      setOpen(true);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  useEffect(() => {
-    // console.log()
-  }, [iselected]);
-
-  /// For Dialog
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  const handleCheckin = (event) => {
-    event.preventdefault;
-    if(userID == "") 
-    {
-      getUserInfo()
-    }
-    CheckIN();
-  };
-
-  function CheckIN() {
-    try {
-
-
-
-          rowselected.forEach((irow) => {
-            
-          const detailID = irow
-          WriteLog("Error","AssetUserAssign","Hit ",detailID,userID)
-          const url = 'http://localhost:3001/assets/checkinassetsdetail'
-          axios.post(url,{userID,assetstat,detailID})
-          .then(response => {
-            const dataResponse = response.data.message;
-            if(dataResponse == "Update Success")
-            {
-
-              UpdateAssetDeployed(detailID)
-              const writeOnce = window.localStorage.getItem('Kvsf45_')
-              if (writeOnce == "0" ) {
-                window.localStorage.setItem('Kvsf45_','1')
-              }
-              
-              WriteLog("Message","AssetUserAssign","handleCheckin /assets/checkinassetsdetail", 
-                      "User asset received or checkin "
-                      + "\n Asset Detail ID: " + detailID 
-                      + "\n Status From :  " + assetstatfordeploy 
-                      + "\n Status To :  " + assetstat
-                      + "\n Receive by : " + userID ,userID)
-              
-            }
-            else if (dataResponse == "Update Error") {
-              WriteLog("Error","AssetUserAssign","handleCheckin /assets/checkinassetsdetail",response.data.message2,userID)
-              window.localStorage.setItem('Kvsf45_','0')
-            }
-          }).catch(err => {
-            WriteLog("Error","AssetUserAssign","handleCheckin /assets/checkinassetsdetail","Error in then/catch " + err.message,userID)
-        })
-
-          })
-        sendEmail()
-        setOpen(false);
-        LoadData() 
-
-  }catch(err) {
-    setOpen(false)
-    WriteLog("Error","AssetUserAssign","handleCheckin /assets/checkinassetsdetail'","Error in try/catch " + err.message,userID)
-    navigate('/dashboard')
-  }
-
-  }
-
-  function sendEmail() {
-    try {
-      let strDate = utils_getDate();
-      const allow_send_email_checkin_asset_by_user =
-        appSettings.ALLOW_SENDEMAIL_CHECKIN_BY_USER;
-
-      const checkin_success = window.localStorage.getItem("Kvsf45_");
-
-      //senderInfo.receiveremail,
-      // senderInfo.receiveremail,
-      var templateParams = {
-        email_to: appSettings.email_sender,
-        email_sender: "",
-        reply_to: "",
-        name: appSettings.ASSET_RECEIVERNAME,
-        notes: "Asset is now CheckIn on my end",
-        date: strDate,
-      };
-
-      if (checkin_success == "1") {
-        if (allow_send_email_checkin_asset_by_user == "send") {
-          emailjs
-            .send(
-              appSettings.YOUR_SERVICE_ID,
-              appSettings.YOUR_TEMPLATE_ID,
-              templateParams,
-              appSettings.public_key
-            )
-            .then(
-              function (response) {
-                WriteLog(
-                  "Error",
-                  "e",
-                  "templateParams ",
-                  "checkin_success ",
-                  userID
-                );
-
-                WriteUserInfo(
-                  "Info",
-                  "AssetUserAssign",
-                  userID,
-                  "CheckIn Asset : " + `\nNotes : ` + templateParams.notes,
-                  userID
-                );
-              },
-              function (error) {
-                WriteUserInfo(
-                  "Error",
-                  "DisposeView",
-                  userID,
-                  "Info : " +
-                    "Failed sending email Approve Dispose : " +
-                    userID +
-                    "\n" +
-                    "Notes : " +
-                    templateParams.notes +
-                    "\n " +
-                    "Response : " +
-                    error,
-                  userID
-                );
-              }
-            );
-        } else {
-          WriteUserInfo(
-            "Info",
-            "AssetUserAssign",
-            userID,
-            "CheckIn Asset : " + `\nNotes : ` + templateParams.notes,
-            userID
-          );
-        }
-      } else {
-        WriteUserInfo(
-          "Info",
-          "AssetUserAssign",
-          userID,
-          "CheckIn Asset : " + `\nNotes : ` + templateParams.notes,
-          userID
-        );
-      }
-    } catch (err) {
-      WriteLog(
-        "Error",
-        "AssetUserAssign",
-        "LocalStorage checkin tampered",
-        err.message,
-        userID
-      );
-    }
-  }
-
-  function UpdateAssetDeployed(paramdetailID) {
-    const [varassetID, setVarAsset] = useState("");
-
-    try {
-      if (userID == "") {
-        getUserInfo();
-      }
-
-      //// GetAssetByDetail
-
-      const url = "http://localhost:3001/assets/getAssetID_By_detailID";
-      axios
-        .post(url, { paramdetailID })
-        .then((res) => {
-          const dataResponse = res.data.message;
-          if (dataResponse == "Record Found") {
-            setVarAsset(res.data.result[0].assetID);
-            WriteLog("Error", "val ", "val", varassetID, userID);
-          } else if (dataResponse == "No Record Found") {
-            WriteLog(
-              "Message",
-              "AssetUserAssign",
-              "UpdateAssetDeployed /assets/getAssetID_By_detailID",
-              dataResponse,
-              userID
-            );
-            WriteLog("Error", "A ", "A", varassetID, userID);
-          } else {
-            WriteLog("Error", "B ", "B", varassetID, userID);
-          }
-        })
-        .catch((err) => {
-          WriteLog(
-            "Error",
-            "AssetUserAssign",
-            "UpdateAssetDeployed /assets/getAssetID_By_detailID",
-            " Error in then/catch " + err.message,
-            userID
-          );
-          varassetID = "";
-          WriteLog("Error", "C ", "C", varassetID, userID);
-        });
-
-      WriteLog("Error", "val1 ", "va1l", varassetID, userID);
-      /// Update Asset Deploy
-
-      WriteLog(
-        "Message",
-        "AssetUserAssign",
-        "Test value if AssetID : " +
-          varassetID +
-          " AND DETAILID : " +
-          paramdetailID,
-        userID
-      );
-      //const assetdeploy = assetstat
-
-      const url1 = "http://localhost:3001/assets/updateassetdeploy";
-      axios
-        .post(url1, { assetstat, userID, varassetID })
-        .then((res) => {
-          const dataResponse = res.data.message;
-          if (dataResponse == "Record Found") {
-            setAssets(res.data.result);
-          } else if (dataResponse == "No Record Found") {
-            WriteLog(
-              "Message",
-              "AssetUserAssign",
-              "UpdateAssetDeployed /assets/updateassetdeploy",
-              dataResponse,
-              userID
-            );
-            //navigate('/500');
-          }
-        })
-        .catch((err) => {
-          WriteLog(
-            "Error",
-            "AssetUserAssign",
-            "UpdateAssetDeployed /assets/updateassetdeploy",
-            "Error in then/catch " + err.message,
-            userID
-          );
-        });
-    } catch (err) {
-      WriteLog(
-        "Error",
-        "AssetUserAssign",
-        "UpdateAssetDeployed",
-        "Error in main try/catch " + err.message,
-        userID
-      );
-    }
-  }
-
-  /// End of Dialog
-
-  function LoadData() {
-    try {
-      if (userID == "") {
-        getUserInfo();
-      }
-      const url = "http://localhost:3001/assets/viewallassetsassignfordeploy";
-      axios
-        .post(url, { userID })
-        .then((res) => {
-          const dataResponse = res.data.message;
-
-          if (dataResponse == "Record Found") {
-            setAssets(res.data.result);
-          }
-        })
-        .catch((err) => {
-          WriteLog(
-            "Error",
-            "AssetUserAssign",
-            "LoadData /assets/viewallassetsassignfordeploy",
-            err.message,
-            userID
-          );
-        });
-    } catch (err) {
-      WriteLog(
-        "Error",
-        "AssetUserAssign",
-        "LoadData /assets/viewallassetsassignfordeploy",
-        err.message,
-        userID
-      );
-    }
-  }
-
-  useEffect(() => {
-    if (userID == "") {
+    if (userID === "") {
       getUserInfo();
     }
     const url = "http://localhost:3001/assets/getassetfordeploystatus";
@@ -493,10 +212,104 @@ const AssetUserAssign = () => {
           userID
         );
       });
-  }, []);
+  }
+  catch(err) {
+    WriteLog(
+      "Error",
+      "AssetUserAssign",
+      "GetAsset_Status_For_Deploy /assets/getAssetID_By_detailID",
+      " Error in try/catch " + err.message,
+      userID
+    );
+  }
 
-  useEffect(() => {
-    if (userID == "") {
+}, [])
+
+
+  function LoadData() {
+    try {
+      if (userID === "") {
+        getUserInfo();
+      }
+      const url = "http://localhost:3001/assets/viewallassetsassignfordeploy";
+      axios
+        .post(url, { userID })
+        .then((res) => {
+          const dataResponse = res.data.message;
+
+          if (dataResponse == "Record Found") {
+            setAssets(res.data.result);
+          }
+        })
+        .catch((err) => {
+          WriteLog(
+            "Error",
+            "AssetUserAssign",
+            "LoadData /assets/viewallassetsassignfordeploy",
+            err.message,
+            userID
+          );
+        });
+    } catch (err) {
+      WriteLog(
+        "Error",
+        "AssetUserAssign",
+        "LoadData /assets/viewallassetsassignfordeploy",
+        err.message,
+        userID
+      );
+    }
+  }
+
+function GetAsset_Status_For_Deploy() {
+  try {
+
+    if (userID === "") {
+      getUserInfo();
+    }
+    const url = "http://localhost:3001/assets/getassetfordeploystatus";
+    axios
+      .post(url)
+      .then((response) => {
+        const dataResponse = response.data.message;
+        if (dataResponse == "Record Found") {
+          setAssetForDeploy(response.data.result[0]["assetStatusID"]);
+        } else if (dataResponse == "No Record Found") {
+          WriteLog(
+            "Message",
+            "AssetUserAssign",
+            "GetAsset_Status_For_Deploy /assets/getassetfordeploystatus",
+            dataResponse,
+            userID
+          );
+          //navigate('/500');
+        }
+      })
+      .catch((err) => {
+        WriteLog(
+          "Error",
+          "AssetUserAssign",
+          "GetAsset_Status_For_Deploy /assets/getassetfordeploystatus",
+          err.message,
+          userID
+        );
+      });
+  }
+  catch(err) {
+    WriteLog(
+      "Error",
+      "AssetUserAssign",
+      "GetAsset_Status_For_Deploy /assets/getAssetID_By_detailID",
+      " Error in try/catch " + err.message,
+      userID
+    );
+  }
+}
+
+function GetAsset_Status_Deploy () {
+  try {
+
+    if (userID === "") {
       getUserInfo();
     }
     const url = "http://localhost:3001/assets/getassetstatdeploy";
@@ -510,27 +323,407 @@ const AssetUserAssign = () => {
           WriteLog(
             "Message",
             "AssetUserAssign",
-            "useEffect /assets/getassetstatdeploy",
+            "GetAsset_Status_Deploy /assets/getassetstatdeploy",
             deployResponse,
             userID
           );
-          //navigate('/500');
         }
       })
       .catch((err) => {
         WriteLog(
           "Message",
           "AssetUserAssign",
-          "useEffect /assets/getassetstatdeploy",
+          "GetAsset_Status_Deploy /assets/getassetstatdeploy",
           err.message,
           userID
         );
       });
-  }, []);
 
+  }
+  catch(err) {
+    WriteLog(
+      "Error",
+      "AssetUserAssign",
+      "GetAsset_Status_Deploy /assets/getAssetID_By_detailID",
+      " Error in try/catch " + err.message,
+      userID
+    );
+  }
+}
+
+  const handleClickOpen = (event) => {
+  
+      event.preventdefault;
+
+      if (Object.keys(rowselected).length > 0) {
+        setMessage('')
+       
+        setOpen(true);
+        SetTotalSelected(Object.keys(rowselected).length)
+      }
+      else {
+
+        setOpen(false)
+        setMessage('No Asset Selected')
+        setColorMessage('orange')
+      }
+
+  };
+
+ 
+  function handle_Asset_Detail(detailID,assetid,event) {
+
+    try {
+    window.localStorage.removeItem('0ghds-134U')
+    window.localStorage.removeItem('bbg54WQ')
+    window.localStorage.removeItem('125df')
+    window.localStorage.removeItem('8786bgd')
+    window.localStorage.removeItem("Kvsf45_")
+    }
+    catch(err) {
+      // means no laman
+      WriteLog("Error","AssetUserAssign","handle_Asset_Detail","No localsotrage for processing asstassign checkin")
+    }
+    setMessage('')
+    setColorMessage('')
+    GetAssetByDetail(detailID)
+   
+    setOpen(true)
+
+  }
+
+  /// For Dialog
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleCheckin = (event) => {
+
+    event.preventdefault;
+    if(userID === "") 
+    {
+      getUserInfo()
+    }
+  
+    try {
+      setOpen(false)
+      if(userID === "") 
+      {
+        getUserInfo()
+      }
+
+      receiver_detailID = decrypt(window.localStorage.getItem('0ghds-134U'),appSettings.secretkeylocal)
+      receiver_name = decrypt(window.localStorage.getItem('bbg54WQ'),appSettings.secretkeylocal)
+      receiver_deptID = decrypt(window.localStorage.getItem('125df'),appSettings.secretkeylocal)
+      receiver_userID = decrypt(window.localStorage.getItem('8786bgd'),appSettings.secretkeylocal)
+      receiver_assetID = decrypt(window.localStorage.getItem('uuer474'),appSettings.secretkeylocal) 
+
+
+          const detailID = receiver_detailID
+          const url = 'http://localhost:3001/assets/checkinassetsdetail'
+          axios.post(url,{userID,assetstat,detailID})
+          .then(response => {
+            const dataResponse = response.data.message;
+            if(dataResponse == "Update Success") {
+
+              WriteLog("For Testing","Start reading chekin once","","",userID)
+              const writeOnce = window.localStorage.getItem('Kvsf45_')
+              var checkin_success = ""
+              if (writeOnce === "0" ) {
+                window.localStorage.setItem('Kvsf45_','1')
+                WriteLog("For Testing","I write chekin once","","",userID)
+                checkin_success = window.localStorage.getItem('Kvsf45_');
+                WriteLog("For Testing","ano laman mo ngyn","",checkin_success,userID)
+              }
+              
+              UpdateAssetDeployed(receiver_assetID)
+            
+       
+              WriteLog("Message","AssetUserAssign","handleCheckIn /assets/checkinassetsdetail", 
+                        "User asset received or checkin "
+                        + "\n Asset Detail ID: " + receiver_detailID 
+                        + "\n Status From :  " + assetstatfordeploy 
+                        + "\n Status To :  " + assetstat
+                        + "\n Receive by : " + userID ,userID)
+
+            } else if (dataResponse == "Update Error") {
+              WriteLog("Error","AssetUserAssign","handleCheckIn /assets/checkinassetsdetail",response.data.message2,userID)
+              window.localStorage.setItem('Kvsf45_','0')
+            }
+    
+
+          }).catch(err => {
+            WriteLog("Error","AssetUserAssign","handleCheckIn /assets/checkinassetsdetail","Error in then/catch " + err.message,userID)
+          })
+     // })
+
+      // kapag nilagyan ng setmessagte di nagrerefresh yng grid 
+      sendEmail()
+      LoadData() 
+      
+      window.localStorage.removeItem('0ghds-134U')
+      window.localStorage.removeItem('bbg54WQ')
+      window.localStorage.removeItem('125df')
+      window.localStorage.removeItem('8786bgd')
+      window.localStorage.setItem('Kvsf45_','0')
+
+    }
+      catch(err) {
+        WriteLog("Error","AssetUserAssign","handleCheckIn /assets/checkinassetsdetail","Error in try/catch " + err.message,
+        userID)
+
+        window.localStorage.removeItem('0ghds-134U')
+        window.localStorage.removeItem('bbg54WQ')
+        window.localStorage.removeItem('125df')
+        window.localStorage.removeItem('8786bgd')
+        window.localStorage.removeItem('uuer474')
+        window.localStorage.setItem('Kvsf45_','0')
+
+      }
+
+
+  };
+
+
+  function GetAssetByDetail(paramdetailID) {
+    try {
+      if (userID === "") {
+        getUserInfo();
+      }
+
+      window.localStorage.setItem('0ghds-134U',encrypt(paramdetailID,appSettings.secretkeylocal))
+
+      const url = "http://localhost:3001/assets/getAssetID_By_detailID";
+      axios.post(url, {paramdetailID})
+        .then((res) => {
+          const dataResponse = res.data.message;
+          if (dataResponse == "Record Found") {
+          
+          window.localStorage.setItem('bbg54WQ',encrypt(res.data.result[0].firstname,appSettings.secretkeylocal))
+          window.localStorage.setItem('125df',encrypt(res.data.result[0].departmentID,appSettings.secretkeylocal))
+          window.localStorage.setItem('8786bgd',encrypt(res.data.result[0].userid,appSettings.secretkeylocal))
+          window.localStorage.setItem('uuer474',encrypt(res.data.result[0].assetID,appSettings.secretkeylocal))
+          
+          } else if (dataResponse == "No Record Found") {
+
+            window.localStorage.removeItem('0ghds-134U')
+            window.localStorage.removeItem('bbg54WQ')
+            window.localStorage.removeItem('125df')
+            window.localStorage.removeItem('8786bgd')
+            window.localStorage.removeItem('uuer474')
+            window.localStorage.setItem('Kvsf45_','0')
+
+            WriteLog(
+              "Message",
+              "AssetUserAssign",
+              "GetAssetbyDetail /assets/getAssetID_By_detailID",
+              dataResponse,
+              userID
+            );
+
+          } 
+          else {
+            WriteLog(
+              "Error",
+              "AssetUserAssign",
+              "GetAssetbyDetail /assets/getAssetID_By_detailID",
+              " Suppose to be a success or error only, need tocheck this!!",
+              userID
+            );
+          }
+        })
+        .catch((err) => {
+          WriteLog(
+            "Error",
+            "AssetUserAssign",
+            "UpdateAssetDeployed /assets/getAssetID_By_detailID",
+            " Error in then/catch " + err.message,
+            userID
+          );
+         
+          window.localStorage.removeItem('0ghds-134U')
+          window.localStorage.removeItem('bbg54WQ')
+          window.localStorage.removeItem('125df')
+          window.localStorage.removeItem('8786bgd')
+          window.localStorage.removeItem('uuer474')
+          window.localStorage.setItem('Kvsf45_','0')
+        });
+      
+    }
+    catch(err) {
+      WriteLog(
+        "Error",
+        "AssetUserAssign",
+        "UpdateAssetDeployed /assets/getAssetID_By_detailID",
+        " Error in try/catch " + err.message,
+        userID
+      );
+
+      window.localStorage.removeItem('0ghds-134U')
+      window.localStorage.removeItem('bbg54WQ')
+      window.localStorage.removeItem('125df')
+      window.localStorage.removeItem('8786bgd')
+      window.localStorage.removeItem('uuer474')
+      window.localStorage.removeItem("Kvsf45_")
+
+    }
+  }
+
+function UpdateAssetDeployed(paramassetid) {
+   
+    try {
+      if (userID === "") {
+        getUserInfo();
+      }
+      
+      var varassetID = ""
+      try {
+
+            receiver_detailID = decrypt(window.localStorage.getItem('0ghds-134U'),appSettings.secretkeylocal)
+            varassetID = decrypt(window.localStorage.getItem('uuer474'),appSettings.secretkeylocal) 
+
+      }
+      catch(err) {
+        varassetID = paramassetid
+       // WriteLog("For Testing","What happen localsotrage still reading","Hit ",err.message,userID)
+      }
+
+      const url = "http://localhost:3001/assets/updateassetdeploy";
+      axios.post(url, { assetstat, userID, varassetID })
+        .then((res) => {
+          const dataResponse = res.data.message;
+          if (dataResponse == "Update Error") {
+            WriteLog(
+              "Error",
+              "AssetUserAssign",
+              "UpdateAssetDeployed /assets/updateassetdeploy",
+              "Asset DetaildID : " + paramassetid + "\n" + dataResponse,
+              userID)
+
+          }
+        })
+        .catch((err) => {
+          WriteLog(
+            "Error",
+            "AssetUserAssign",
+            "UpdateAssetDeployed /assets/updateassetdeploy",
+            "Error in then/catch " + err.message,
+            userID
+          )
+        });
+      
+    } catch (err) {
+      WriteLog(
+        "Error",
+        "AssetUserAssign",
+        "UpdateAssetDeployed /assets/updateassetdeploy ",
+        "Error in try/catch " + err.message,
+        userID
+      );
+    }
+
+  }
+
+
+  function sendEmail() {
+    try {
+
+      if(userID === "") {
+        getUserInfo()
+      }
+
+      var checkin_success = ""
+      let strDate = utils_getDate();
+      const allow_send_email_checkin_asset_by_user = appSettings.ALLOW_SENDEMAIL_CHECKIN_BY_USER;
+      try {
+
+        checkin_success = window.localStorage.getItem("Kvsf45_");
+        WriteLog("For Testing","nabasa ko may laman","",checkin_success,userID)
+      }
+      catch(err)
+      {
+        WriteLog("For Testing","May error sa reading ng write once","",err.message,userID)
+      }
+
+      var templateParams = {
+        email_to: appSettings.email_sender,
+        email_sender: "",
+        reply_to: "",
+        name: appSettings.ASSET_RECEIVERNAME,
+        notes: "Asset is now CheckIn on my end",
+        date: strDate,
+      };
+
+      if (checkin_success === "1") {
+        if (allow_send_email_checkin_asset_by_user === "send") {
+          emailjs.send(
+              appSettings.YOUR_SERVICE_ID,
+              appSettings.YOUR_TEMPLATE_ID,
+              templateParams,
+              appSettings.public_key
+            )
+            .then(
+              function (response) {
+                WriteUserInfo("Info", "AssetUserAssign", receiver_userID,
+                receiver_name,receiver_deptID,
+                templateParams.notes,userID)
+
+              },
+              function (error) {
+
+                WriteLog(
+                  "Error",
+                  "AssetUserAssign",
+                  "Failed sending checkin email",
+                  error.message,
+                  userID
+                );
+               
+              }
+            );
+        } 
+        else {
+          WriteUserInfo("Info", "AssetUserAssign", receiver_userID,
+          receiver_name,receiver_deptID, 
+          "CheckIn Asset : \nNotes : \n"  + templateParams.notes,userID)
+
+        }
+      } else
+      {
+          WriteLog("For Test","No checkin success","",checkin_success,userID)
+      } 
+    } catch (err) {
+      WriteLog(
+        "Error",
+        "AssetUserAssign",
+        "LocalStorage checkin tampered",
+        err.message,
+        userID
+      );
+    }
+  }
+
+
+ 
   /// For Data Grid
 
   const columns = [
+    {
+      field: 'id',
+      headerName: 'Actions',
+      type: 'actions',
+      disableClickEventBubbling: true,
+      renderCell: (params) => {
+        return (
+            <div>
+              
+            <ChecklistIcon cursor="pointer" onClick={()=> handle_Asset_Detail(params.row.id,
+                                      params.row.assetID,e)}/>
+
+            </div>
+        );
+      }
+    },
     {
       field: "assetCode",
       headerName: "Asset Code",
@@ -605,15 +798,16 @@ const AssetUserAssign = () => {
                         },
                       }}
                       pageSizeOptions={[5]}
-                      checkboxSelection
-                      disableRowSelectionOnClick
-                      onRowSelectionModelChange={(id) => setRowSelected(id)}
+
+                      onRowSelectionModelChange={(id,assetID) => setRowSelected({...rowselected,
+                      id: id,
+                      asseid: assetID})}
                     />
                   </div>
                 </CInputGroup>
               </CCardBody>
             </CCol>
-            <div
+             {/*  <div
               className="d-grid"
               style={{
                 display: "flex",
@@ -621,6 +815,7 @@ const AssetUserAssign = () => {
                 justifyContent: "center",
               }}
             >
+           
               <CButton
                 style={{ width: "150%" }}
                 onClick={handleClickOpen}
@@ -629,6 +824,7 @@ const AssetUserAssign = () => {
                 Checkin
               </CButton>
             </div>
+            */}
             <Dialog
               open={open}
               onClose={handleClose}
@@ -644,7 +840,7 @@ const AssetUserAssign = () => {
               <DialogContent>
                 <DialogContentText>
                   Are you sure you want to Checkin / Receive asset(s) ?<br></br>
-                  Selected : ({iselected})
+                 
                 </DialogContentText>
               </DialogContent>
               <DialogActions>

@@ -158,7 +158,7 @@ const AssetUser = () => {
             {
                 if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
                   userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
-                  window.localStorage.setItem('Kvsf45_','0')
+                  
                 
                 }else{ 
                   navigate('/login')
@@ -278,13 +278,13 @@ useEffect(() => {
     setOpen(false)
       InsertAssetDetail();
       sendEmail(userSelected.userid);
-    
+     
       navigate('/dashboard')
   }
 
   function handleSubmit(event) {
     try {
-
+      window.localStorage.setItem('Kvsf45_','0')
      event.preventDefault();
 
    
@@ -360,14 +360,14 @@ useEffect(() => {
 
   function InsertAssetDetail() {
   
-
+   
     const varuserid = userSelected.userid
     const varnotes = userSelected.notes
     const positionID = receiverInfo.positionID
     const departmentID = receiverInfo.deptID
-  
+   
     try {
-      
+      getUserInfo()
       rowselected.forEach((irow, index) => {
 
             const assetid = irow
@@ -378,14 +378,13 @@ useEffect(() => {
               if(dataResponse == "Insert Success") {  
               //  console.log(" Assets inserted successful");
                 // let update the Assets to status to deploy
-  
-             
-             
-                const writeOnce = window.localStorage.getItem('Kvsf45_')
-                if (writeOnce == "0" ) {
+               
+                var writeOnce = window.localStorage.getItem('Kvsf45_')
+                if (writeOnce == '0' ) {
                   window.localStorage.setItem('Kvsf45_','1')
-                }
                 
+                }
+
                 WriteLog("Message","AssetUser","InsertAssetDetail /assets/putassetsdetail", 
                 "Asset Checkout "
                 + "\n AssetID: " + assetid 
@@ -416,16 +415,17 @@ useEffect(() => {
   function UpdateAssetDeploy(varassetid) {
     try {
       
-      getUserInfo()
+     
       const url = 'http://localhost:3001/assets/updateassetdeploy'
       axios.post(url,{assetdeploy,varassetid,userID})
       .then(response => { 
         const updateResponse = response.data.message;
+        /*
         if (updateResponse == "Update Success") {
           WriteLog("Message","AssetUser","UpdateAssetDeploy /assets/updateassetdeploy",updateResponse,userID)
         }
-        
-        else if(updateResponse == "Update Error") {
+        */
+        if(updateResponse == "Update Error") {
           
         WriteLog("Error","AssetUser","UpdateAssetDeploy /assets/updateassetdeploy",response.data.message2,userID)
         }
@@ -478,10 +478,10 @@ useEffect(() => {
   function sendEmail(userid) {
 
     let strDate =   utils_getDate();
-    const allow_email_checkout = appSettings.ALLOW_SENDEMAIL_CHECKOUT
-    const success_insert = window.localStorage.getItem('Kvsf45_')
-    WriteLog("For Testing","Check/prepare for sending email : " + window.localStorage.getItem('Kvsf45_'),"","","",)
-    WriteLog("For Testing","using const for sending email : " + success_insert,"","","",)
+    let allow_email_checkout = appSettings.ALLOW_SENDEMAIL_CHECKOUT_BY_IT
+    let success_insert = window.localStorage.getItem('Kvsf45_')
+    
+
     try {
       var templateParams = {
       email_to: receiverInfo.receiveremail,
@@ -492,8 +492,8 @@ useEffect(() => {
       date: strDate
       };
 
-    if(success_insert !== "0") {
-      if(allow_email_checkout == "send") {
+    if(success_insert === "0") {
+      if(allow_email_checkout === 'send') {
 
       emailjs.send(appSettings.YOUR_SERVICE_ID, appSettings.YOUR_TEMPLATE_ID, templateParams,appSettings.public_key)
       .then(function(response) {

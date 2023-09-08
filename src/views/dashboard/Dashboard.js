@@ -828,7 +828,11 @@ catch(err) {
             </CCol>
             <CCol>
               
-                  <LogUserInfoView/>
+                
+                 <LogUserInfoView/>
+                
+              
+                 
              
             </CCol>
 

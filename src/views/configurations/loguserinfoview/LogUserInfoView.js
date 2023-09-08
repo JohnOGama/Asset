@@ -215,7 +215,7 @@ function LoadData(){
                   <ListItemAvatar>
                     <Avatar alt='ed' 
                           src={
-                            val.usercreatedImg
+                            val.receiverName
                             ? require(`../../../../backend/uploads/${val.usercreatedImg}`)
                             
                             : defaultUser 
@@ -223,8 +223,9 @@ function LoadData(){
                           
                     />
                   </ListItemAvatar>
-                 
-                  <ListItemText  primary =   {val.userNameCreated}
+                   {/*val.receiverName */ }
+                  <ListItemText  primary =  'ralph' 
+                  
                           secondary={
                           <React.Fragment>
                               <Typography
@@ -233,10 +234,11 @@ function LoadData(){
                               variant="body2"
                               color="text.primary"
                               >
-                              Good News
+                              See Info Below
+                              <br></br>
                               </Typography>
                               {
-                                `\n` + val.logvalues
+                                 val.logvalues
                               }
                              {/* 
                              " — You have asset(s) to be pickup on schedule date ( write date here )

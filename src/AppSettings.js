@@ -16,6 +16,14 @@ const appSettings = {
     //window.localStorage.removeItem('Kgr67W@'); // This is a user Role
     //window.localStorage.removeItem('LkgdW23!'); // This is for DepartmentID
     //window.localStorage.removeItem('Kvsf45_'); // for sending email once only
+
+    // use in Assetuserassign / checin by user
+    //window.localStorage.removeItem('0ghds-134U')  detaildID for userAssign
+    //window.localStorage.removeItem('bbg54WQ') recever_name
+    //window.localStorage.removeItem('125df') recever_departmentID
+    //window.localStorage.removeItem('8786bgd') // recever_userid
+     //window.localStorage.removeItem('uuer474') // recever_assetid
+    
     
 
     // 1 - Allow writelog
@@ -25,7 +33,7 @@ const appSettings = {
     // allow to send email
     // value : send --- will send email
     // value : no --- will not send email
-    ALLOW_SENDEMAIL_CHECKOUT: 'no',
+    ALLOW_SENDEMAIL_CHECKOUT_BY_IT: 'no',
     ALLOW_SENDEMAIL_CHECKIN_BY_USER: 'no',
     ALLOW_SENDEMAIL_APPROVE_DISPOSE: 'no',
     ALLOW_SENDEMAIL_PULLOUT_BY_USER: 'no',
