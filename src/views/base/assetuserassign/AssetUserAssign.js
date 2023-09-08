@@ -56,7 +56,8 @@ const AssetUserAssign = () => {
   var receiver_name = ""
   var receiver_deptID = ""
   var receiver_userID = ""
-
+  var checkin_success = ""
+  var receiver_assetName = ""
 
   //const [success,SetSuccess] = useState("");
   //const [errors,setErrors] = useState({})
@@ -371,7 +372,7 @@ function GetAsset_Status_Deploy () {
   };
 
  
-  function handle_Asset_Detail(detailID,assetid,event) {
+  function handle_Asset_Detail(detailID,assetname) {
 
     try {
     window.localStorage.removeItem('0ghds-134U')
@@ -386,7 +387,7 @@ function GetAsset_Status_Deploy () {
     }
     setMessage('')
     setColorMessage('')
-    GetAssetByDetail(detailID)
+    GetAssetByDetail(detailID,assetname)
    
     setOpen(true)
 
@@ -400,6 +401,9 @@ function GetAsset_Status_Deploy () {
   const handleCheckin = (event) => {
 
     event.preventdefault;
+
+   
+
     if(userID === "") 
     {
       getUserInfo()
@@ -407,17 +411,19 @@ function GetAsset_Status_Deploy () {
   
     try {
       setOpen(false)
+     
       if(userID === "") 
       {
         getUserInfo()
       }
 
+      window.localStorage.setItem('Kvsf45_','0')
       receiver_detailID = decrypt(window.localStorage.getItem('0ghds-134U'),appSettings.secretkeylocal)
       receiver_name = decrypt(window.localStorage.getItem('bbg54WQ'),appSettings.secretkeylocal)
       receiver_deptID = decrypt(window.localStorage.getItem('125df'),appSettings.secretkeylocal)
       receiver_userID = decrypt(window.localStorage.getItem('8786bgd'),appSettings.secretkeylocal)
       receiver_assetID = decrypt(window.localStorage.getItem('uuer474'),appSettings.secretkeylocal) 
-
+      receiver_assetName = decrypt(window.localStorage.getItem('ooe34d'),appSettings.secretkeylocal) 
 
           const detailID = receiver_detailID
           const url = 'http://localhost:3001/assets/checkinassetsdetail'
@@ -426,29 +432,45 @@ function GetAsset_Status_Deploy () {
             const dataResponse = response.data.message;
             if(dataResponse == "Update Success") {
 
-              WriteLog("For Testing","Start reading chekin once","","",userID)
-              const writeOnce = window.localStorage.getItem('Kvsf45_')
-              var checkin_success = ""
-              if (writeOnce === "0" ) {
+              
+
+  
+              var writeOnce = window.localStorage.getItem('Kvsf45_')
+             
+            
+              if ((writeOnce === "0") || (writeOnce === "") ) {
+
                 window.localStorage.setItem('Kvsf45_','1')
-                WriteLog("For Testing","I write chekin once","","",userID)
+             
                 checkin_success = window.localStorage.getItem('Kvsf45_');
-                WriteLog("For Testing","ano laman mo ngyn","",checkin_success,userID)
+              
               }
               
-              UpdateAssetDeployed(receiver_assetID)
-            
+            UpdateAssetDeployed(receiver_assetID) 
+          
        
               WriteLog("Message","AssetUserAssign","handleCheckIn /assets/checkinassetsdetail", 
                         "User asset received or checkin "
                         + "\n Asset Detail ID: " + receiver_detailID 
                         + "\n Status From :  " + assetstatfordeploy 
                         + "\n Status To :  " + assetstat
-                        + "\n Receive by : " + userID ,userID)
+                        + "\n Receive by : " + receiver_userID ,userID)
+
+        
+              // kapag nilagyan ng setmessagte di nagrerefresh yng grid 
+              sendEmail(checkin_success)
+              LoadData()
+
+              window.localStorage.removeItem('0ghds-134U')
+              window.localStorage.removeItem('bbg54WQ')
+              window.localStorage.removeItem('125df')
+              window.localStorage.removeItem('8786bgd')
+              window.localStorage.removeItem('ooe34d')
+              window.localStorage.setItem('Kvsf45_','0')
 
             } else if (dataResponse == "Update Error") {
               WriteLog("Error","AssetUserAssign","handleCheckIn /assets/checkinassetsdetail",response.data.message2,userID)
-              window.localStorage.setItem('Kvsf45_','0')
+             
             }
     
 
@@ -457,19 +479,14 @@ function GetAsset_Status_Deploy () {
           })
      // })
 
-      // kapag nilagyan ng setmessagte di nagrerefresh yng grid 
-      sendEmail()
-      LoadData() 
       
-      window.localStorage.removeItem('0ghds-134U')
-      window.localStorage.removeItem('bbg54WQ')
-      window.localStorage.removeItem('125df')
-      window.localStorage.removeItem('8786bgd')
-      window.localStorage.setItem('Kvsf45_','0')
+    
+      
+
 
     }
       catch(err) {
-        WriteLog("Error","AssetUserAssign","handleCheckIn /assets/checkinassetsdetail","Error in try/catch " + err.message,
+        WriteLog("Error","AssetUserAssign","handleCheckIn /assets/checkinassetsdetail","Error in try/catch possible local Storage tampered " + err.message,
         userID)
 
         window.localStorage.removeItem('0ghds-134U')
@@ -477,6 +494,8 @@ function GetAsset_Status_Deploy () {
         window.localStorage.removeItem('125df')
         window.localStorage.removeItem('8786bgd')
         window.localStorage.removeItem('uuer474')
+        window.localStorage.removeItem('ooe34d')
+        
         window.localStorage.setItem('Kvsf45_','0')
 
       }
@@ -485,14 +504,15 @@ function GetAsset_Status_Deploy () {
   };
 
 
-  function GetAssetByDetail(paramdetailID) {
+  function GetAssetByDetail(paramdetailID,assetName) {
     try {
       if (userID === "") {
         getUserInfo();
       }
 
       window.localStorage.setItem('0ghds-134U',encrypt(paramdetailID,appSettings.secretkeylocal))
-
+      window.localStorage.setItem('ooe34d',encrypt(assetName,appSettings.secretkeylocal))
+      
       const url = "http://localhost:3001/assets/getAssetID_By_detailID";
       axios.post(url, {paramdetailID})
         .then((res) => {
@@ -504,6 +524,7 @@ function GetAsset_Status_Deploy () {
           window.localStorage.setItem('8786bgd',encrypt(res.data.result[0].userid,appSettings.secretkeylocal))
           window.localStorage.setItem('uuer474',encrypt(res.data.result[0].assetID,appSettings.secretkeylocal))
           
+          
           } else if (dataResponse == "No Record Found") {
 
             window.localStorage.removeItem('0ghds-134U')
@@ -511,6 +532,7 @@ function GetAsset_Status_Deploy () {
             window.localStorage.removeItem('125df')
             window.localStorage.removeItem('8786bgd')
             window.localStorage.removeItem('uuer474')
+            window.localStorage.removeItem('ooe34d')
             window.localStorage.setItem('Kvsf45_','0')
 
             WriteLog(
@@ -546,6 +568,7 @@ function GetAsset_Status_Deploy () {
           window.localStorage.removeItem('125df')
           window.localStorage.removeItem('8786bgd')
           window.localStorage.removeItem('uuer474')
+          window.localStorage.removeItem('ooe34d')
           window.localStorage.setItem('Kvsf45_','0')
         });
       
@@ -564,6 +587,7 @@ function GetAsset_Status_Deploy () {
       window.localStorage.removeItem('125df')
       window.localStorage.removeItem('8786bgd')
       window.localStorage.removeItem('uuer474')
+      window.localStorage.removeItem('ooe34d')
       window.localStorage.removeItem("Kvsf45_")
 
     }
@@ -625,36 +649,29 @@ function UpdateAssetDeployed(paramassetid) {
   }
 
 
-  function sendEmail() {
+  function sendEmail(paramcheckin_success) {
     try {
 
       if(userID === "") {
         getUserInfo()
       }
 
-      var checkin_success = ""
+     
       let strDate = utils_getDate();
       const allow_send_email_checkin_asset_by_user = appSettings.ALLOW_SENDEMAIL_CHECKIN_BY_USER;
-      try {
-
-        checkin_success = window.localStorage.getItem("Kvsf45_");
-        WriteLog("For Testing","nabasa ko may laman","",checkin_success,userID)
-      }
-      catch(err)
-      {
-        WriteLog("For Testing","May error sa reading ng write once","",err.message,userID)
-      }
+      
+    
 
       var templateParams = {
         email_to: appSettings.email_sender,
         email_sender: "",
         reply_to: "",
         name: appSettings.ASSET_RECEIVERNAME,
-        notes: "Asset is now CheckIn on my end",
+        notes: " Asset Name ( " + receiver_assetName + " ) is now CheckIn on my end",
         date: strDate,
       };
 
-      if (checkin_success === "1") {
+      if (paramcheckin_success === "1") {
         if (allow_send_email_checkin_asset_by_user === "send") {
           emailjs.send(
               appSettings.YOUR_SERVICE_ID,
@@ -688,9 +705,6 @@ function UpdateAssetDeployed(paramassetid) {
           "CheckIn Asset : \nNotes : \n"  + templateParams.notes,userID)
 
         }
-      } else
-      {
-          WriteLog("For Test","No checkin success","",checkin_success,userID)
       } 
     } catch (err) {
       WriteLog(
@@ -718,7 +732,7 @@ function UpdateAssetDeployed(paramassetid) {
             <div>
               
             <ChecklistIcon cursor="pointer" onClick={()=> handle_Asset_Detail(params.row.id,
-                                      params.row.assetID,e)}/>
+                                      params.row.assetName)}/>
 
             </div>
         );

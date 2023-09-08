@@ -827,17 +827,20 @@ catch(err) {
                 </div>
             </CCol>
             <CCol>
-              
-                
-                 <LogUserInfoView/>
-                
-              
-                 
-             
+
+                 <LogUserInfoView />
+
             </CCol>
 
                  
              
+          </CRow>
+          <CRow>
+          <CCol >
+                <div >
+                  <AssetPullout  />
+                </div>
+            </CCol>
           </CRow>
         </>
           

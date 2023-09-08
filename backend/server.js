@@ -194,16 +194,15 @@ app.post('/log/viewallLogs',(req,res) => {
 
 app.post('/log/viewaLogUserInfo',(req,res) => {
 
-    const sql = "SELECT  log.logID as id,log.logtype,log.module,log.logfunction,log.logvalues,log.userID,log.receiverName,"
-        + "users.imgFilename,(select userCreated.imgFilename from tblUsers userCreated"
-        + " where userCreated.userDisplayID = log.createdBy limit 1 )as usercreatedImg,"
-        + "(select userCreated.firstname from tblUsers userCreated"
-        + " where userCreated.userDisplayID = log.createdBy limit 1 ) as userNameCreated,"
-        + " log.createdBy"
-        + " FROM tblLogs log"
+    const sql = "SELECT log.logID as id,log.logtype,log.module,log.logfunction,log.logvalues,"
+        + "COALESCE(DATE_FORMAT(log.dateCreated, '%m/%d/%Y'),'') as dateatecreated,"
+        + "concat('Hi ',users.firstname) as fname,users.imgFilename,"
+        + "(select userCreated.imgFilename from tblUsers userCreated  where userCreated.userDisplayID = log.createdBy limit 1 )"
+        + " as usercreatedImg  FROM tblLogs log"
         + " INNER JOIN tblUsers users on users.userDisplayID = log.userID"
+        + " left join tblUsers userCreated on users.userDisplayID = log.createdBy"
         + " inner join tblPositions pos on pos.positionDisplayID = users.positionID"
-        + " inner join tblDepartments dept on dept.departmentDisplayID = pos.departmentDisplayID"
+        + " inner join tblDepartments dept on dept.departmentDisplayID = log.departmentID"
         + " where (logtype = 'Info') and (log.active=1) and dept.departmentDisplayID = ?"
         + " ORDER BY log.dateCreated desc"
 
@@ -242,7 +241,7 @@ app.post('/log/viewaLogUserInfo',(req,res) => {
         + " inner join tblPositions pos on pos.positionDisplayID = users.positionID"
         + " inner join tblDepartments dept on dept.departmentDisplayID = pos.departmentDisplayID"
         + " where (logtype = 'Info') and (log.active=1)"
-        + " ORDER BY log.dateCreated desc limit 4"
+        + " ORDER BY log.dateCreated desc"
 
      connection.query(sql,(err,result) => {
          if(err) {
@@ -2016,9 +2015,6 @@ app.post('/assets/updateassetdeploy',(req,res) => {
     const sqlUpdate = "UPDATE tblAssets SET assetStatusID = ?,updatedBy = ?,dateUpdated = ?"
             + " where assetID = ? and active=1"
  
-            console.log(req.body.assetstat)
-            console.log(req.body.userID)
-            console.log(req.body.varassetID)
 
     connection.query(sqlUpdate,[ req.body.assetstat, req.body.userID, utils_getDate(),req.body.varassetID],(err,result) => {
         if(err) {

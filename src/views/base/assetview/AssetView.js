@@ -316,10 +316,14 @@ function handleClick(rowidselected,source) {
          
             <CRow >
                 <CCol xs={12}>
-                  <CCardBody>
+                 <CCard>
+                  <CCardHeader>
                   <h6>
+                  <span className="message" style={{ color: '#5da4f5'}}> <>Asset(s)</></span>
                     <strong><span className="message" style={{ color: colorMessage}}><p>{message}</p></span> </strong>
                   </h6>
+                  </CCardHeader>
+                  
                     <CInputGroup size="sm" className="mb-3">
                             <div style={{ height: 400, width: '100%' }}>
                                 <DataGrid
@@ -338,7 +342,8 @@ function handleClick(rowidselected,source) {
                                 />
                             </div>
                     </CInputGroup>
-                  </CCardBody>
+                  
+                  </CCard>                  
                 </CCol>
             </CRow>
           </CForm>

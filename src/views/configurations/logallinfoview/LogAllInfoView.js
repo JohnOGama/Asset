@@ -201,13 +201,16 @@ function LoadData(){
       <CCardHeader>
         <h6>
         <span className="message" style={{ color: '#5da4f5'}}> <>Department Activity </></span>
-
+        <br></br>
+            <strong><span className="message" style={{ color: colorMessage}}><p>{message}</p></span> </strong>
+        
+        
         
         </h6>
       </CCardHeader>
-      <CCardBody sx={{ overflow: 'auto' }}  >
+      <CCardBody   >
          
-            <List style={{height:'150%'}} >
+            <List style={{maxHeight: '387px', overflow:'auto'}}>
             
             { log?.map(val => {
               return (

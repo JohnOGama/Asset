@@ -25,11 +25,7 @@ const Page404 = () => {
               </p>
             </div>
             <CInputGroup className="input-prepend">
-              <CInputGroupText>
-                <CIcon icon={cilMagnifyingGlass} />
-              </CInputGroupText>
-              <CFormInput type="text" placeholder="What are you looking for?" />
-              <CButton color="info">Search</CButton>
+              <CButton color="info" href='#/dashboard'> Main </CButton>
             </CInputGroup>
           </CCol>
         </CRow>

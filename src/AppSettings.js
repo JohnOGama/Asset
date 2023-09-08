@@ -23,6 +23,7 @@ const appSettings = {
     //window.localStorage.removeItem('125df') recever_departmentID
     //window.localStorage.removeItem('8786bgd') // recever_userid
      //window.localStorage.removeItem('uuer474') // recever_assetid
+    //window.localStorage.removeItem('ooe34d') // recever_assetname
     
     
 
