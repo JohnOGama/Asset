@@ -3,7 +3,6 @@ import axios from 'axios'
 import * as React from 'react'
 
 import { DataGrid } from '@mui/x-data-grid';
-import defaultUser from 'src/assets/images/avatars/7.jpg'
 
 import ReceiptLongRoundedIcon from '@mui/icons-material/ReceiptLongRounded';
 
@@ -46,7 +45,10 @@ import {useNavigate} from 'react-router-dom';
 import appSettings from 'src/AppSettings' // read the app config
 import { decrypt } from 'n-krypta';
 import { Typography } from '@mui/material';
-import userAvatar from "../../../assets/images/avatars/8.jpg"
+
+import defaultUser from '../../../assets/images/avatars/DefaultUser.png'
+// '../assets/images/avatars/DefaultUser.png'
+
 // encrypt, compare
 const LogUserInfoView = () => {
 
@@ -208,7 +210,7 @@ function LoadData(){
       </CCardHeader>
       <CCardBody   >
          
-            <List style={{maxHeight: '425px', overflow:'auto'}} >
+            <List style={{maxHeight: '418px', overflow:'auto'}} >
             
             { log?.map(val => {
               return (
