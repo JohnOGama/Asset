@@ -180,6 +180,9 @@ const [open, setOpen] = React.useState(false);
 function handle_Asset_Detail(detailID,assetname)
 {
 
+  if((!assetID == "") && (notes !== "")) { 
+ 
+
   try  {
     window.localStorage.removeItem('0ghds-134U')
     window.localStorage.removeItem('bbg54WQ')
@@ -196,6 +199,11 @@ function handle_Asset_Detail(detailID,assetname)
     WriteLog("Error","AssetUserAssign","handle_Asset_Detail","No localsotrage for processing asstassign checkin")
   }
 
+}
+else {
+  setMessage('All fields must not be empty')
+  setColorMessage('orange')
+}
 
  
 
@@ -219,6 +227,8 @@ try {
   {
     getUserInfo()
   }
+
+
     window.localStorage.setItem('Kvsf45_','0')
     receiver_detailID = decrypt(window.localStorage.getItem('0ghds-134U'),appSettings.secretkeylocal)
     receiver_name = decrypt(window.localStorage.getItem('bbg54WQ'),appSettings.secretkeylocal)
@@ -281,6 +291,7 @@ try {
 
 
       })
+
     
 }catch(err) {
   setOpen(false)

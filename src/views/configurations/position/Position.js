@@ -26,6 +26,9 @@ import {useLocation} from 'react-router-dom';
 import appSettings from 'src/AppSettings' // read the app config
 import {  decrypt } from 'n-krypta';
 import WriteLog from 'src/components/logs/LogListener';
+import AlertMessages from 'src/components/alertmessages/AlertMessages';
+
+
 
 function Position() {
 
@@ -118,6 +121,7 @@ try {
             });
 
         } else if (dataResponse == "No Record Found") {
+          AlertMessages('No positions loaded','Error')
           WriteLog("Message","Position","useEffect /position/getPositionID",dataResponse,userID)
           //navigate('/500');
         }
@@ -141,20 +145,19 @@ try {
           setDepartment(res.data.result)
         } else if (dataResponse == "No Record Found") {
           WriteLog("Message","Position","useEffect /position/viewalldepartment",dataResponse,userID)
-          setMessage("No Department")
-          setColorMessage('red')
-          //navigate('/500');
+  
+        AlertMessages('No department loaded','Warning')
         }
       }).catch(err => {
         WriteLog("Message","Position","useEffect /position/viewalldepartment",err.message,userID)
-        setMessage("Error in Fetching All Department")
-        setColorMessage('red')
+        AlertMessages("Error in Fetching All Department",'Error')
+       
       })
     
     },[])
 
     useEffect(() => {
-      console.log("");
+    //fgh
     }, [department])
     
 
@@ -195,17 +198,24 @@ try {
                     + "\n Desc  :  " + description 
                     + "\n DeptID : " + deptid
                     + "\n User : " + userID ,userID)
-                    navigate('/configurations/positionview')
+                    setValues({...values,
+                      positionid: "",
+                      name: "",
+                      description: "",
+                      departmentid: "",
+                      departmentname: ""})
+                    AlertMessages('Position successfully created','Success')
+                    //navigate('/configurations/position')
                   } else if(dataResponse == "Insert Error") {
                     WriteLog("Message","Position","handleSubmit /position/putPosition",res.data.message2,userID)
-                    setMessage("Error in Inserting new Position")
-                    setColorMessage("red")  
+                    AlertMessages("Error in Inserting new Position",'Error')
+                  
                     //navigate('/500');
                   } 
               })
               .catch(err => {
                 WriteLog("Message","Position","handleSubmit /position/putPosition",err.message,userID)
-                navigate('/500');
+                
               })
               
             }
@@ -224,12 +234,11 @@ try {
                     + "\n Desc  :  " + description 
                     + "\n DeptID : " + deptid
                     + "\n User : " + userID ,userID)
-                    navigate('/configurations/positionview')
+                   AlertMessages('Position successfully created','Success')
                   } else if(dataResponse == "Update Error") {
                     WriteLog("Message","Position","handleSubmit /position/updatePosition",res.data.message2,userID)
-                    setMessage("Error in Updating Position")
-                    setColorMessage("red")  
-                    //navigate('/500');
+                    AlertMessages("Error in Updating Position",'Error')
+                   
                   } 
               })
               .catch(err => {
@@ -241,8 +250,8 @@ try {
           }
           else
           {
-            setMessage("All fields must not be emtpy")
-            setColorMessage("red")  
+            AlertMessages("All fields must not be emtpy",'Error')
+          
           }
         }
         catch(err) {
@@ -257,8 +266,7 @@ try {
          <CCardHeader>
             <h6>
             <span className="message" style={{ color: '#5da4f5'}}> <> Position </></span> 
-            <br></br>
-            <strong><span className="message" style={{ color: colorMessage}}><p>{message}</p></span> </strong>
+            <AlertMessages/>
             </h6>
           </CCardHeader>
           <CForm onSubmit={handleSubmit}>

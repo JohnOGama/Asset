@@ -23,6 +23,7 @@ import appSettings from 'src/AppSettings' // read the app config
 import {  decrypt } from 'n-krypta';
 // encrypt, compare
 import WriteLog from 'src/components/logs/LogListener';
+import AlertMessages from 'src/components/alertmessages/AlertMessages';
 
 function Department() {
 
@@ -139,7 +140,10 @@ function Department() {
     getUserInfo()
   }
           event.preventDefault();
-          const userID = decrypt(localStorage.getItem('id'), appSettings.secretkeylocal); 
+
+          if(userID === "") {
+            getUserInfo()
+          }
 
           const name = values.name;
           const description = values.description;
@@ -159,15 +163,17 @@ function Department() {
                     + "\n Name: " + name 
                     + "\n Desc  :  " + description 
                     + "\n User : " + userID ,userID)
-                    navigate('/configurations/departmentview')
+                    AlertMessages('New Department created successfully','Success')
+                    navigate('/configurations/department')
                   } else if(dataResponse == "Insert Error") {
                     WriteLog("Error","Department","handleSubmit /department/putDepartment",res.data.message2,userID)
-                    setMessage("Error in Inserting new Department")
-                    setColorMessage("red")  
+                    AlertMessages("Error in Inserting new Department",'Error')
+                    
                     //navigate('/500');
                   } 
               })
               .catch(err => {
+                AlertMessages('Error in submitting department','Error')
                 WriteLog("Error","Department","handleSubmit /department/putDepartment",err.message,userID)
               })
               
@@ -186,15 +192,17 @@ function Department() {
                     + "\n Name: " + name 
                     + "\n Desc  :  " + description 
                     + "\n User : " + userID ,userID)
-                    navigate('/configurations/departmentview')
+                    AlertMessages('Updating Dep[artment successfully','Success')
+                    //navigate('/configurations/departmentview')
                   } else if(dataResponse == "Update Error") {
                     WriteLog("Error","Department","handleSubmit /department/updateDepartment",res.data.message2,userID)
-                    setMessage("Error in Updating Department")
-                    setColorMessage("red")  
+                    AlertMessages("Error in Updating Department",'Error')
+                    
                     //navigate('/500');
                   } 
               })
               .catch(err => {
+                AlertMessages('Error in Department','Error')
                 WriteLog("Error","Department","handleSubmit /department/updateDepartment","Error in try/catch " + err.message,userID)
                 //navigate('/500');
               })
@@ -203,11 +211,12 @@ function Department() {
           }
           else
           {
-            setMessage("All fields must not be emtpy")
-            setColorMessage("red")  
+            AlertMessages("All fields must not be emtpy",'Error')
+          
           }
         }
         catch(err) {
+          AlertMessages('Error in submitting department','Error')
           WriteLog("Error","Department","handleSubmit","Error in try/catch " +  err.message,userID)
         }
     }
@@ -219,22 +228,37 @@ function Department() {
          <CCardHeader>
             <h6>
             <span className="message" style={{ color: '#5da4f5'}}> <> Department </></span> 
-            <br></br>
-            <strong><span className="message" style={{ color: colorMessage}}><p>{message}</p></span> </strong>
+           
             </h6>
           </CCardHeader>
           <CForm onSubmit={handleSubmit}>
             <CRow >
                 <CCol >
                     <CCardBody>
+                      <AlertMessages/>
                       <CInputGroup size="sm" className="mb-3" >
                           <TextField onChange={e => handleInput(e)} name="name" id="outlined-textarea"
-                            value={values.name} fullWidth label="Department Name" placeholder="Department Name" />
+                            value={values.name} fullWidth label="Department Name" placeholder="Department Name" 
+                            
+                            error = {
+                              values.name
+                              ? false
+                              :true
+                            }
+                            />
                       </CInputGroup>
                       <CInputGroup size="sm" className="mb-3" >
                           <TextField onChange={handleInput} name="description" id="outlined-textarea" 
                               value={values.description} fullWidth label="Description" placeholder="Description" 
-                              multiline  rows={5}  />
+                              multiline  rows={5} 
+                              
+                              error = {
+                                values.description
+                                ? false
+                                :true
+                              }
+
+                              />
                       </CInputGroup>
                     </CCardBody>
                 </CCol>

@@ -28,19 +28,19 @@ const _nav = [
   {
     component: CNavTitle,
     name: 'Asset',
-  },
+  }, 
   {
     component: CNavGroup,
     name: 'Activity',
     to: '/base',
     icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />,
     items: [
-      {
+     /*    {
         component: CNavItem,
         name: 'Asset',
         to: '/base/assetview',
       },
-   /*   {
+   {
         component: CNavItem,
         name: 'Disposal',
         to: '/base/disposeview',
@@ -91,7 +91,7 @@ const _nav = [
       },
       {
         component: CNavItem,
-        name: 'User Category',
+        name: 'User Group',
         to: '/configurations/usercategoryview',
       },
       {

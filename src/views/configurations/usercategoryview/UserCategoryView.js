@@ -35,6 +35,11 @@ import {
 
   } from '@coreui/react'
 
+  // Alert Notification
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
 function UserCategoryView() {
 
     const navigate = useNavigate();
@@ -165,8 +170,8 @@ function getUserInfo() {
           .then(res => {
             const dataResponse = res.data.message;
             if(dataResponse == "Record Found") {
-              setMessage("User Category selected still in use")
-              setColorMessage('red')
+              showWarning("User Category selected still in use")
+
               setOpen(false);
             } else if (dataResponse == "No Record Found") {
               //WriteLog("Error","CategoryView","checkStatus /category/checkCategoryfordelete",res.data.message,userID)
@@ -175,8 +180,8 @@ function getUserInfo() {
             }
           }).catch(err => {
             WriteLog("Error","UserCategoryView","checkStatus /usercategory/checkuserCategoryfordelete",err.message,userID)
-            setMessage("Error in checking status")
-            setColorMessage('red')
+            showError('Error in checking User Group !')
+            
           })
       
         }
@@ -199,18 +204,17 @@ function getUserInfo() {
         .then(res => {
           const dataResponse = res.data.message;
           if(dataResponse == "Record Deleted") {
+            showSuccess('User Group deleted successfully. ')
             setOpen(false)
             LoadData()
          
           } else if (dataResponse == "No Record Deleted") {
-            setMessage("No record deleted")
-            setColorMessage("red")
+            showWarning('User Group selected not deleted successfully !')
             WriteLog("Error","UserCategoryView","handleDelete /usercategory/deleteuserCategory",res.data.message.message,userID)
           }
         }).catch(err => {
           WriteLog("Error","UserCategoryView","handleDelete /usercategory/deleteuserCategory","Error in then/catch \n" + err.message,userID)
-          setMessage("No record deleted")
-          setColorMessage("red")
+          showError('Error in deleting User Group to the List !')
         })
 
        }
@@ -239,14 +243,12 @@ function getUserInfo() {
             setUserCategoryView(res.data.result)
         } else if (dataResponse == "No Record Found") {
           WriteLog("Error","UserCategoryView","LoadData /usercategory/viewallusercategory",res.data.message,userID)
-          setMessage("No record found")
-          setColorMessage("red")
+          showWarning('User Group not found')
           //navigate('/500');
         }
       }).catch(err => {
         WriteLog("Error","UserCategoryView","LoadData /usercategory/viewallusercategory","Error in then.catch \n" + err.message,userID)
-        setMessage("No record found")
-        setColorMessage("red")
+       showError('Error in loading User Group !')
       })
     }
 
@@ -263,7 +265,67 @@ function getUserInfo() {
     );
   }
 
- 
+    //Alert 
+const showWarning =(message) => {
+
+  toast.warn(message, {
+    position: "bottom-right",
+    autoClose: 4000,
+    hideProgressBar: false,
+    closeOnClick: false,
+    pauseOnHover: false,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+    });
+
+}
+
+const showInfo = (message) => 
+{
+  toast.info(message, {
+    position: "bottom-right",
+    autoClose: 4000,
+    hideProgressBar: false,
+    closeOnClick: false,
+    pauseOnHover: false,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+    });
+
+}
+
+const showSuccess = (message) => {
+
+  toast.success(message, {
+    position: "bottom-right",
+    autoClose: 4000,
+    hideProgressBar: false,
+    closeOnClick: false,
+    pauseOnHover: false,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+    });
+
+}
+
+const showError =(message) => {
+
+  toast.error(message, {
+    position: "bottom-right",
+    autoClose: 4000,
+    hideProgressBar: false,
+    closeOnClick: false,
+    pauseOnHover: false,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+    });
+}
+
+
   return (
     
     <CCol xs={12}>
@@ -271,8 +333,7 @@ function getUserInfo() {
       <CCardHeader>
         <h6>
           <span className="message" style={{ color: '#5da4f5'}}> <> User Category  </></span> 
-          <br></br>
-          <strong><span className="message" style={{ color: colorMessage}}><p>{message}</p></span> </strong>
+          
         </h6>
       </CCardHeader>
 
@@ -323,6 +384,20 @@ function getUserInfo() {
                         </DialogActions>
                       </Dialog>
                     </div>
+
+                    <ToastContainer
+                      position="bottom-right"
+                      autoClose={5000}
+                      hideProgressBar={false}
+                      newestOnTop
+                      closeOnClick={false}
+                      rtl={false}
+                      pauseOnFocusLoss={false}
+                      draggable
+                      pauseOnHover={false}
+                      theme="light"
+                  />
+
               </CCardBody>
             </CCol>
         </CRow>

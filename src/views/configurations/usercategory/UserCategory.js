@@ -30,6 +30,10 @@ import { decrypt } from 'n-krypta';
 // encrypt,compare
 import WriteLog from 'src/components/logs/LogListener';
 
+// Alert Notification
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 function UserCategory() {
 
   const navigate = useNavigate();
@@ -47,8 +51,8 @@ function UserCategory() {
   var userRole = ""
   //const [success,SetSuccess] = useState("");
   //const [errors,setErrors] = useState({})
-  const [message,setMessage] = useState("")
-  const [colorMessage,setColorMessage] = useState('red')
+  //const [message,setMessage] = useState("")
+  //const [colorMessage,setColorMessage] = useState('red')
 
   const [values,setValues] = useState({
     assetid: "",
@@ -73,7 +77,7 @@ function getUserInfo() {
 
   try {
     CheckRole()
-      if (userRole == "Admin" || userRole == "IT")
+      if (userRole === "Admin" || userRole === "IT")
         {
             if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
               userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
@@ -116,8 +120,7 @@ function getUserInfo() {
             });
 
         } else if (dataResponse == "No Record Found") {
-          setMessage(dataResponse)
-          setColorMessage('red')
+          showError('Group List not loaded')
           WriteLog("Error","UserCategory","useEffect /usercategory/getuserCategorybyID",res.data.message,userID)
           //navigate('/500');
         }
@@ -158,17 +161,19 @@ function getUserInfo() {
               .then(res => {  
                   const dataResponse = res.data.message 
                   if(dataResponse == "Insert Success"){ 
-                    
+                  
+                    showSuccess('New group created successfully. ')
                   WriteLog("Message","UserCategory","handleSubmit /usercategory/putuserCategory", 
                   " New Category "
                   + "\n Name: " + name 
                   + "\n Desc  :  " + description 
                   + "\n User : " + userID ,userID)
-                    navigate('/configurations/usercategoryview')
+                    
+                  navigate('/configurations/usercategory')
+
                   } else if(dataResponse == "Insert Error") {
                     WriteLog("Error","UserCategory","handleSubmit /usercategory/putuserCategory",res.data.message ,userID)
-                    setMessage(dataResponse)
-                    setColorMessage("red")  
+                    showError('New  User Group is not created')
                     //navigate('/500');
                   } 
               })
@@ -186,17 +191,17 @@ function getUserInfo() {
               .then(res => {  
                   const dataResponse = res.data.message 
                   if(dataResponse == "Update Success"){ 
+                    showSuccess('User Group updated successfully. ')
                     WriteLog("Message","UserAssetCategory","handleSubmit /usercategory/updateuserCategory", 
                     " New Category "
                     + "\n AssetID : " + rowId
                     + "\n Name: " + name 
                     + "\n Desc  :  " + description 
                     + "\n User : " + userID ,userID)
-                    navigate('/configurations/usercategoryview')
+                    
                   } else if(dataResponse == "Update Error") {
                     WriteLog("Error","UserAssetCategory","handleSubmit /usercategory/updateuserCategory",res.data.message ,userID)
-                    setMessage(dataResponse)
-                    setColorMessage("red")  
+                    showError("User Group is not update. ")
                     //navigate('/500');
                   } 
               })
@@ -209,14 +214,74 @@ function getUserInfo() {
           }
           else
           {
-            setMessage("All fields must not be emtpy")
-            setColorMessage("red")  
+            showError("All fields must not be emtpy ! ")
           }
         }
         catch(err) {
           WriteLog("Error","AssetCategory","handleSubmit"," Error in try/catch",userID)
         }
     }
+    
+    //Alert 
+const showWarning =(message) => {
+
+  toast.warn(message, {
+    position: "bottom-right",
+    autoClose: 4000,
+    hideProgressBar: false,
+    closeOnClick: false,
+    pauseOnHover: false,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+    });
+
+}
+
+const showInfo = (message) => 
+{
+  toast.info(message, {
+    position: "bottom-right",
+    autoClose: 4000,
+    hideProgressBar: false,
+    closeOnClick: false,
+    pauseOnHover: false,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+    });
+
+}
+
+const showSuccess = (message) => {
+
+  toast.success(message, {
+    position: "bottom-right",
+    autoClose: 4000,
+    hideProgressBar: false,
+    closeOnClick: false,
+    pauseOnHover: false,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+    });
+
+}
+
+const showError =(message) => {
+
+  toast.error(message, {
+    position: "bottom-right",
+    autoClose: 4000,
+    hideProgressBar: false,
+    closeOnClick: false,
+    pauseOnHover: false,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+    });
+}
+
 
   return (
 
@@ -225,8 +290,6 @@ function getUserInfo() {
          <CCardHeader>
             <h6>
               <span className="message" style={{ color: '#5da4f5'}}> <> User Category </></span> 
-              <br></br>
-              <strong><span className="message" style={{ color: colorMessage}}><p>{message}</p></span> </strong>
             </h6>
           </CCardHeader>
           <CForm onSubmit={handleSubmit}>
@@ -235,12 +298,26 @@ function getUserInfo() {
                     <CCardBody>
                       <CInputGroup size="sm" className="mb-3" >
                           <TextField onChange={e => handleInput(e)} name="name" id="outlined-textarea"
-                            value={values.name} fullWidth label="Category Name" placeholder="Notes" />
+                            value={values.name} fullWidth label="Category Name" placeholder="Notes"
+                            
+                            error = {
+                              values.name
+                              ? false
+                              : true
+                            }
+
+                            />
                       </CInputGroup>
                       <CInputGroup size="sm" className="mb-3" >
                           <TextField onChange={handleInput} name="description" id="outlined-textarea" 
                               value={values.description} fullWidth label="Description" placeholder="Description" 
-                              multiline  rows={5}  />
+                              multiline  rows={5}
+                              error = {
+                                values.description
+                                ? false
+                                : true
+                              }
+                              />
                       </CInputGroup>
                     </CCardBody>
                 </CCol>
@@ -256,6 +333,20 @@ function getUserInfo() {
                             }}>
                   <CButton style={{  margin:'5px', width: '120%' }}  color="success" type='submit'>Save</CButton>
                 </div>
+
+                <ToastContainer
+                      position="bottom-right"
+                      autoClose={5000}
+                      hideProgressBar={false}
+                      newestOnTop
+                      closeOnClick={false}
+                      rtl={false}
+                      pauseOnFocusLoss={false}
+                      draggable
+                      pauseOnHover={false}
+                      theme="light"
+                  />
+
             </CRow>
           </CForm>
          </CCard>

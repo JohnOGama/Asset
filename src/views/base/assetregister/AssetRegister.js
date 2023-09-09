@@ -47,6 +47,10 @@ import {
   CImage
 } from '@coreui/react'
 
+// Alert Notification
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 import {useNavigate} from 'react-router-dom';
 
@@ -120,8 +124,8 @@ const AssetRegister = () => {
   const [supplier , setSupplier] = useState([])
   const [success,SetSuccess] = useState("");
   const [errors,setErrors] = useState({})
-  const [message,setMessage] = useState("")
-  const [colorMessage,setColorMessage] = useState('red')
+ // const [message,setMessage] = useState("")
+ // const [colorMessage,setColorMessage] = useState('red')
   
   const [assetStat,setAssetStat] = useState("");
   const [datePurchase, setDatePurchase] = useState("");
@@ -326,7 +330,7 @@ const handleChange = (event) => {
       const amountdepreciated = formatvalues.amountdepnumberformat;
       const supplierid = values.supplierID;
 
-      console.log(supplierid)
+    //  console.log(supplierid)
      // console.log(values)
 
           if((!assetStat == "") && 
@@ -349,12 +353,12 @@ const handleChange = (event) => {
           .then(res => { 
             const dataResponse = res.data.message 
             if(dataResponse == "Insert Success"){ 
-              
+            
               navigate('/Dashboard')
             } else if(dataResponse == "Insert Error") {
               WriteLog("Error","AssetRegister","handleSubmit /assets/putAssets",res.data.message2,userID)
-              setMessage("Error in inserting new asset")
-              setColorMessage('red')
+              //setMessage("Error in inserting new asset")
+              //setColorMessage('red')
             } 
           })
           .catch(err => {
@@ -364,9 +368,7 @@ const handleChange = (event) => {
         }
         else
         {
-          setMessage(" All Fields must not be Empty")
-          setColorMessage("orange")  
-          //console.log("Missing -- " + values)
+          showError(" All Fields must not be Empty !")
         }
 
     }
@@ -376,9 +378,69 @@ const handleChange = (event) => {
   }
 
 useEffect(() => {
-  console.log(file)
+  //console.log(file)
 }, [file])
 
+
+//Alert 
+const showWarning =(message) => {
+
+  toast.warn(message, {
+    position: "bottom-right",
+    autoClose: 4000,
+    hideProgressBar: false,
+    closeOnClick: false,
+    pauseOnHover: false,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+    });
+
+}
+
+const showInfo = (message) => 
+{
+  toast.info(message, {
+    position: "bottom-right",
+    autoClose: 4000,
+    hideProgressBar: false,
+    closeOnClick: false,
+    pauseOnHover: false,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+    });
+
+}
+
+const showSuccess = (message) => {
+
+  toast.success(message, {
+    position: "bottom-right",
+    autoClose: 4000,
+    hideProgressBar: false,
+    closeOnClick: false,
+    pauseOnHover: false,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+    });
+
+}
+
+const showError =(message) => {
+
+  toast.error(message, {
+    position: "bottom-right",
+    autoClose: 4000,
+    hideProgressBar: false,
+    closeOnClick: false,
+    pauseOnHover: false,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+    });
+}
 
   return (
     
@@ -388,8 +450,7 @@ useEffect(() => {
             
             <h6>
             <span className="message" style={{ color: '#5da4f5'}}> <> Asset Registration  </></span> 
-            <br></br>
-            <strong><span className="message" style={{ color: colorMessage}}><p>{message}</p></span> </strong>
+            
             </h6>
           </CCardHeader>
           <CForm onSubmit={handleSubmit}>
@@ -401,7 +462,13 @@ useEffect(() => {
                       <InputLabel id="demo-simple-select-label">Supplier</InputLabel>
                         <Select className="mb-3" aria-label="Small select example"
                           name='supplierID' onChange={handleInput} value={values.supplierID}
-                          label="Supplier"
+                          label="Supplier" 
+
+                          error = {
+                            values.supplierID
+                            ? false
+                            : true
+                          }
                           
                           >
                             { 
@@ -418,31 +485,73 @@ useEffect(() => {
                     <FormControl fullWidth>
                       <InputLabel >Asset Category</InputLabel>
                         <Select  size="sm" className="mb-3" aria-label="Small select example"
-                            name='assetcategID' onChange={handleInput} >
+                            name='assetcategID' onChange={handleInput} 
+                            
+                            error = {
+                              values.assetcategID
+                              ? false
+                              : true
+                            }
+
+                            >
                             {
                             assetsCategory.map((val) => 
                              
                               <MenuItem key={val.assetCategID} value={val.assetCategID} >{val.assetCategName}</MenuItem>
                             )
                             }
+
+                          
+
                         </Select>
 
                     </FormControl>
 
                     <CInputGroup size="sm" className="mb-3" >
-                        <TextField onChange={handleInput} name="serialno" id="outlined-textarea" fullWidth label="SerialNo" placeholder="SerialNo" />
+                        <TextField onChange={handleInput} name="serialno" id="outlined-textarea" fullWidth label="SerialNo" placeholder="SerialNo"
+                        
+                        error = {
+                          values.serialno
+                          ? false
+                          : true
+                        }
+                        
+                        />
                       </CInputGroup>
 
                     <CInputGroup size="sm" className="mb-3" >
-                        <TextField onChange={handleInput} name="assetcode" id="outlined-textarea" fullWidth label="Asset Code" placeholder="Asset Code" />
+                        <TextField onChange={handleInput} name="assetcode" id="outlined-textarea" fullWidth label="Asset Code" placeholder="Asset Code"
+                        
+                        error = {
+                          values.assetcode
+                          ? false
+                          : true
+                        }
+
+                        />
                       </CInputGroup>
 
                       <CInputGroup size="sm" className="mb-3" >
-                        <TextField onChange={handleInput} name="assetname" id="outlined-textarea" fullWidth label="Asset Name" placeholder="Asset Name" />
+                        <TextField onChange={handleInput} name="assetname" id="outlined-textarea" fullWidth label="Asset Name" placeholder="Asset Name" 
+                        
+                        error = {
+                          values.assetname
+                          ? false
+                          : true
+                        }
+                        />
                       </CInputGroup>
 
                       <CInputGroup size="sm" className="mb-3" >
-                        <TextField onChange={handleInput} name="description" id="outlined-textarea" fullWidth label="Description" placeholder="Description" multiline rows={5} />
+                        <TextField onChange={handleInput} name="description" id="outlined-textarea" fullWidth label="Description" placeholder="Description" multiline rows={5} 
+                        
+                        error = {
+                          values.description
+                          ? false
+                          : true
+                        }
+
+                        />
                       </CInputGroup>
 
                   </CCardBody>
@@ -467,6 +576,12 @@ useEffect(() => {
                                     inputComponent: NumericFormatCustom,
                                   }}
                                   variant="standard"
+
+                                  error = {
+                                    formatvalues.amountdepnumberformat
+                                    ? false
+                                    : true
+                                  }
                           />
                           </Box>
                   </CInputGroup>
@@ -482,6 +597,12 @@ useEffect(() => {
                                   inputComponent: NumericFormatCustom,
                                 }}
                                 variant="standard"
+
+                                error = {
+                                  formatvalues.amountdepnumberformat
+                                  ? false
+                                  : true
+                                }
                         />
                   </CInputGroup>
                   <CInputGroup size="sm" className="mb-3">
@@ -491,7 +612,14 @@ useEffect(() => {
                             label="Date Purchase"
                             fullWidth true
                             onChange={(datePurchase) => setDatePurchase(datePurchase)}
-                          />
+                         
+                            error = {
+                              datePurchase
+                              ? false
+                              : true
+                            }
+                         
+                         />
                       </LocalizationProvider>
                   </CInputGroup>
                   <br></br>
@@ -502,6 +630,13 @@ useEffect(() => {
                             label="Date Depreciated"
                             fullWidth true
                             onChange={(dateDepreciated) => setDateDepreciated(dateDepreciated)}
+                          
+                            error = {
+                              dateDepreciated
+                              ? false
+                              : true
+                            }
+                          
                           />
                       </LocalizationProvider>
                   </CInputGroup>
@@ -536,8 +671,10 @@ useEffect(() => {
                   </CRow>
                   
                 </CCol>
-                
-                
+              </CRow>
+              <CRow>
+                <CCol>
+
                 <div className="d-grid"  style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -545,6 +682,23 @@ useEffect(() => {
                     }} >
                   <CButton color="success"  style={{   width: '200%' }}  type='submit'>Save</CButton>
                 </div>
+
+                <ToastContainer
+                        position="bottom-right"
+                        autoClose={5000}
+                        hideProgressBar={false}
+                        newestOnTop
+                        closeOnClick={false}
+                        rtl={false}
+                        pauseOnFocusLoss={false}
+                        draggable
+                        pauseOnHover={false}
+                        theme="light"
+                />
+
+                </CCol>
+               
+
               </CRow>
 
           </CForm>

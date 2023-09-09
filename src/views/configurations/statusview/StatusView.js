@@ -34,14 +34,16 @@ import Draggable from 'react-draggable';
 
 import WriteLog from 'src/components/logs/LogListener';
 
+import AlertMessages from 'src/components/alertmessages/AlertMessages';
+
   const StatusView = () => {
 
     const navigate = useNavigate();
   
     var userID = ""
     var userRole = ""
-    const [message,setMessage] = useState("")
-    const [colorMessage,setColorMessage] = useState('red')
+    //const [message,setMessage] = useState("")
+    //const [colorMessage,setColorMessage] = useState('red')
 
     const [status,setStatus] = useState([])
     const [open, setOpen] = React.useState(false);
@@ -137,7 +139,7 @@ import WriteLog from 'src/components/logs/LogListener';
 
 
       const handleClickOpen = (param) => {
-            setMessage("")
+          
             SetRowSelected(param)
             checkStatus(param)
             setOpen(true);
@@ -162,17 +164,18 @@ import WriteLog from 'src/components/logs/LogListener';
           .then(res => {
             const dataResponse = res.data.message;
             if(dataResponse == "Record Found") {
-              setMessage("Status selected still in use")
-              setColorMessage('red')
+             
+              AlertMessages('Status selected still in use',"Warning")
+
               setOpen(false);
             } else if (dataResponse == "No Record Found") {
               setOpen(true);
        
             }
           }).catch(err => {
-            console.log(err)
-            setMessage("Error in checking status")
-            setColorMessage('red')
+            //console.log(err)
+            AlertMessages("Error in checking status !","Error")
+         
           })
       
         }
@@ -190,12 +193,13 @@ import WriteLog from 'src/components/logs/LogListener';
           
           const dataResponse = res.data.message;
           if(dataResponse == "Record Deleted") {
+            AlertMessages("Status successfully deleted","Success")
             setOpen(false)
             LoadData()
             //window.location.reload();
           } else if (dataResponse == "No Record Deleted") {
-            setMessage("No record deleted")
-            setColorMessage("red")
+            AlertMessages("No Record deleted !","Error")
+           
             WriteLog("Error","StatusView","useEffect /status/deleteStatus",res.data.message2,userID)
           }
         }).catch(err => {
@@ -226,8 +230,8 @@ import WriteLog from 'src/components/logs/LogListener';
         if(dataResponse == "Record Found") {
           setStatus(res.data.result)
         } else if (dataResponse == "No Record Found") {
-            setMessage("No Record Found")
-            setColorMessage("red")
+            AlertMessages("Nore Record Found","Warning")
+           
             WriteLog("Error","StatusView","LoadData /status/viewallstatus",res.data.message2,userID)
         }
       }).catch(err => {
@@ -248,7 +252,7 @@ import WriteLog from 'src/components/logs/LogListener';
     );
   }
 
- 
+
 
   return (
 
@@ -257,8 +261,7 @@ import WriteLog from 'src/components/logs/LogListener';
       <CCardHeader>
         <h6>
         <span className="message" style={{ color: '#5da4f5'}}> <> Status </></span> 
-        <br></br>
-        <strong><span className="message" style={{ color: colorMessage}}><p>{message}</p></span> </strong>
+       
         </h6>
       </CCardHeader>
      
@@ -266,6 +269,7 @@ import WriteLog from 'src/components/logs/LogListener';
         <CRow >
             <CCol xs={12}>
               <CCardBody>
+                <AlertMessages/>
               <CButton onClick={handleNew} >Create New </CButton>
                 <CInputGroup size="sm" className="mb-3">
                         <div style={{ height: 400, width: '100%' }}>
@@ -311,6 +315,7 @@ import WriteLog from 'src/components/logs/LogListener';
                     </div>
               </CCardBody>
             </CCol>
+
         </CRow>
       </CForm>
     </CCard>

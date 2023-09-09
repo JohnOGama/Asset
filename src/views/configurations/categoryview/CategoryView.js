@@ -35,6 +35,11 @@ import {
 
   } from '@coreui/react'
 
+import AlertMessages from 'src/components/alertmessages/AlertMessages';
+import { Alert } from '@coreui/coreui';
+
+  
+
 function CategoryView() {
 
     const navigate = useNavigate();
@@ -43,8 +48,8 @@ function CategoryView() {
 
     //const [success,SetSuccess] = useState("");
     //const [errors,setErrors] = useState({})
-    const [message,setMessage] = useState("")
-    const [colorMessage,setColorMessage] = useState('red')
+   // const [message,setMessage] = useState("")
+   // const [colorMessage,setColorMessage] = useState('red')
 
     const [assets,setAssets] = useState([])
     const [open, setOpen] = React.useState(false);
@@ -145,7 +150,7 @@ function CategoryView() {
     
       const handleClickOpen = (param) => {
      
-        setMessage("")
+        
         SetRowSelected(param)
         checkStatus(param)
 
@@ -170,8 +175,8 @@ function CategoryView() {
           .then(res => {
             const dataResponse = res.data.message;
             if(dataResponse == "Record Found") {
-              setMessage("Category selected still in use")
-              setColorMessage('red')
+              AlertMessages('Asset Category still in use.','Warning')
+             
               setOpen(false);
             } else if (dataResponse == "No Record Found") {
               //WriteLog("Error","CategoryView","checkStatus /category/checkCategoryfordelete",res.data.message,userID)
@@ -180,12 +185,13 @@ function CategoryView() {
             }
           }).catch(err => {
             WriteLog("Error","CategoryView","checkStatus /category/checkCategoryfordelete",err.message,userID)
-            setMessage("Error in checking status")
-            setColorMessage('red')
+           AlertMessages('Error in checking Asset Category !','Error')
+         
           })
       
         }
         catch(err) {
+          AlertMessages('Error in Category view','Error')
           WriteLog("Error","CategoryView","checkStatus /category/checkCategoryfordelete","Error in try/catch",userID)
         }
       }
@@ -203,22 +209,24 @@ function CategoryView() {
         .then(res => {
           const dataResponse = res.data.message;
           if(dataResponse == "Record Deleted") {
+            AlertMessages('Asset selected deleted successfully. ','Success')
             setOpen(false)
             LoadData()
          
           } else if (dataResponse == "No Record Deleted") {
-            setMessage("No record deleted")
-            setColorMessage("red")
+            AlertMessages('Asset not found and cannot be deleted !','Warning')
+            
             WriteLog("Error","CategoryView","handleDelete /category/deleteCategory",res.data.message.message,userID)
           }
         }).catch(err => {
           WriteLog("Error","CategoryView","handleDelete /category/deleteCategory",err.message,userID)
-          setMessage("No record deleted")
-          setColorMessage("red")
+         AlertMessages('Error in asset category deleting in the system ','Error')
+          
         })
 
        }
        catch(err) {
+        AlertMessages('Error in submitting category','Error')
         WriteLog("Error","CategoryView","handleDelete /category/deleteCategory","DB Error in try/catch",userID)
        }
       }
@@ -234,7 +242,7 @@ function CategoryView() {
         getUserInfo()
       }
       
-      setMessage("")
+    
       const url = 'http://localhost:3001/category/viewallcategory'
       axios.post(url)
       .then(res => {
@@ -243,14 +251,13 @@ function CategoryView() {
           setAssets(res.data.result)
         } else if (dataResponse == "No Record Found") {
           WriteLog("Error","CategoryView","LoadData /category/viewallcategory",res.data.message,userID)
-          setMessage("No record found")
-          setColorMessage("red")
-          //navigate('/500');
+         AlertMessages('Asset Category not found !','Error')
+         
         }
       }).catch(err => {
         WriteLog("Error","CategoryView","LoadData /category/viewallcategory",err.message,userID)
-        setMessage("No record found")
-        setColorMessage("red")
+       AlertMessages('Asset Category not found !','Error')
+      
       })
     }
 
@@ -268,6 +275,9 @@ function CategoryView() {
   }
 
  
+
+
+ 
   return (
     
     <CCol xs={12}>
@@ -276,8 +286,7 @@ function CategoryView() {
        
         <h6>
             <span className="message" style={{ color: '#5da4f5'}}> <> Category </></span> 
-            <br></br>
-            <strong><span className="message" style={{ color: colorMessage}}><p>{message}</p></span> </strong>
+            
         </h6>
       </CCardHeader>
      
@@ -330,6 +339,9 @@ function CategoryView() {
                     </div>
               </CCardBody>
             </CCol>
+
+
+
         </CRow>
       </CForm>
     </CCard>

@@ -30,6 +30,8 @@ import { decrypt } from 'n-krypta';
 // encrypt,compare
 import WriteLog from 'src/components/logs/LogListener';
 
+import AlertMessages from 'src/components/alertmessages/AlertMessages';
+
 function AssetCategory() {
 
   const navigate = useNavigate();
@@ -44,11 +46,12 @@ function AssetCategory() {
    navigate('/dashboard')
   }
  
-  const [userID,setUserID] = useState("")
+  //const [userID,setUserID] = useState("")
+  var userID = ""
   //const [success,SetSuccess] = useState("");
   //const [errors,setErrors] = useState({})
-  const [message,setMessage] = useState("")
-  const [colorMessage,setColorMessage] = useState('red')
+ // const [message,setMessage] = useState("")
+ // const [colorMessage,setColorMessage] = useState('red')
 
   const [values,setValues] = useState({
     assetid: "",
@@ -73,7 +76,8 @@ function AssetCategory() {
 
     try {
       CheckRole()
-        if (userRole == "Admin" || userRole == "IT")
+    
+        if (userRole === "Admin" || userRole === "IT")
           {
               if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
                 userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
@@ -88,6 +92,7 @@ function AssetCategory() {
           
         }
     catch(err) {
+    
       navigate('/dashboard')
       }
 }
@@ -118,12 +123,14 @@ function AssetCategory() {
             });
 
         } else if (dataResponse == "No Record Found") {
-          setMessage(dataResponse)
-          setColorMessage('red')
+         AlertMessages("No assete category found","Warning")
+          // setMessage(dataResponse)
+         // setColorMessage('red')
           WriteLog("Error","AssetCategory","useEffect /category/getAssetCategorybyID",res.data.message,userID)
           //navigate('/500');
         }
       }).catch(err => {
+        AlertMessages('Error in loading asset category','Error')
         WriteLog("Error","AssetCategory","useEffect /category/getAssetCategorybyID"," Error in try/catch \n" + err.message,userID)
        
       })
@@ -160,23 +167,24 @@ function AssetCategory() {
               .then(res => {  
                   const dataResponse = res.data.message 
                   if(dataResponse == "Insert Success"){ 
-                    
+                  AlertMessages('New Category is addedd','Success')
                   WriteLog("Message","AssetCategory","handleSubmit /category/putCategory", 
                   " New Category "
                   + "\n Name: " + name 
                   + "\n Desc  :  " + description 
                   + "\n User : " + userID ,userID)
-                    navigate('/configurations/categoryview')
+                    //navigate('/configurations/categoryview')
+                    navigate('/configurations/assetcategory')
                   } else if(dataResponse == "Insert Error") {
                     WriteLog("Error","AssetCategory","handleSubmit /category/putCategory",res.data.message ,userID)
-                    setMessage(dataResponse)
-                    setColorMessage("red")  
-                    //navigate('/500');
+                    AlertMessages('New category is not added','Error')
+                   
                   } 
               })
               .catch(err => {
+                AlertMessages('Error in inserting category','Error')
                 WriteLog("Error","AssetCategory","handleSubmit /category/putCategory",err.message ,userID)
-                navigate('/500');
+                
               })
               
             }
@@ -188,37 +196,47 @@ function AssetCategory() {
               .then(res => {  
                   const dataResponse = res.data.message 
                   if(dataResponse == "Update Success"){ 
+                    
+                    AlertMessages('Category updated successfully','Success')
+
                     WriteLog("Message","AssetCategory","handleSubmit /category/updateCategory", 
                     " New Category "
                     + "\n AssetID : " + rowId
                     + "\n Name: " + name 
                     + "\n Desc  :  " + description 
                     + "\n User : " + userID ,userID)
-                    navigate('/configurations/categoryview')
+                    
                   } else if(dataResponse == "Update Error") {
                     WriteLog("Error","AssetCategory","handleSubmit /category/updateCategory",res.data.message ,userID)
-                    setMessage(dataResponse)
-                    setColorMessage("red")  
+                    
+                    AlertMessages('Category is not updated','Warning')
+
+                  //  setMessage(dataResponse)
+                  //  setColorMessage("red")  
                     //navigate('/500');
                   } 
               })
               .catch(err => {
+                AlertMessages('Error in submitting status','Error')
                 WriteLog("Error","AssetCategory","handleSubmit /category/updateCategory",err.message,userID)
-                navigate('/500');
+                
               })
 
             }
           }
           else
           {
-            setMessage("All fields must not be emtpy")
-            setColorMessage("red")  
+            AlertMessages("All fields must not be emtpy",'Error')
+          
           }
         }
         catch(err) {
           WriteLog("Error","AssetCategory","handleSubmit"," Error in try/catch",userID)
         }
     }
+
+
+
 
   return (
 
@@ -227,22 +245,36 @@ function AssetCategory() {
          <CCardHeader>
             <h6>
               <span className="message" style={{ color: '#5da4f5'}}> <> Asset Category </></span> 
-              <br></br>
-              <strong><span className="message" style={{ color: colorMessage}}><p>{message}</p></span> </strong>
+
             </h6>
           </CCardHeader>
           <CForm onSubmit={handleSubmit}>
             <CRow >
                 <CCol >
+                  <AlertMessages/>
                     <CCardBody>
                       <CInputGroup size="sm" className="mb-3" >
                           <TextField onChange={e => handleInput(e)} name="name" id="outlined-textarea"
-                            value={values.name} fullWidth label="Category Name" placeholder="Notes" />
+                            value={values.name} fullWidth label="Category Name" placeholder="Notes"
+                            error = {
+                              values.name
+                              ? false
+                              : true
+                            }
+                            />
                       </CInputGroup>
                       <CInputGroup size="sm" className="mb-3" >
                           <TextField onChange={handleInput} name="description" id="outlined-textarea" 
                               value={values.description} fullWidth label="Description" placeholder="Description" 
-                              multiline  rows={5}  />
+                              multiline  rows={5} 
+                              
+                              error = {
+                                values.description
+                                ? false
+                                : true
+                              }
+
+                              />
                       </CInputGroup>
                     </CCardBody>
                 </CCol>
@@ -256,7 +288,9 @@ function AssetCategory() {
                             justifyContent: 'center',
                             }} >
                   <CButton style={{  margin:'5px', width: '120%' }} color="success" type='submit'>Save</CButton>
-                </div>
+              </div>
+
+                  
             </CRow>
           </CForm>
          </CCard>

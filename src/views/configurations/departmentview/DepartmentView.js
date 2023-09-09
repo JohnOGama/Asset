@@ -33,6 +33,10 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Paper from '@mui/material/Paper';
 import Draggable from 'react-draggable';
 
+import AlertMessages from 'src/components/alertmessages/AlertMessages';
+
+
+
   const DepartmentView = () => {
 
     const navigate = useNavigate();
@@ -160,20 +164,23 @@ function handleNew(params) {
     .then(res => {
       const dataResponse = res.data.message;
       if(dataResponse == "Record Found") {
-        setMessage("Department selected still in use")
-        setColorMessage('red')
+        
+        AlertMessages("Department selected still in use",'Warning')
+     
         setOpen(false);
       } else if (dataResponse == "No Record Found") {
-        setOpen(false);
+       
+        setOpen(true);
       }
     }).catch(err => {
       WriteLog("Error","DepartmentView","checkDepartment /assets/checkDepartmentfordelete",err.message,userID)
-      setMessage("Error in checking Department ")
-      setColorMessage('red')
+      AlertMessages("Error in checking Department ",'Error')
+      
     })
 
   }
   catch(err) {
+
     WriteLog("Error","DepartmentView","checkDepartment /assets/checkDepartmentfordelete","Error in try/catch \n" + err.message,userID)
   }
     }
@@ -196,8 +203,8 @@ function handleNew(params) {
       //window.location.reload();
     } else if (dataResponse == "No Record Deleted") {
       WriteLog("Error","DepartmentView","handleDelete /assets/deleteDepartment",res.data.message2,userID)
-      setMessage("No record deleted")
-      setColorMessage("red")
+      AlertMessages("No record deleted",'Warning')
+      
     }
   }).catch(err => {
     WriteLog("Error","DepartmentView","handleDelete /assets/deleteDepartment",err.message,userID)
@@ -228,7 +235,7 @@ function handleNew(params) {
         if(dataResponse == "Record Found") {
           setDepartment(res.data.result)
         } else if (dataResponse == "No Record Found") {
-            setMessage("No Record Found")
+            AlertMessages("No Record Found",'Warning')
             setColorMessage("red")
             WriteLog("Error","DepartmentView","handleDelete /assets/viewalldepartment",dataResponse,userID)
         }
@@ -268,6 +275,7 @@ function handleNew(params) {
         <CRow >
             <CCol xs={12}>
               <CCardBody>
+                <AlertMessages/>
               <CButton className="text-right" onClick={handleNew} >Create New </CButton>
                 <CInputGroup size="sm" className="mb-3">
                         <div style={{ height: 400, width: '100%' }}>

@@ -82,6 +82,10 @@ const appSettings = {
     USER_SERVICE_ID: 'service_ivu0u7x',
     USER_TEMPLATE_ID : 'template_n3o5jrb'
 
+
+    ///   WriteLog("Error","What is my rollllll","ERROR try/cath USER ROLE ", userRole + " ---- " + err.message,userID)
+    
+
   };
 
   export default appSettings;

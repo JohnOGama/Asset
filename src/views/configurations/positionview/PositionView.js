@@ -31,6 +31,9 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Paper from '@mui/material/Paper';
 import Draggable from 'react-draggable';
+import AlertMessages from 'src/components/alertmessages/AlertMessages';
+
+
 
   const PositionView = () => {
 
@@ -171,8 +174,8 @@ function getUserInfo() {
     .then(res => {
       const dataResponse = res.data.message;
       if(dataResponse == "Record Found") {
-        setMessage("Position selected still in use")
-        setColorMessage('red')
+        AlertMessages("Position selected still in use",'Warning')
+        
         setOpen(false);
       } else if (dataResponse == "No Record Found") {
         setOpen(true);
@@ -181,8 +184,8 @@ function getUserInfo() {
       }
     }).catch(err => {
       WriteLog("Error","PositionView","checkUserPosition /position/checkPositionfordelete",err.message,userID)
-      setMessage("Error in checking position")
-      setColorMessage('red')
+      AlertMessages("Error in checking position",'Error')
+      
     })
 
   }
@@ -204,12 +207,13 @@ function getUserInfo() {
     .then(res => {
       const dataResponse = res.data.message;
       if(dataResponse == "Record Deleted") {
+        AlertMessages('Position successfully deleted' , 'Success')
         setOpen(false)
         LoadData()
         //window.location.reload();
       } else if (dataResponse == "No Record Deleted") {
-        setMessage("No record deleted")
-        setColorMessage("red")
+        AlertMessages("No record deleted",'Error')
+       
         WriteLog("Error","PositionView","handleDelete /position/deletePosition",res.data.message2,userID)
       }
     }).catch(err => {
@@ -241,8 +245,8 @@ function LoadData(){
     if(dataResponse == "Record Found") {
         setPosition(res.data.result)
     } else if (dataResponse == "No Record Found") {
-        setMessage("No Record Found")
-        setColorMessage("red")
+        AlertMessages("No Record Found",'Warning')
+     
     }
   }).catch(err => {
     WriteLog("Error","PositionView","LoadData /position/viewallposition",err.message,userID)
@@ -271,8 +275,7 @@ function LoadData(){
        
         <h6>
         <span className="message" style={{ color: '#5da4f5'}}> <> Position </></span> 
-        <br></br>
-        <strong><span className="message" style={{ color: colorMessage}}><p>{message}</p></span> </strong>
+        <AlertMessages/>
         </h6>
       </CCardHeader>
      

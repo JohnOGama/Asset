@@ -3,7 +3,7 @@ import axios from 'axios'
 import * as React from 'react'
 
 import { DataGrid } from '@mui/x-data-grid';
-import defaultUser from 'src/assets/images/avatars/7.jpg'
+import defaultUser from '../../../assets/images/avatars/DefaultUser.png'
 
 import ReceiptLongRoundedIcon from '@mui/icons-material/ReceiptLongRounded';
 
@@ -236,10 +236,11 @@ function LoadData(){
                               variant="body2"
                               color="text.primary"
                               >
-                              Good News
+                             See Info Below
+                             <br></br>
                               </Typography>
                               {
-                                `\n` + val.logvalues
+                                 val.logvalues
                               }
                              {/* 
                              " — You have asset(s) to be pickup on schedule date ( write date here )

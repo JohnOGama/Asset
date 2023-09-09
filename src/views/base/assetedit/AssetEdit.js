@@ -49,6 +49,9 @@ import {
 
 } from '@coreui/react'
 
+// Alert Notification
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 
@@ -134,8 +137,9 @@ const AssetEdit = () => {
   const [supplier , setSupplier] = useState([])
   const [type , setAssetType] = useState([])
   const [errors,setErrors] = useState({})
-  const [message,setMessage] = useState("")
-  const [colorMessage,setColorMessage] = useState('red')
+ 
+ // const [message,setMessage] = useState("")
+ // const [colorMessage,setColorMessage] = useState('red')
   
   const [assetStat,setAssetStat] = useState("");
  
@@ -399,7 +403,7 @@ function getUserInfo() {
 
   function handleInput(e){
     setValues({...values,[e.target.name]: e.target.value})
-    console.log(window.location.origin)
+   // console.log(window.location.origin)
   }
 
 
@@ -432,7 +436,7 @@ const handleChange = (event) => {
       const amountdepreciated = formatvalues.amountdepnumberformat;
       const typeID = values.typeID
       //console.log(values)
-      console.log("What valss : " + amount)
+ //     console.log("What valss : " + amount)
 
         if((!assetStat == "") && 
           (!assetcategID == "") &&
@@ -455,9 +459,8 @@ const handleChange = (event) => {
           .then(res => { 
             const dataResponse = res.data.message 
             if(dataResponse == "Update Success"){ 
-              //navigate('/base/assetview')
-              setColorMessage('Green')
-              setMessage("Update Success")
+            
+             
               WriteLog("Message","AssetEdit","handleSubmit /assets/updateassets",
                 "Update Asset Information \n"
                 + "AssetID : " + rowId
@@ -465,12 +468,14 @@ const handleChange = (event) => {
                 + "\n Name : " + assetname 
                 + "\n ....."
                 + "\n Updated by : " + userID,userID)
-                setMessage('Asset updated successfully')
-                setColorMessage('green')
+
+                showSuccess('Asset updated successfully')
+                
             } else if(dataResponse == "Update Error") {
+              showError('Asset not updated successfully')
               WriteLog("Error","AssetEdit","handleSubmit /assets/updateassets",res.data.message2,userID)
-              setMessage('Asset not updated successfully')
-              setColorMessage('red')
+             // setMessage('Asset not updated successfully')
+             // setColorMessage('red')
             } 
           })
           .catch(err => {
@@ -482,15 +487,16 @@ const handleChange = (event) => {
         }
         else
         {
-          setMessage(" All Fields must not be Empty")
-          setColorMessage("orange")  
+
+          showError('All Fields must not be Empty !')
+         // setMessage(" All Fields must not be Empty")
+         // setColorMessage("orange")  
     
         }
 
-
-
     }
     catch(err) {
+      showError('Error in updating asset')
       WriteLog("Error","AssetEdit","handleSubmit","Error in try/catch \n" + err.message,userID)
     }
   }
@@ -527,9 +533,13 @@ const handleChange = (event) => {
               ,userID)
     
               //LoadData()
-              setMessage('Upload Image successfully')
-              setColorMessage('green')
+            //  setMessage('Upload Image successfully')
+            //  setColorMessage('green')
+            showSuccess('Image uploaded successfuly')
           } else if(dataResponse == "Upload Error") {
+
+            showError('Image not uploaded successfuly')
+
             WriteLog("Error","AssetEdit","handleUploadImage /assets/upDateImage",
               "Upload selected Image \n"
               + "File : " + file.name
@@ -549,8 +559,9 @@ const handleChange = (event) => {
 
       }
       else {
-        setMessage("Select image to upload")
-        setColorMessage('orange')
+        showWarning("Select image to upload")
+       // setMessage("Select image to upload")
+       // setColorMessage('orange')
       }
 
 
@@ -566,6 +577,67 @@ const handleChange = (event) => {
 }
 
 
+//Alert 
+const showWarning =(message) => {
+
+  toast.warn(message, {
+    position: "bottom-right",
+    autoClose: 4000,
+    hideProgressBar: false,
+    closeOnClick: false,
+    pauseOnHover: false,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+    });
+
+}
+
+const showInfo = (message) => 
+{
+  toast.info(message, {
+    position: "bottom-right",
+    autoClose: 4000,
+    hideProgressBar: false,
+    closeOnClick: false,
+    pauseOnHover: false,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+    });
+
+}
+
+const showSuccess = (message) => {
+
+  toast.success(message, {
+    position: "bottom-right",
+    autoClose: 4000,
+    hideProgressBar: false,
+    closeOnClick: false,
+    pauseOnHover: false,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+    });
+
+}
+
+const showError =(message) => {
+
+  toast.error(message, {
+    position: "bottom-right",
+    autoClose: 4000,
+    hideProgressBar: false,
+    closeOnClick: false,
+    pauseOnHover: false,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+    });
+}
+
+
   return (
     
       <CCol xs={12}>
@@ -573,8 +645,6 @@ const handleChange = (event) => {
           <CCardHeader>
             <h6>
             <span className="message" style={{ color: '#5da4f5'}}> <> Update Asset </></span> 
-            <br></br>
-            <strong><span className="message" style={{ color: colorMessage}}><p>{message}</p></span> </strong>
             </h6>
           </CCardHeader>
           <CForm onSubmit={handleSubmit}>
@@ -828,6 +898,19 @@ const handleChange = (event) => {
                   <CButton color="success" style={{   width: '200%' }}  type='submit'>Save</CButton>
                 </div>
                 </CCol>
+
+                  <ToastContainer
+                      position="bottom-right"
+                      autoClose={5000}
+                      hideProgressBar={false}
+                      newestOnTop
+                      closeOnClick={false}
+                      rtl={false}
+                      pauseOnFocusLoss={false}
+                      draggable
+                      pauseOnHover={false}
+                      theme="light"
+                  />
               </CRow>
               <br></br>
 

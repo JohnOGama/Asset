@@ -111,8 +111,6 @@ const GetAssetDetail_ByUserPullout = (paramdetailID,assetName) => {
       getUserInfo();
     }
 
-    WriteLog("For Testing","ViewPullout","GetAssetDetail "," param detailID : " + paramdetailID + " (------------)  assetname " + assetName )
-
     const url = "http://localhost:3001/pullout/getAssetID_By_UserPullout";
       axios.post(url, {paramdetailID})
         .then((res) => {

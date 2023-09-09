@@ -24,6 +24,8 @@ import appSettings from 'src/AppSettings' // read the app config
 import { decrypt } from 'n-krypta';
 import WriteLog from 'src/components/logs/LogListener';
 
+import AlertMessages from 'src/components/alertmessages/AlertMessages';
+
 function AssetStatus() {
 
   const navigate = useNavigate();
@@ -39,8 +41,8 @@ function AssetStatus() {
   }
   
   var userID = ""
-  const [message,setMessage] = useState("")
-  const [colorMessage,setColorMessage] = useState('red')
+ // const [message,setMessage] = useState("")
+ // const [colorMessage,setColorMessage] = useState('red')
 
   const [values,setValues] = useState({
     statusid: "",
@@ -79,6 +81,7 @@ function AssetStatus() {
           
         }
     catch(err) {
+
       navigate('/dashboard')
       }
   }
@@ -107,9 +110,10 @@ function AssetStatus() {
             });
 
         } else if (dataResponse == "No Record Found") {
-          setMessage("No Record Found")
-          setColorMessage("red")
-          WriteLog("Error","AssetStatus","useEffect /status/getStatusbyID",res.data.message2,userID)
+      //    setMessage("No Record Found")
+       //   setColorMessage("red")
+       AlertMessages("No Record Found","Warning")  
+       WriteLog("Error","AssetStatus","useEffect /status/getStatusbyID",res.data.message2,userID)
           //navigate('/500');
         }
       }).catch(err => {
@@ -148,7 +152,8 @@ function AssetStatus() {
               .then(res => {  
                   const dataResponse = res.data.message 
                   
-                  if(dataResponse == "Insert Success"){ 
+                  if(dataResponse == "Insert Success"){
+                    AlertMessages("Status successfully created","Success") 
                     WriteLog("Message","AssetStatus","handleSubmit /status/putStatus", 
                     " New Status "
                     + "\n Name: " + name 
@@ -158,14 +163,17 @@ function AssetStatus() {
                   } else if(dataResponse == "Insert Error") {
                     
                     WriteLog("Error","AssetStatus","handleSubmit /status/putStatus",res.data.message2,userID)
-                    setMessage("dataResponse")
-                    setColorMessage("red")  
-                    navigate('/500');
+                    //setMessage("dataResponse")
+                    //setColorMessage("red")  
+                    
+                    AlertMessages('Error in creating Status','Error')
+                    
                   } 
               })
               .catch(err => {
+                AlertMessages(' Error in creating Status',"Error")
                 WriteLog("Error","AssetStatus","handleSubmit /status/putStatus","Error in then/catch \n" + err.message,userID)
-                navigate('/500');
+                //navigate('/500');
               })
               
             }
@@ -178,35 +186,39 @@ function AssetStatus() {
                   const dataResponse = res.data.message
                  
                   if(dataResponse == "Update Success"){ 
+                    AlertMessages("Asset Status successfully updated.","Success")
                     WriteLog("Message","AssetStatus","handleSubmit /status/updateStatus", 
                     " New Status "
                     + " AssetID : " + rowId
                     + "\n Name: " + name 
                     + "\n Desc  :  " + description 
                     + "\n User : " + userID ,userID)
-                    navigate('/configurations/statusview')
+                  //  navigate('/configurations/statusview')
                   } else if(dataResponse == "Update Error") {
-                    
+                    AlertMessages("Error in updating Status","Error")
                     WriteLog("Error","AssetStatus","handleSubmit /status/updateStatus",res.data.message2,userID)
-                    setMessage(dataResponse)
-                    setColorMessage("red")  
-                    navigate('/500');
+                    //setMessage(dataResponse)
+                   // setColorMessage("red")  
+                   // navigate('/500');
                   } 
               })
               .catch(err => {
+                AlertMessages("Error in updating Status","Error")
                 WriteLog("Error","AssetStatus","handleSubmit /status/updateStatus","Error in then/catch \n" + err.message,userID)
-                navigate('/500');
+                //navigate('/500');
               })
 
             }
           }
           else
           {
-            setMessage("All fields must not be emtpy")
-            setColorMessage("red")  
+            AlertMessages('All fields must not be empty !','Error')
+           // setMessage("All fields must not be emtpy")
+          //  setColorMessage("red")  
           }
         }
         catch(err) {
+          AlertMessages('Error in submitting status','Error')
           WriteLog("Error","AssetStatus","handleSubmit try/catch","Error in try/catch",userID)
         }
 
@@ -217,10 +229,10 @@ function AssetStatus() {
     <CCol xs={12}>
          <CCard className="mb-3" size="sm"  >
          <CCardHeader>
+          <AlertMessages/>
             <h6>
             <span className="message" style={{ color: '#5da4f5'}}> <> Asset Status </></span> 
-            <br></br>
-            <strong><span className="message" style={{ color: colorMessage}}><p>{message}</p></span> </strong>
+            
             </h6>
           </CCardHeader>
           <CForm onSubmit={handleSubmit}>
@@ -229,12 +241,28 @@ function AssetStatus() {
                     <CCardBody>
                       <CInputGroup size="sm" className="mb-3" >
                           <TextField onChange={e => handleInput(e)} name="name" id="outlined-textarea"
-                            value={values.name} fullWidth label="Status Name" placeholder="Status Name" />
+                            value={values.name} fullWidth label="Status Name" placeholder="Status Name"
+                            
+                            error = {
+                              values.name
+                              ? false
+                              : true
+                            }
+
+                            />
                       </CInputGroup>
                       <CInputGroup size="sm" className="mb-3" >
                           <TextField onChange={handleInput} name="description" id="outlined-textarea" 
                               value={values.description} fullWidth label="Description" placeholder="Description" 
-                              multiline  rows={5}  />
+                              multiline  rows={5} 
+                              
+                              error = {
+                                values.description
+                                ? false
+                                : true
+                              }
+
+                              />
                       </CInputGroup>
                     </CCardBody>
                 </CCol>
