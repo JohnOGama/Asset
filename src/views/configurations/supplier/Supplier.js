@@ -42,6 +42,8 @@ import { decrypt } from 'n-krypta';
 // encrypt,compare
 import WriteLog from 'src/components/logs/LogListener';
 
+import AlertMessages from 'src/components/alertmessages/AlertMessages';
+
 function Supplier() {
 
   const navigate = useNavigate();
@@ -57,12 +59,12 @@ function Supplier() {
    navigate('/dashboard')
   }
  
-  const [userID,setUserID] = useState("")
+ var userID = ""
   var userRole = ""
   //const [success,SetSuccess] = useState("");
   //const [errors,setErrors] = useState({})
-  const [message,setMessage] = useState("")
-  const [colorMessage,setColorMessage] = useState('red')
+  //const [message,setMessage] = useState("")
+  //const [colorMessage,setColorMessage] = useState('red')
   const [values,setValues] = useState({
     supplierid: "",
     name: "",
@@ -79,6 +81,12 @@ function Supplier() {
     }
 }
 
+useEffect(() => {
+  getUserInfo()
+  LoadSupplierByID()
+  }, [])
+  
+
   function CheckRole() {
     try {
 
@@ -93,8 +101,9 @@ function Supplier() {
 function getUserInfo() {
 
   try {
+    
     CheckRole()
-      if (userRole == "Admin" || userRole == "IT")
+      if (userRole === "Admin" || userRole === "IT")
         {
             if((!window.localStorage.getItem('id') == null) || (window.localStorage.getItem('id') !== "0")) {
               userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
@@ -109,19 +118,11 @@ function getUserInfo() {
         
       }
   catch(err) {
+  
     navigate('/dashboard')
     }
 }
-    useEffect(() => {
-      getUserInfo()
-      }, [])
-      
 
-    useEffect(() => {
-      
-      LoadSupplierByID()
-
-    },[])
 
     function LoadSupplierByID() {
 
@@ -152,12 +153,13 @@ function getUserInfo() {
               });
   
           } else if (dataResponse == "No Record Found") {
-            setMessage(dataResponse)
-            setColorMessage('red')
+            AlertMessages('Error in loading supplier','Error')
+            
             WriteLog("Error","Supplier","LoadSupplierByID /supplier/getsupplierbyID",res.data.message,userID)
             //navigate('/500');
           }
         }).catch(err => {
+          AlertMessages('Error in loading selected supplier','Error')
           WriteLog("Error","Supplier","LoadSupplierByID /supplier/getsupplierbyID"," Error in then/catch \n" + err.message,userID)
          
         })
@@ -199,24 +201,33 @@ function getUserInfo() {
               .then(res => {  
                   const dataResponse = res.data.message 
                   if(dataResponse == "Insert Success"){ 
-                    
+                    AlertMessages('Supplier created successfully','Success')
                   WriteLog("Message","Supplier","handleSubmit /supplier/putSupplier", 
                   " New Category "
                   + "\n Name: " + name 
                   + "\n Address  :  " + address 
                   + "\n ... " 
                   + "\n User : " + userID ,userID)
-                    navigate('/configurations/supplierview')
+                  setValues({
+                    ...values,
+                        supplierid: '',
+                        name: '',
+                        address: '',
+                        contactno: '',
+                        email: '',
+                        imgFile: ''
+                  })
                   } else if(dataResponse == "Insert Error") {
                     WriteLog("Error","Supplier","handleSubmit /supplier/putSupplier",res.data.message ,userID)
-                    setMessage(dataResponse)
-                    setColorMessage("red")  
+                    AlertMessages('Error in creating supplier','Error')
+                   
                     //navigate('/500');
                   } 
               })
               .catch(err => {
+                AlertMessages('Error in submitting supplier informatio !')
                 WriteLog("Error","Supplier","handleSubmit /supplier/putSupplier","Error in then/catch \n" + err.message ,userID)
-                navigate('/500');
+               
               })
               
             }
@@ -229,6 +240,7 @@ function getUserInfo() {
               .then(res => {  
                   const dataResponse = res.data.message 
                   if(dataResponse == "Update Success"){ 
+                    AlertMessages('Supplier updated successfully','Success')
                     WriteLog("Message","Supplier","handleSubmit /supplier/updateSupplier", 
                     " New Category "
                     + "\n SupplierID : " + rowId
@@ -236,28 +248,29 @@ function getUserInfo() {
                     + "\n Address  :  " + address 
                     + "\n ... " 
                     + "\n User : " + userID ,userID)
-                    navigate('/configurations/supplierview')
+                    
                   } else if(dataResponse == "Update Error") {
                     WriteLog("Error","Supplier","handleSubmit /supplier/updateSupplier",res.data.message ,userID)
-                    setMessage(dataResponse)
-                    setColorMessage("red")  
-                    //navigate('/500');
+                    AlertMessages('Error in updating supplier.','Error')
+                  
                   } 
               })
               .catch(err => {
+                AlertMessages('Error in submitting Supplier Information','Error')
                 WriteLog("Error","Supplier","handleSubmit /supplier/updateSupplier","Error in then/catch \n" + err.message,userID)
-                navigate('/500');
+                
               })
 
             }
           }
           else
           {
-            setMessage("All fields must not be emtpy")
-            setColorMessage("red")  
+            AlertMessages("All fields must not be emtpy !",'Error')
+            
           }
         }
         catch(err) {
+          AlertMessages('Error in Supplier !','Error')
           WriteLog("Error","Supplier","handleSubmit"," Error in try/catch" + err.message,userID)
         }
     }
@@ -278,7 +291,7 @@ function getUserInfo() {
           .then(res => { 
             const dataResponse = res.data.message 
             if(dataResponse == "Upload Success"){ 
-             
+             AlertMessages('Suppllier image uploaded successfully.','Success')
               WriteLog("Message","AssetEdit","handleUploadImage /supplier/updateSupplierImage",
                 "Upload Supplier Image \n"
                 + "File : " + file.name
@@ -287,6 +300,7 @@ function getUserInfo() {
       
                 LoadSupplierByID()
             } else if(dataResponse == "Update Error") {
+              AlertMessages('Supplier image not successfully uploaded !','Error')
               WriteLog("Error","AssetEdit","handleUploadImage /supplier/updateSupplierImage",
                 "Upload Supplier Image \n"
                 + "File : " + file.name
@@ -295,6 +309,7 @@ function getUserInfo() {
             } 
           })
           .catch(err => {
+            AlertMessages('Error in supplier Image !','Error')
             WriteLog("Error","AssetEdit","handleUploadImage /supplier/updateSupplierImage",
                 "Error in then/catch \n"
                 + err.message
@@ -304,13 +319,14 @@ function getUserInfo() {
   
         }
         else {
-          setMessage("Select image to upload")
-          setColorMessage('orange')
+          AlertMessages("Select image to upload",'Warning')
+          
         }
   
 
     }
     catch(err) {
+      AlertMessages('Error in supplier Image !','Error')
       WriteLog("Error","AssetEdit","handleUploadImage /assets/upDateImage",
       "Error in try/catch \n"
       + err.message
@@ -325,9 +341,9 @@ function getUserInfo() {
          <CCard className="mb-3" size="sm"  >
          <CCardHeader>
             <h6>
+              <AlertMessages/>
             <span className="message" style={{ color: '#5da4f5'}}> <> Asset Category </></span> 
-            <br></br>
-            <strong><span className="message" style={{ color: colorMessage}}><p>{message}</p></span> </strong>
+            
             </h6>
           </CCardHeader>
           <CForm onSubmit={handleSubmit}>
@@ -337,20 +353,34 @@ function getUserInfo() {
                     
                       <CInputGroup size="sm" className="mb-3" >
                           <TextField onChange={e => handleInput(e)} name="name" id="outlined-textarea"
-                            value={values.name} fullWidth label="Supplier Name" placeholder="Supplier Name" />
+                            value={values.name} 
+                            error={
+                              values.name
+                              ? false
+                              : true
+                            }
+                            fullWidth label="Supplier Name" placeholder="Supplier Name" />
                       </CInputGroup>
                       <CInputGroup size="sm" className="mb-3" >
                           <TextField onChange={handleInput} name="address" id="outlined-textarea" 
-                              value={values.address} fullWidth label="Address" placeholder="Address" 
+                              value={values.address} 
+                              error = {
+                                values.address ? false : true
+                              }
+                              fullWidth label="Address" placeholder="Address" 
                               multiline  rows={5}  />
                       </CInputGroup>
                       <CInputGroup size="sm" className="mb-3" >
                           <TextField onChange={e => handleInput(e)} name="contactno" id="outlined-textarea"
-                            value={values.contactno} fullWidth label="Contact No" placeholder="Contact No" />
+                            value={values.contactno} 
+                            error = { values.contactno ? false : true}
+                            fullWidth label="Contact No" placeholder="Contact No" />
                       </CInputGroup>
                       <CInputGroup size="sm" className="mb-3" >
                           <TextField onChange={e => handleInput(e)} name="email" id="outlined-textarea"
-                            value={values.email} fullWidth label="Email" placeholder="email" />
+                            value={values.email} 
+                            error = { values.email ? false : true}
+                            fullWidth label="Email" placeholder="email" />
                       </CInputGroup>
                       <CInputGroup xs={5} size="xs" className="mb-3">
                         <CAccordion flush={false} size="xs" className="mb-3" fullWidth>
@@ -389,7 +419,9 @@ function getUserInfo() {
                                 ?  require(`../../../../backend/uploads/${values.imgFile}`)
                                 : imgDefault 
                               }
-                              alt="" style={{ height:'80%', width: '80%', textAlign: "center", margin: "auto"}}    />
+                              alt="" 
+                            
+                              style={{ height:'80%', width: '80%', textAlign: "center", margin: "auto"}}    />
                             </div>  
                           </CInputGroup>
                       </CCardBody>
@@ -414,8 +446,6 @@ function getUserInfo() {
                 </div>
               </CCol>
             </CRow>
-            <br></br>
-
 
           </CForm>
          </CCard>

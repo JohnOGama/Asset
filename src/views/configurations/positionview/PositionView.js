@@ -212,7 +212,7 @@ function getUserInfo() {
         LoadData()
         //window.location.reload();
       } else if (dataResponse == "No Record Deleted") {
-        AlertMessages("No record deleted",'Error')
+        AlertMessages("No record deleted",'Error','Error')
        
         WriteLog("Error","PositionView","handleDelete /position/deletePosition",res.data.message2,userID)
       }
@@ -249,6 +249,7 @@ function LoadData(){
      
     }
   }).catch(err => {
+    AlertMessages('Error in Position','Error')
     WriteLog("Error","PositionView","LoadData /position/viewallposition",err.message,userID)
   })
 }
@@ -283,6 +284,7 @@ function LoadData(){
         <CRow >
             <CCol xs={12}>
               <CCardBody>
+                <AlertMessages/>
               <CButton onClick={handleNew} >Create New </CButton>
                 <CInputGroup size="sm" className="mb-3">
                         <div style={{ height: 400, width: '100%' }}>

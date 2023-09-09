@@ -35,6 +35,8 @@ import {
 
   } from '@coreui/react'
 
+  import AlertMessages from 'src/components/alertmessages/AlertMessages';
+
 function SupplierView() {
 
     const navigate = useNavigate();
@@ -176,8 +178,8 @@ function SupplierView() {
           .then(res => {
             const dataResponse = res.data.message;
             if(dataResponse == "Record Found") {
-              setMessage("Supplier selected still in use")
-              setColorMessage('red')
+              AlertMessages("Supplier selected still in use",'Warning')
+            
               setOpen(false);
             } else if (dataResponse == "No Record Found") {
               setOpen(true);
@@ -185,12 +187,13 @@ function SupplierView() {
             }
           }).catch(err => {
             WriteLog("Error","SupplierView","checkStatus /supplier/checksupplierfordelete","Error in tehn/catch \n " + err.message,userID)
-            setMessage("Error in checking status")
-            setColorMessage('red')
+            AlertMessages("Error in checking status",'Error')
+           
           })
       
         }
         catch(err) {
+          AlertMessages('Error in checking Supplier status','Error')
           WriteLog("Error","SupplierView","checkStatus /supplier/checksupplierfordelete","Error in try/catch \n" + err.message,userID)
         }
       }
@@ -198,6 +201,7 @@ function SupplierView() {
 
        function handleDelete() {
         try {
+          setOpen(false)
           if(userID == "") 
           {
             getUserInfo()
@@ -209,7 +213,7 @@ function SupplierView() {
         .then(res => {
           const dataResponse = res.data.message;
           if(dataResponse == "Record Deleted") {
-            setOpen(false)
+            AlertMessages('Supplier Successfully deleted.','Success')
             LoadData()
          
           } else if (dataResponse == "No Record Deleted") {
@@ -249,13 +253,13 @@ function SupplierView() {
             setSupplier(res.data.result)
         } else if (dataResponse == "No Record Found") {
           WriteLog("Error","SupplierView","LoadData /supplier/viewallsupplier",res.data.message,userID)
-          setMessage("No record found")
-          setColorMessage("red")
+          AlertMessages("No record found",'Warning')
+          setSupplier([])
           //navigate('/500');
         }
       }).catch(err => {
         WriteLog("Error","SupplierView","LoadData /supplier/viewallsupplier","Error in then/catch \n" + err.message,userID)
-        setMessage("No record found")
+        AlertMessages("Error in loading supplier",'Error')
         setColorMessage("red")
       })
     }
@@ -282,9 +286,9 @@ function SupplierView() {
     <CCard className="mb-3" size="sm"  >
       <CCardHeader>
         <h6>
+          <AlertMessages/>
         <span className="message" style={{ color: '#5da4f5'}}> <> Supplier </></span> 
-        <br></br>
-        <strong><span className="message" style={{ color: colorMessage}}><p>{message}</p></span> </strong>
+        
         </h6>
       </CCardHeader>
      

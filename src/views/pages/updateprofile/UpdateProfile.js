@@ -1,23 +1,29 @@
 // eslint-disable-next-line
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
+
 import {
   CCard,
   CCardBody,
   CCardHeader,
   CCol,
   CRow,
-  CFormInput,
-  CButton,
   CForm,
-  CFormSelect,
+  CButton,
   CInputGroup,
   CInputGroupText,
+  CFormInput,
   CAccordion,
+  CAccordionItem,CAccordionHeader,
   CAccordionBody,
-  CAccordionHeader,
-  CAccordionItem
+  CImage
 } from '@coreui/react'
+
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+
+import TextField from '@mui/material/TextField';
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
 
 import imgDefault from '../../../assets/images/defaultProfile.png'
 
@@ -25,6 +31,8 @@ import { decrypt } from 'n-krypta';
 import appSettings from 'src/AppSettings' // read the app config
 import WriteLog from 'src/components/logs/LogListener';
 import {useNavigate} from 'react-router-dom';
+
+import AlertMessages from 'src/components/alertmessages/AlertMessages';
 
 const UpdateProfile = () => {
 
@@ -82,9 +90,22 @@ const UpdateProfile = () => {
       if(dataResponse == "Record Found") {
         SetCategory(res.data.result)
       } else if (dataResponse == "No Record Found") {
+        setValues({
+          categoryID: '',
+          categoryname: '',
+          positionID: '',
+          firstname: '',
+          lastname: '',
+          displayname: '',
+          email: '',
+          imgFile: ''
+
+        })
+        AlertMessages('Profile not found ','Warning')
         WriteLog("Message","UpdateProfile","useEffect /getCategory",dataResponse,userID)
       }
     }).catch(err => {
+      AlertMessages('Error in loading profile','Error')
       WriteLog("Error","UpdateProfile","useEffect /getCategory",err.message,userID)
     })
 },[])
@@ -101,9 +122,11 @@ useEffect(() => {
     if(dataResponse === "Record Found") {
       setPosition(res.data.result)
     } else if (dataResponse === "No Record Found") {
+      AlertMessages(' Position not found','Error')
       WriteLog("Message","UpdateProfile","useEffect /position/viewallposition",dataResponse,userID)
     }
   }).catch(err => {
+    AlertMessages('Error in loading Profile','Error')
     WriteLog("Error","UpdateProfile","useEffect /position/viewallposition",err.message,userID)
   }) 
 },[])
@@ -145,24 +168,26 @@ function LoadProfile() {
          
   
       } else if (dataResponse == "No Profile Found") {
+        AlertMessages('Profile not found','Error')
         WriteLog("Message","UpdateProfile","LoadProfile /users/getuserprofile",res.data.message2,userID)
       }
   
     }).catch(err => {
+      AlertMessages('Loading Profile error','Error')
       WriteLog("Error","UpdateProfile","LoadProfile /users/getuserprofile","Error in then/catch \n" +  err.message,userID)
     })
 
   }
   catch(err) {
+    AlertMessages('Error in profile','Error')
     WriteLog("Error","UpdateProfile","LoadProfile /users/getuserprofile","Error in try/catch \n" + err.message,userID)
   }
 }
 
 const handleInput = (e) => {
+
   setValues(values => ({...values,[e.target.name]: [e.target.value]}))
-  
-  
-  //console.log(values)
+  console.log(values)
 }
 
 useEffect(() => {
@@ -201,24 +226,26 @@ useEffect(() => {
           const dataResponse = res.data.message
 
           if(dataResponse == "Upload Success"){
+            AlertMessages('Profile successfully updated.', 'Success')
             WriteLog("Message","UpdateProfile","handleSubmit /auth/updateProfile", 
             " Update Profile "
             + "\n Name: " + lastname + ", " + firstname 
             + "\n....  " 
             + "\n User : " + userID ,userID)
-            setMessage("Update successfull")
-            setColorMessage("green")
+            
             //navigate('/login');
           } else if(dataResponse == "Upload Error") {
-            setMessage("Update Error")
-            setColorMessage("red")
+            AlertMessages('Profile not updated successfully !','Error')
+            
             WriteLog("Error","UpdateProfile","handleSubmit /auth/updateProfile",res.data.message2,userID)
           } 
         })
       } else (
-        setMessage("Incomplete Information")
+        AlertMessages('All fields must not be empty !','Error')
+        
       )
     } catch(err) {
+      AlertMessages('Error in profile','Error')
       WriteLog("Error","UpdateProfile","handleSubmit",err.message,userID)
     }
   }
@@ -255,9 +282,9 @@ useEffect(() => {
               ,userID)
     
               //LoadProfile()
-              setMessage('Upload image success')
-              setColorMessage('green')
+             AlertMessages('Profile image successfully uploaded','Success')
           } else if(dataResponse == "Update Error") {
+            AlertMessages('Error in updating Profile !','Error')
             WriteLog("Error","UpdateProfile","handleUploadImage /assets/upDateImage",
               "Upload selected Image \n"
               + "File : " + file.name
@@ -266,6 +293,7 @@ useEffect(() => {
           } 
         })
         .catch(err => {
+          AlertMessages('Error in submtting Profile Image','Error')
           WriteLog("Error","UpdateProfile","handleUploadImage /assets/upDateImage",
               "Error in then/catch \n"
               + err.message
@@ -275,14 +303,14 @@ useEffect(() => {
 
       }
       else {
-        setMessage("Select image to upload")
-        setColorMessage('orange')
+        AlertMessages('Select Image to upload','Warning')
       }
 
 
     
   }
   catch(err) {
+    AlertMessages('Error in Profile Image','Error')
     WriteLog("Error","UpdateProfile","handleUploadImage /assets/upDateImage",
     "Error in try/catch \n"
     + err.message
@@ -296,60 +324,105 @@ useEffect(() => {
 
     <CRow>
         <CCol xs={12}>
-          <CCard className="mb-4">
+          <CCard className="mb-3" size="sm">
             <CCardHeader>
+              <AlertMessages/>
                 <h6>
                 <span className="message" style={{ color: '#5da4f5'}}> <> Update Profile</></span> 
-                <br></br>
-                <strong><span className="message" style={{ color: colorMessage}}><p>{message}</p></span> </strong>
+                
                 </h6>
             </CCardHeader>
             <CForm onSubmit={handleSubmit}>
               <CRow>
                 <CCol>
                 <CCardBody>
-                  <CFormSelect size="sm" className="mb-3"  aria-label="Small select example"
-                  name='categoryID' onChange={handleInput} value={values.categoryID} >
+                <CInputGroup size="sm" className="mb-3" >
+                  <Select size="sm" fullWidth className="mb-3" aria-label="Small select example"
+                  name='categoryID' onChange={handleInput} value={values.categoryID}
+                  error= {values.categoryID ? false : true}
+                  >
                   {
                       category.map((val,result) => 
                         
                           <option name={result.toString()} key={val.categoryID} value={val.categoryID}  > {val.categoryName} </option>
                       )
                   }
-                  </CFormSelect>
-                  <CFormSelect size="sm" className="mb-3"  aria-label="Small select example"
-                    name='positionID' onChange={handleInput} value= {values.positionID} >
+                  </Select>
+                </CInputGroup>
+                <CInputGroup size="sm" className="mb-3">
+                  <Select size="sm" className="mb-3"  aria-label="Small select example"
+                    name='positionID' fullWidth onChange={handleInput}
+                    error = {values.positionID ? false : true} value= {values.positionID} >
                     {
                         position.map((val,result) => 
                             <option name={result.toString()} key={val.id}  value={val.id}  > {val.positionName} </option>
                           
                         )
                     }
-                  </CFormSelect>
-                  <CInputGroup size="sm" className="mb-3">
-                    <CInputGroupText id="inputGroup-sizing-sm">Firstname</CInputGroupText>
-                    <CFormInput aria-label="Sizing example input"  aria-describedby="inputGroup-sizing-sm"
-                    name='firstname' onChange={handleInput} value={values.firstname} />
+                  </Select>
                   </CInputGroup>
                   <CInputGroup size="sm" className="mb-3">
-                    <CInputGroupText id="inputGroup-sizing-sm">Lastname</CInputGroupText>
-                    <CFormInput aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"
-                    name='lastname' onChange={handleInput} value={values.lastname}/>
+                    
+                    <TextField onChange={e => handleInput(e)} name="firstname" id="outlined-textarea"
+                            value={values.firstname} fullWidth label="Firstname" placeholder="Firstname"
+                            error= {
+                              values.firstname
+                              ? false
+                              : true
+                            }
+
+                    />
+
                   </CInputGroup>
                   <CInputGroup size="sm" className="mb-3">
-                    <CInputGroupText id="inputGroup-sizing-sm">Display Name</CInputGroupText>
-                    <CFormInput aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" 
-                    name='displayname' onChange={handleInput} value={values.displayname} />
-                  </CInputGroup>
-                  <CInputGroup className="mb-3">
-                      <CInputGroupText>@</CInputGroupText>
-                      <CFormInput placeholder="Email" name="email" onChange={handleInput} value={values.email}
-                        autoComplete="email" />
+
+                    <TextField onChange={e => handleInput(e)} name="lastname" id="outlined-textarea"
+                            value={values.lastname} fullWidth label="Lastname" placeholder="Lastname"
+                            error= {
+                              values.lastname
+                              ? false
+                              : true
+                            }
+
+                    />
                   </CInputGroup>
 
-                  <CInputGroup xs={5} size="xs" className="mb-3">
 
-                  <CAccordion flush={false} size="xs" className="mb-3" fullWidth>
+                  </CCardBody> 
+                </CCol>
+                <CCol>
+                  <CCardBody>
+                <CInputGroup size="sm" className="mb-3">
+
+
+                    <TextField onChange={e => handleInput(e)} name="displayname" id="outlined-textarea"
+                            value={values.displayname} fullWidth label="Displayname" placeholder="Displayname"
+                            error= {
+                              values.displayname
+                              ? false
+                              : true
+                            }
+
+                    />
+
+                    </CInputGroup>
+                    <CInputGroup className="mb-3">
+
+                    <TextField onChange={e => handleInput(e)} name="email" id="outlined-textarea"
+                            value={values.displayname} fullWidth label="Email" placeholder="Email"
+                            error= {
+                              values.email
+                              ? false
+                              : true
+                            }
+
+                    />
+
+                    </CInputGroup>
+
+                    <CInputGroup xs={5} size="xs" className="mb-3">
+
+                    <CAccordion flush={false} size="xs" className="mb-3" fullWidth>
                     <CAccordionItem itemKey={1} size="xs" className="mb-3">
                     <CAccordionHeader>
                       Upload Image here
@@ -366,11 +439,12 @@ useEffect(() => {
                         </div>
                       </CAccordionBody>
                     </CAccordionItem>
-                  </CAccordion>
+                    </CAccordion>
 
-                  </CInputGroup>
+                    </CInputGroup>
+                  
+                    </CCardBody>
 
-              </CCardBody> 
                 </CCol>
                 <CCol>
                  
@@ -378,7 +452,7 @@ useEffect(() => {
 
                     <CInputGroup size="sm" className="mb-3" >
                     <div className="formInput" >
-                    <img src={
+                    <CImage src={
                     values.imgFile
                     ?  require(`../../../../backend/uploads/${values.imgFile}`)
                     : imgDefault 

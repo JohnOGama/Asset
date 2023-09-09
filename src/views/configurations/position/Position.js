@@ -242,6 +242,7 @@ try {
                   } 
               })
               .catch(err => {
+                AlertMessages('Error in Position','Error')
                 WriteLog("Message","Position","handleSubmit /position/updatePosition",err.message,userID)
                 //navigate('/500');
               })
@@ -255,6 +256,7 @@ try {
           }
         }
         catch(err) {
+          AlertMessages('Error in submitting position','Error')
           WriteLog("Message","Position","handleSubmit ","Error in try/catch  " + err.message,userID)
         }
     }
@@ -279,13 +281,22 @@ try {
                           <FormControl fullWidth >
                             <InputLabel >Department</InputLabel>
                               <Select  size="sm" className="mb-3" aria-label="Small select example"
-                                name='departmentid' onChange={handleInput} value={values.departmentid} >
+                                name='departmentid' onChange={handleInput} value={values.departmentid} 
+                                
+                                error = {
+                                  values.departmentid
+                                  ? false
+                                  :true
+                                }
+                                >
                                   {
                                   department.map((val) => 
                                   
                                     <MenuItem key={val.id} value={val.id}  >{val.departmentName}</MenuItem>
                                   )
                                   }
+
+                                  
                               </Select>
 
                           </FormControl>
@@ -296,12 +307,25 @@ try {
 
                       <CInputGroup size="sm" className="mb-3" >
                           <TextField onChange={e => handleInput(e)} name="name" id="outlined-textarea"
-                            value={values.name} fullWidth label="Position Name" placeholder="Position Name" />
+                            value={values.name} fullWidth label="Position Name" placeholder="Position Name"
+                            error= {
+                              values.name
+                              ? false
+                              : true
+                            }
+
+                            />
                       </CInputGroup>
                       <CInputGroup size="sm" className="mb-3" >
                           <TextField onChange={handleInput} name="description" id="outlined-textarea" 
                               value={values.description} fullWidth label="Description" placeholder="Description" 
-                              multiline  rows={5}  />
+                              multiline  rows={5} 
+                              error = {
+                                values.description
+                                ? false
+                                : true
+                              }
+                              />
                       </CInputGroup>
                     </CCardBody>
                 </CCol>

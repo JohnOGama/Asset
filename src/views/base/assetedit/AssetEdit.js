@@ -874,13 +874,14 @@ const showError =(message) => {
                   <CCardBody xs={6}  >        
                     
                     <CInputGroup size="sm" className="mb-3" >
-                    <div className="formInput" >
+                    <div className="formInput" width='100px' >
                       <img src={
                         values.imgFile
                         ?  require( `../../../../backend/uploads/${values.imgFile}`)
                         : imgDefault 
                       }
-                      alt="" style={{  width: '80%', textAlign: "center", margin: "auto"}}    />
+                      alt="" width={'100px'} height={'300px'} 
+                         />
                     </div>  
                       </CInputGroup>
                   </CCardBody>
