@@ -13,7 +13,7 @@ const AlertMessages = (message,paramMethod) => {
         toast.warn(message, {
             position: "bottom-right",
             autoClose: 4000,
-            hideProgressBar: false,
+            hideProgressBar: true,
             closeOnClick: false,
             pauseOnHover: false,
             draggable: true,
@@ -26,7 +26,7 @@ const AlertMessages = (message,paramMethod) => {
         toast.info(message, {
             position: "bottom-right",
             autoClose: 4000,
-            hideProgressBar: false,
+            hideProgressBar: true,
             closeOnClick: false,
             pauseOnHover: false,
             draggable: true,
@@ -39,7 +39,7 @@ const AlertMessages = (message,paramMethod) => {
         toast.success(message, {
             position: "bottom-right",
             autoClose: 4000,
-            hideProgressBar: false,
+            hideProgressBar: true,
             closeOnClick: false,
             pauseOnHover: false,
             draggable: true,
@@ -52,7 +52,7 @@ const AlertMessages = (message,paramMethod) => {
         toast.error(message, {
             position: "bottom-right",
             autoClose: 4000,
-            hideProgressBar: false,
+            hideProgressBar: true,
             closeOnClick: false,
             pauseOnHover: false,
             draggable: true,
@@ -64,7 +64,7 @@ const AlertMessages = (message,paramMethod) => {
       toast.error(message, {
         position: "bottom-right",
         autoClose: 4000,
-        hideProgressBar: false,
+        hideProgressBar: true,
         closeOnClick: false,
         pauseOnHover: false,
         draggable: true,
@@ -79,8 +79,8 @@ const AlertMessages = (message,paramMethod) => {
 
         <ToastContainer
                 position="bottom-right"
-                autoClose={5000}
-                hideProgressBar={false}
+                autoClose={3000}
+                hideProgressBar
                 newestOnTop
                 closeOnClick={false}
                 rtl={false}
