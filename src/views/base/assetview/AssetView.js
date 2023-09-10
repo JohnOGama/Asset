@@ -12,6 +12,10 @@ import defaultAvatarAsset from '../../../assets/images/macbook.png'
 //'../../../assets/images/macbook.png'
 //
 
+
+
+import AlertMessages from 'src/components/alertmessages/AlertMessages';
+
 import {
   CCard,
   CCardBody,
@@ -47,6 +51,8 @@ import { decrypt  } from 'n-krypta';
 //import { buildTimeValue } from '@testing-library/user-event/dist/types/utils';
 import WriteLog from 'src/components/logs/LogListener';
 import { Avatar } from '@mui/material';
+import GenerateAssetPDF from 'src/components/generatereport/GenerateAssetPDF';
+
 
 const AssetView = () => {
 
@@ -55,8 +61,8 @@ const AssetView = () => {
     var userID = ""
     var userRole = ""
 
-  const [message,setMessage] = useState("")
-  const [colorMessage,setColorMessage] = useState('red')
+  //const [message,setMessage] = useState("")
+ // const [colorMessage,setColorMessage] = useState('red')
   
   const [assets,setAssets] = useState([])
   //const [disposeFound,setdisposeFound] = useState(false)
@@ -142,8 +148,8 @@ function CheckDispose(rowidselected,source) {
         const dataResponse = res.data.message 
         
         if(dataResponse == "Record Found"){ 
-          setMessage("Asset already mark as Dispose")
-          setColorMessage('red')
+          AlertMessages("Asset already mark as Dispose",'Warning')
+         
         } else if(dataResponse == "No Record Found") {
             CheckDeploy(rowidselected,source)
         } 
@@ -178,8 +184,8 @@ function CheckDeploy(rowidselected,source){
       .then(res => { 
         const dataResponse = res.data.message 
         if(dataResponse == "Record Found"){ 
-          setMessage("Asset still in use")
-          setColorMessage('red')
+          AlertMessages("Asset still in use",'Warning')
+         
         } else if(dataResponse == "No Record Found") {
             if (source == "Dispose") {
             navigate('/base/assetdispose', {state:{params}})
@@ -304,9 +310,21 @@ function handleClick(rowidselected,source) {
 
   /////////// End of Datagrid 
 
-  //<CCardHeader>
-  //<strong>All Assets <span className="message" style={{ color: colorMessage}}><p>{message}</p></span> </strong>
-  //</CCardHeader>  
+const handleAssetReport = () => 
+{
+  try {
+    
+    const totalAssets =   assets.length.toString()
+  
+    GenerateAssetPDF(assets,totalAssets)
+    
+
+  }
+  catch(err) {
+    AlertMessages('Unable to Generate Report','Error')
+  }
+}
+
   return (
 
       <CCol xs={12}>
@@ -316,14 +334,21 @@ function handleClick(rowidselected,source) {
          
             <CRow >
                 <CCol xs={12}>
-                 <CCard>
-                  <CCardHeader>
-                  <h6>
-                  <span className="message" style={{ color: '#5da4f5'}}> <>Asset(s)</></span>
-                    <strong><span className="message" style={{ color: colorMessage}}><p>{message}</p></span> </strong>
-                  </h6>
-                  </CCardHeader>
+                
+
+                  <CCardHeader width='100px'>
                   
+                      <CCol>
+                      <h6>
+                      <span className="message" style={{ color: '#5da4f5'}}> <>Asset(s)</></span>
+
+                        
+                      </h6>
+                    </CCol>
+                    
+             
+                  </CCardHeader>
+                  <CCardBody>
                     <CInputGroup size="sm" className="mb-3">
                             <div style={{ height: 400, width: '100%' }}>
                                 <DataGrid
@@ -342,11 +367,24 @@ function handleClick(rowidselected,source) {
                                 />
                             </div>
                     </CInputGroup>
+                   
+                    <div className="d-grid" style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                        }} >
+                      <CButton color="success" onClick={handleAssetReport} style={{   width: '130%' }}  > Generate Asset(s) Report</CButton>
                   
-                  </CCard>                  
+                    </div>
+                  
+                  </CCardBody>
+
+                               
                 </CCol>
             </CRow>
+           
           </CForm>
+                                    
         </CCard>
       </CCol>
       
