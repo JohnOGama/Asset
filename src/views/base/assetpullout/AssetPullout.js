@@ -38,6 +38,9 @@ import WriteLog from 'src/components/logs/LogListener';
 import emailjs from '@emailjs/browser'
 import utils_getDate from '../../../components/DateFunc';
 
+
+import { v4 as uuidv4 } from 'uuid';
+
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -50,6 +53,7 @@ import { ButtonGroup } from '@mui/material';
 import WriteUserInfo from 'src/components/logs/LogListenerUser';
 
 import ChecklistIcon from '@mui/icons-material/Checklist';
+import utils_getDateMMDDHR from 'src/components/DateFuncMMDD';
 
 function AssetPullout() {
   const navigate = useNavigate();
@@ -228,6 +232,11 @@ try {
     getUserInfo()
   }
 
+  
+  const id = uuidv4();
+  var docRef_Pullout =  id.slice(0,5).toUpperCase()
+  docRef_Pullout = docRef_Pullout + utils_getDateMMDDHR()
+  
 
     window.localStorage.setItem('Kvsf45_','0')
     receiver_detailID = decrypt(window.localStorage.getItem('0ghds-134U'),appSettings.secretkeylocal)
@@ -239,7 +248,7 @@ try {
 
     const detailid = receiver_detailID
       const url = 'http://localhost:3001/assets/pulloutasset_selectedbyuser'
-      axios.post(url,{userID,detailid,assetID,notes})
+      axios.post(url,{userID,detailid,assetID,notes,docRef_Pullout})
       .then(response => {
         const dataResponse = response.data.message;
         if(dataResponse == "Update Success") {

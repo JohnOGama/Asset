@@ -1,5 +1,5 @@
 
-    function utils_getDate() {
+    export default function utils_getDate() {
 
         let newDate = new Date()
        
@@ -10,7 +10,7 @@
         let minute = newDate.getMinutes();
         let secs = newDate.getSeconds();
        // let now =  year+"/"+month+"/"+day +" " + hr+":"+minute+":"+secs
-         now =  month +"/" + day + "/" + year 
+        let now =  month +"/" + day + "/" + year 
         // year+"/"+month+"/"+day 
        // console.log(newDate)
        // console.log(day)

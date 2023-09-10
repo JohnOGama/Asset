@@ -11,7 +11,7 @@ const AlertMessages = (message,paramMethod) => {
     {
 
         toast.warn(message, {
-            position: "bottom-right",
+            position: "top-center",
             autoClose: 4000,
             hideProgressBar: true,
             closeOnClick: false,
@@ -24,7 +24,7 @@ const AlertMessages = (message,paramMethod) => {
     } else if (paramMethod === "Info") {
 
         toast.info(message, {
-            position: "bottom-right",
+            position: "top-center",
             autoClose: 4000,
             hideProgressBar: true,
             closeOnClick: false,
@@ -37,7 +37,7 @@ const AlertMessages = (message,paramMethod) => {
     } else if(paramMethod === "Success") {
 
         toast.success(message, {
-            position: "bottom-right",
+            position: "top-center",
             autoClose: 4000,
             hideProgressBar: true,
             closeOnClick: false,
@@ -50,7 +50,7 @@ const AlertMessages = (message,paramMethod) => {
     } else if(paramMethod === "Error") {
 
         toast.error(message, {
-            position: "bottom-right",
+            position: "top-center",
             autoClose: 4000,
             hideProgressBar: true,
             closeOnClick: false,
@@ -62,7 +62,7 @@ const AlertMessages = (message,paramMethod) => {
     } else
     {
       toast.error(message, {
-        position: "bottom-right",
+        position: "top-center",
         autoClose: 4000,
         hideProgressBar: true,
         closeOnClick: false,
@@ -78,8 +78,9 @@ const AlertMessages = (message,paramMethod) => {
     <div>
 
         <ToastContainer
-                position="bottom-right"
+                position="top-center"
                 autoClose={3000}
+                limit={1}
                 hideProgressBar
                 newestOnTop
                 closeOnClick={false}

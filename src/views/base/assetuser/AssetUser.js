@@ -8,6 +8,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
+
 // input Mask
 
 import TextField from '@mui/material/TextField';
@@ -24,6 +25,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Paper from '@mui/material/Paper';
 import Draggable from 'react-draggable';
 
+import { v4 as uuidv4 } from 'uuid';
 
 import {
   CCard,
@@ -65,6 +67,7 @@ import WriteLog from 'src/components/logs/LogListener';
 import WriteUserInfo from '../../../components/logs/LogListenerUser'
 import { Alert } from '@coreui/coreui';
 import { FormControl } from '@mui/material';
+import utils_getDateMMDDHR from 'src/components/DateFuncMMDD';
 
 const AssetUser = () => {
 
@@ -349,12 +352,12 @@ useEffect(() => {
           WriteLog("Error","AssetUser","GetEmailInfo /email/getemailinfo","then/catch \n " + response.data.message,userID)
         }
       }).catch(err => {
-        WriteLog("Error","AssetUser","GetEmailInfo /assets/getallassetsavailable","then/catch \n " + err.message,userID)
+        WriteLog("Error","AssetUser","GetEmailInfo /assets/getemailinfo","then/catch \n " + err.message,userID)
       })
   
     }
     catch(err) {
-      WriteLog("Error","AssetUser","GetEmailInfo /assets/updateassetdeploy","Error in try/catch",userID)
+      WriteLog("Error","AssetUser","GetEmailInfo /assets/getemailinfo","Error in try/catch",userID)
     }
   }
 
@@ -365,14 +368,19 @@ useEffect(() => {
     const varnotes = userSelected.notes
     const positionID = receiverInfo.positionID
     const departmentID = receiverInfo.deptID
+
    
+    const id = uuidv4();
+    var docRef_Checkin =  id.slice(0,5).toUpperCase()
+    docRef_Checkin = docRef_Checkin + utils_getDateMMDDHR()
+
     try {
       getUserInfo()
       rowselected.forEach((irow, index) => {
 
             const assetid = irow
             const url = 'http://localhost:3001/assets/putassetsdetail'
-            axios.post(url,{varuserid,assetid,positionID,departmentID,checkout,userID,assetdeploy,varnotes})
+            axios.post(url,{varuserid,assetid,positionID,departmentID,checkout,userID,assetdeploy,varnotes,docRef_Checkin})
             .then(response => {
               const dataResponse = response.data.message;
               if(dataResponse == "Insert Success") {  
@@ -404,6 +412,8 @@ useEffect(() => {
             })
   
       })
+
+
     }catch(err) {
       WriteLog("Error","AssetUser","InsertAssetDetail /assets/putassetsdetail"," Error in try/catch " +  err.message,userID)
     }
@@ -477,7 +487,7 @@ useEffect(() => {
 
   function sendEmail(userid) {
 
-    let strDate =   utils_getDate();
+    let strDate = utils_getDate()
     let allow_email_checkout = appSettings.ALLOW_SENDEMAIL_CHECKOUT_BY_IT
     let success_insert = window.localStorage.getItem('Kvsf45_')
     

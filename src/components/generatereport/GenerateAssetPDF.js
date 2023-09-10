@@ -11,20 +11,17 @@ import DefaultLogoReport from '../../assets/images/DefaultLogoReport.jpeg'
 
 import WriteLog from "../logs/LogListener";
 
-import { decrypt  } from 'n-krypta';
-import { DockTwoTone } from '@mui/icons-material';
 // define a generatePDF function that accepts a tickets argument
 const GenerateAssetPDF = (assets,totalAssets) => {
 
     try {
   
-        const userID = decrypt(window.localStorage.getItem('id'), appSettings.secretkeylocal)
-
+       
   
   const doc = new jsPDF();
 
   // define the columns we want and their titles
-  const tableColumn = ["#","Code", "Name", "Category", "Status","Checkout"];
+  const tableColumn = ["#","Code", "Name", "Category", "Status","Received"];
   // define an empty array of rows
   const tableRows = [];
     var icount = 0
@@ -38,7 +35,7 @@ const GenerateAssetPDF = (assets,totalAssets) => {
       asset.assetName,
       asset.assetCategName,
       asset.statusName,
-      asset.CheckOut
+      asset.Checkin
     ];
     // push each assets info into a row
     tableRows.push(assetData);
@@ -58,22 +55,39 @@ const GenerateAssetPDF = (assets,totalAssets) => {
   const dateStr = date[1] + date[2] + date[3] + date[4];
   const dateGenerate = month + "/" + day + "/" + year
 
-  doc.autoTable(tableColumn, tableRows,{ startY: 30 })
+  
 
   doc.addImage(img, 'jpeg',10 ,5, 40,15)  // margin-left,margin-top,width , height
   doc.text("Current Asset(s) List",150, 12 ); // margin-left,margin-top
   doc.setFontSize(10)
-  doc.text('Date Generated : ' + dateGenerate.toString(),150,16)
-  doc.text('Total Asset(s) :' + totalAssets.toString(),150,21)
+  doc.text('Date Generated : ' + dateGenerate,150,16)
+  doc.text('Total Asset(s) : ' + totalAssets,150,21)
   doc.line(10,25,200,25)
 
+  doc.autoTable(tableColumn, tableRows,{ startY: 30,horizontalPageBreak: true,horizontalPageBreakRepeat: 0, })
+
+  var pageCount = doc.getCurrentPageInfo().pageNumber
+  
+  for( var i=0; i < pageCount;i++)
+  {
+    doc.setPage(i)
+   
+    var curretPage = doc.getCurrentPageInfo().pageNumber
+    //WriteLog("For Testing"," ")
+   // doc.autoTable(tableRows,{startY:30})
+
+    doc.line(10,280,200,280)
+    doc.text("Page : " + curretPage + "/" + pageCount, 10,285)
+    doc.text("Asset Management Team", 150,285)
+
+  }
 
    // we define the name of our PDF file to save.
   doc.save(`Assets_${dateStr}.pdf`);
 
 }
 catch(err)  {
-    WriteLog("Error", "Generate PDF " ,"Generate Asset PDF","",userID)
+    WriteLog("Error", "Generate PDF " ,"Generate Asset PDF","","")
 }
 
 };

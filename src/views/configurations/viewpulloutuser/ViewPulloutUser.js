@@ -32,6 +32,7 @@ import WriteLog from 'src/components/logs/LogListener';
 
 import appSettings from 'src/AppSettings' // read the app config
 import {  decrypt } from 'n-krypta';
+import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 
 const ViewPulloutUser = () => {
 
@@ -45,6 +46,9 @@ const ViewPulloutUser = () => {
     const [pullout,setPullout] = useState([])
     const [open, setOpen] = React.useState(false);
     const [rowselected,setRowSelected] = useState({ })
+
+    const [docRef_Pullout,setDocRef_Pullout] = useState([])
+    const [docRef_selected,setdocRef_selected] = useState("")
 
     function CheckRole() {
       try {
@@ -83,9 +87,10 @@ const ViewPulloutUser = () => {
     }
 
     useEffect(() => {
-  
-  getUserInfo()
-      }, [])
+      getUserInfo();
+      LoadData();
+      LoadDocPull();
+    }, [])
 
 
     const columns = React.useMemo(() => [
@@ -234,11 +239,12 @@ function handleOpen(){
   setOpen(true)
 }
 
-useEffect(() => {
+function handleInput(e) {
+  // setdocRef_selected(e.targ)
+   setdocRef_selected(e.target.value.trim())
+ }
 
-      LoadData();
 
-  },[])
 
 function LoadData(){
   if(userID == "") 
@@ -246,7 +252,7 @@ function LoadData(){
     getUserInfo()
   }
   const url = 'http://localhost:3001/pullout/viewallpullout'
-  axios.post(url)
+  axios.post(url,{userID})
   .then(res => {
     const dataResponse = res.data.message;
     if(dataResponse == "Record Found") {
@@ -261,6 +267,86 @@ function LoadData(){
   })
 }
 
+
+function LoadDocPull() {
+
+  try {
+    if (userID === "") {
+      getUserInfo();
+    }
+
+    const url = "http://localhost:3001/pullout/viewallpullout_by_docRefPullout";
+    axios.post(url, { userID })
+      .then((res) => {
+        const dataResponse = res.data.message;
+     
+        if (dataResponse == "Record Found") {
+          setDocRef_Pullout(res.data.result);
+        }
+        else {
+          setDocRef_Pullout([])
+        }
+      })
+      .catch((err) => {
+        WriteLog(
+          "Error",
+          "ViewPulloutUser",
+          "LoadDocPull /assets/viewallpullout_by_docRefPullout",
+          err.message,
+          userID
+        );
+      });
+  } catch (err) {
+    WriteLog(
+      "Error",
+      "ViewPulloutUser",
+      "LoadDocPull /assets/viewallpullout_by_docRefPullout",
+      err.message,
+      userID
+    );
+  }
+
+}
+
+function GeneratePDF() {
+  
+  try {
+    if (userID === "") {
+      getUserInfo();
+    }
+    const docref = docRef_selected
+    const url = "http://localhost:3001/assets/viewallpullout_by_selected_docRefPullout";
+    axios.post(url, { userID,docref })
+      .then((res) => {
+        const dataResponse = res.data.message;
+
+        if (dataResponse == "Record Found") {
+         
+          console.log(res.data.result)
+          GenerateCheckINDocPDF( res.data.result,docref)
+          LoadDocCheckIn()
+        }
+      })
+      .catch((err) => {
+        WriteLog(
+          "Error",
+          "ViewPulloutUser",
+          "GeneratePDF /assets/viewassetsassignfordeploy_by_docRef",
+          err.message,
+          userID
+        );
+      });
+  } catch (err) {
+    WriteLog(
+      "Error",
+      "ViewPulloutUser",
+      "GeneratePDF /assets/viewassetsassignfordeploy_by_docRef",
+      err.message,
+      userID
+    );
+  }
+
+}
 
       /// For Dialog
   function PaperComponent(props) {
@@ -282,6 +368,41 @@ function LoadData(){
         <strong>User Pullout <span className="message" style={{ color: colorMessage}}><p>{message}</p></span> </strong>
       </CCardHeader>
       <CForm >
+        <br></br>
+        <CRow>
+  
+          <CCol xs={3}>
+
+<FormControl fullWidth  size="sm"  >
+        <InputLabel id="docref">CheckIn Document Reference No.</InputLabel>
+          <Select  className="mb-3" aria-label="Small select example"
+            name='docref' onChange={handleInput} value={docRef_selected}
+            error = {
+            docRef_selected
+              ? false
+              : true
+            }
+            label="Checkin Reference No."
+            >
+              { 
+              docRef_Pullout.map((val) => 
+                
+                <MenuItem key={val.docRef_Pullout} value={val.docRef_Pullout} >{val.docRef_Pullout}</MenuItem>
+
+              )
+              }
+          </Select>
+</FormControl>
+<CButton
+style={{ width: "100%" }}
+onClick={GeneratePDF}
+color="info"
+>
+Print Receiving Document
+</CButton>
+
+          </CCol>
+        </CRow>
         <CRow >
             <CCol xs={12}>
               <CCardBody>

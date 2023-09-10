@@ -14,10 +14,11 @@ import {
   CRow,
   CForm,
   CButton,
-  //CFormSelect,
+  CFormSelect,
   //CFormInput,
   //CInputGroupText,
   CInputGroup,
+  CFormLabel,
   //CFormLabel,
   //CFormFloating
 } from "@coreui/react";
@@ -44,7 +45,9 @@ import WriteUserInfo from "src/components/logs/LogListenerUser";
 
 
 import ChecklistIcon from '@mui/icons-material/Checklist';
-import e from "cors";
+import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import GenerateCheckINDocPDF from "src/components/generatereport/GenerateCheckINDocPDF";
+
 
 const AssetUserAssign = () => {
   const navigate = useNavigate();
@@ -74,6 +77,10 @@ const AssetUserAssign = () => {
   const [iselected, SetTotalSelected] = useState(0); // count how many are selected
 
   const [open, setOpen] = React.useState(false);
+
+  const [docRef,setDocRef] = useState([])
+  const [docRef_selected,setdocRef_selected] = useState("")
+
 
   /// For Dialog Box
 
@@ -127,6 +134,7 @@ const AssetUserAssign = () => {
   useEffect(() => {
     getUserInfo();
     LoadData();
+    LoadDocCheckIn();
    //GetAsset_Status_For_Deploy();
    // GetAsset_Status_Deploy()
   }, []);
@@ -227,6 +235,46 @@ useEffect(() => {
 }, [])
 
 
+function LoadDocCheckIn() {
+
+  try {
+    if (userID === "") {
+      getUserInfo();
+    }
+    const url = "http://localhost:3001/assets/viewallassetsassignby_docref";
+    axios
+      .post(url, { userID })
+      .then((res) => {
+        const dataResponse = res.data.message;
+     
+        if (dataResponse == "Record Found") {
+          setDocRef(res.data.result);
+        }
+        else {
+          setDocRef([])
+        }
+      })
+      .catch((err) => {
+        WriteLog(
+          "Error",
+          "AssetUserAssign",
+          "LoadDocCheckIn /assets/viewallassetsassignfordeploy_DocRef",
+          err.message,
+          userID
+        );
+      });
+  } catch (err) {
+    WriteLog(
+      "Error",
+      "AssetUserAssign",
+      "LoadDocCheckIn /assets/viewallassetsassignfordeploy_DocRef",
+      err.message,
+      userID
+    );
+  }
+
+}
+
   function LoadData() {
     try {
       if (userID === "") {
@@ -240,6 +288,8 @@ useEffect(() => {
 
           if (dataResponse == "Record Found") {
             setAssets(res.data.result);
+          } else {
+            setAssets([]);
           }
         })
         .catch((err) => {
@@ -262,6 +312,7 @@ useEffect(() => {
     }
   }
 
+  
 function GetAsset_Status_For_Deploy() {
   try {
 
@@ -357,10 +408,10 @@ function GetAsset_Status_Deploy () {
       event.preventdefault;
 
       if (Object.keys(rowselected).length > 0) {
-        setMessage('')
+      
        
         setOpen(true);
-        SetTotalSelected(Object.keys(rowselected).length)
+      
       }
       else {
 
@@ -398,6 +449,48 @@ function GetAsset_Status_Deploy () {
   const handleClose = () => {
     setOpen(false);
   };
+
+  function GeneratePDF() {
+
+   // const [docref_asset,setAssetsby_docRef] = useState([])
+
+    try {
+      if (userID === "") {
+        getUserInfo();
+      }
+      const docref = docRef_selected
+      const url = "http://localhost:3001/assets/viewassetsassignfordeploy_by_docRef";
+      axios.post(url, { userID,docref })
+        .then((res) => {
+          const dataResponse = res.data.message;
+
+          if (dataResponse == "Record Found") {
+           
+            console.log(res.data.result)
+            GenerateCheckINDocPDF( res.data.result,docref)
+            LoadDocCheckIn()
+          }
+        })
+        .catch((err) => {
+          WriteLog(
+            "Error",
+            "AssetUserAssign",
+            "LoadData /assets/viewassetsassignfordeploy_by_docRef",
+            err.message,
+            userID
+          );
+        });
+    } catch (err) {
+      WriteLog(
+        "Error",
+        "AssetUserAssign",
+        "LoadData /assets/viewassetsassignfordeploy_by_docRef",
+        err.message,
+        userID
+      );
+    }
+
+  }
 
   const handleCheckin = (event) => {
 
@@ -784,28 +877,82 @@ function UpdateAssetDeployed(paramassetid) {
 
   /////// end of DGrid
 
+  function handleInput(e) {
+   // setdocRef_selected(e.targ)
+    setdocRef_selected(e.target.value.trim())
+  }
+
   return (
     <CCol xs={12}>
-      <CCard className="mb-3" size="sm">
+      <CCard className="mb-3">
+        
         <CCardHeader>
+       
+
           <h6>
+            
             <span className="message" style={{ color: "#5da4f5" }}>
-              {" "}
-              <> Asset Checkin</>
+
+            Asset Checkin 
+          
             </span>
-            <br></br>
+          </h6>
+        
             <strong>
               <span className="message" style={{ color: colorMessage }}>
                 <p>{message}</p>
               </span>{" "}
             </strong>
-          </h6>
+      
+          
         </CCardHeader>
+       
         <CForm>
+         <CCardBody>
           <CRow>
+            <CCol xs={3}>
+
+                <FormControl fullWidth  size="sm"  >
+                        <InputLabel id="docref">CheckIn Document Reference No.</InputLabel>
+                          <Select  className="mb-3" aria-label="Small select example"
+                            name='docref' onChange={handleInput} value={docRef_selected}
+                            error = {
+                            docRef_selected
+                              ? false
+                              : true
+                            }
+                            label="Checkin Reference No."
+                            >
+                              { 
+                              docRef.map((val) => 
+                                
+                                <MenuItem key={val.docRef} value={val.docRef} >{val.docRef}</MenuItem>
+
+                              )
+                              }
+                          </Select>
+                </FormControl>
+                <CButton
+                style={{ width: "100%" }}
+                onClick={GeneratePDF}
+                color="info"
+              >
+                Print Receiving Document
+              </CButton>
+            </CCol>
+            <CCol >
+
+            </CCol>
+          </CRow>
+          <br></br>
+          <CRow>
+          
             <CCol xs={12}>
-              <CCardBody>
+           
+
                 <CInputGroup size="sm" className="mb-3">
+
+           
                   <div style={{ height: 400, width: "100%" }}>
                     <DataGrid
                       rows={assets}
@@ -823,7 +970,7 @@ function UpdateAssetDeployed(paramassetid) {
                     />
                   </div>
                 </CInputGroup>
-              </CCardBody>
+             
             </CCol>
              {/*  <div
               className="d-grid"
@@ -869,6 +1016,7 @@ function UpdateAssetDeployed(paramassetid) {
               </DialogActions>
             </Dialog>
           </CRow>
+          </CCardBody>
         </CForm>
       </CCard>
     </CCol>

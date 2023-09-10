@@ -313,7 +313,8 @@ function handleClick(rowidselected,source) {
 const handleAssetReport = () => 
 {
   try {
-    
+    getUserInfo()
+
     const totalAssets =   assets.length.toString()
   
     GenerateAssetPDF(assets,totalAssets)
@@ -322,6 +323,7 @@ const handleAssetReport = () =>
   }
   catch(err) {
     AlertMessages('Unable to Generate Report','Error')
+    WriteLog("Error","AssetView","HandleAssetReport",err.message,userID)
   }
 }
 
