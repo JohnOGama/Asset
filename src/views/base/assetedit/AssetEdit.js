@@ -880,7 +880,7 @@ const showError =(message) => {
                         ?  require( `../../../../backend/uploads/${values.imgFile}`)
                         : imgDefault 
                       }
-                      alt="" width={'100px'} height={'300px'} 
+                      alt="" width={'100%'} height={'100%'} 
                          />
                     </div>  
                       </CInputGroup>

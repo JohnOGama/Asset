@@ -344,7 +344,7 @@ useEffect(() => {
                   {
                       category.map((val,result) => 
                         
-                          <option name={result.toString()} key={val.categoryID} value={val.categoryID}  > {val.categoryName} </option>
+                          <option name={val.categoryID} key={val.categoryID} value={val.categoryID}  > {val.categoryName} </option>
                       )
                   }
                   </Select>
@@ -352,10 +352,10 @@ useEffect(() => {
                 <CInputGroup size="sm" className="mb-3">
                   <Select size="sm" className="mb-3"  aria-label="Small select example"
                     name='positionID' fullWidth onChange={handleInput}
-                    error = {values.positionID ? false : true} value= {values.positionID} >
+                    value= {values.positionID} >
                     {
                         position.map((val,result) => 
-                            <option name={result.toString()} key={val.id}  value={val.id}  > {val.positionName} </option>
+                            <option name={val.id} key={val.id}  value={val.id}  > {val.positionName} </option>
                           
                         )
                     }
@@ -393,8 +393,6 @@ useEffect(() => {
                 <CCol>
                   <CCardBody>
                 <CInputGroup size="sm" className="mb-3">
-
-
                     <TextField onChange={e => handleInput(e)} name="displayname" id="outlined-textarea"
                             value={values.displayname} fullWidth label="Displayname" placeholder="Displayname"
                             error= {
@@ -406,7 +404,7 @@ useEffect(() => {
                     />
 
                     </CInputGroup>
-                    <CInputGroup className="mb-3">
+                    <CInputGroup size="sm" className="mb-3" >
 
                     <TextField onChange={e => handleInput(e)} name="email" id="outlined-textarea"
                             value={values.displayname} fullWidth label="Email" placeholder="Email"

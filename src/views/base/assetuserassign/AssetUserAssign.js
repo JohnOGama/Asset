@@ -46,6 +46,7 @@ import WriteUserInfo from "src/components/logs/LogListenerUser";
 
 import ChecklistIcon from '@mui/icons-material/Checklist';
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+
 import GenerateCheckINDocPDF from "src/components/generatereport/GenerateCheckINDocPDF";
 
 
@@ -53,7 +54,7 @@ const AssetUserAssign = () => {
   const navigate = useNavigate();
 
   let userID = "";
-
+  var userRole = ""
   var receiver_detailID = ""
   var receiver_assetID = ""
   var receiver_name = ""
@@ -62,8 +63,6 @@ const AssetUserAssign = () => {
   var checkin_success = ""
   var receiver_assetName = ""
 
-  //const [success,SetSuccess] = useState("");
-  //const [errors,setErrors] = useState({})
   const [message, setMessage] = useState("");
   const [colorMessage, setColorMessage] = useState("red");
 
@@ -115,16 +114,24 @@ const AssetUserAssign = () => {
 
   function getUserInfo() {
     try {
-      if (
-        !window.localStorage.getItem("id") == null ||
-        window.localStorage.getItem("id") !== "0"
-      ) {
-        userID = decrypt(
-          window.localStorage.getItem("id"),
-          appSettings.secretkeylocal
-        );
-      } else {
-        navigate("/login");
+      CheckRole()
+
+      if(userRole === "User") {
+        if (
+          !window.localStorage.getItem("id") == null ||
+          window.localStorage.getItem("id") !== "0"
+        ) 
+        {
+          userID = decrypt(
+            window.localStorage.getItem("id"),
+            appSettings.secretkeylocal
+          );
+        } else {
+          navigate("/login");
+        }
+      }
+      else {
+        navigate("/dashboard");
       }
     } catch (err) {
       navigate("/dashboard");

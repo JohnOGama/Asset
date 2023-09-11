@@ -34,6 +34,10 @@ import appSettings from 'src/AppSettings' // read the app config
 import {  decrypt } from 'n-krypta';
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 
+import GeneratePulloutDocPDF from 'src/components/generatereport/GeneratePulloutDocPDF';
+
+
+
 const ViewPulloutUser = () => {
 
     const navigate = useNavigate();
@@ -315,7 +319,7 @@ function GeneratePDF() {
       getUserInfo();
     }
     const docref = docRef_selected
-    const url = "http://localhost:3001/assets/viewallpullout_by_selected_docRefPullout";
+    const url = "http://localhost:3001/pullout/viewallpullout_by_selected_docRefPullout";
     axios.post(url, { userID,docref })
       .then((res) => {
         const dataResponse = res.data.message;
@@ -323,15 +327,16 @@ function GeneratePDF() {
         if (dataResponse == "Record Found") {
          
           console.log(res.data.result)
-          GenerateCheckINDocPDF( res.data.result,docref)
-          LoadDocCheckIn()
+          console.log('ralph')
+          GeneratePulloutDocPDF( res.data.result,docref)
+          
         }
       })
       .catch((err) => {
         WriteLog(
           "Error",
           "ViewPulloutUser",
-          "GeneratePDF /assets/viewassetsassignfordeploy_by_docRef",
+          "GeneratePDF /pullout/viewallpullout_by_selected_docRefPullout",
           err.message,
           userID
         );
@@ -340,7 +345,7 @@ function GeneratePDF() {
     WriteLog(
       "Error",
       "ViewPulloutUser",
-      "GeneratePDF /assets/viewassetsassignfordeploy_by_docRef",
+      "GeneratePDF /pullout/viewallpullout_by_selected_docRefPullout",
       err.message,
       userID
     );
@@ -368,44 +373,47 @@ function GeneratePDF() {
         <strong>User Pullout <span className="message" style={{ color: colorMessage}}><p>{message}</p></span> </strong>
       </CCardHeader>
       <CForm >
-        <br></br>
+      <CCardBody>
+      
         <CRow>
-  
+      
           <CCol xs={3}>
 
-<FormControl fullWidth  size="sm"  >
-        <InputLabel id="docref">CheckIn Document Reference No.</InputLabel>
-          <Select  className="mb-3" aria-label="Small select example"
-            name='docref' onChange={handleInput} value={docRef_selected}
-            error = {
-            docRef_selected
-              ? false
-              : true
-            }
-            label="Checkin Reference No."
-            >
-              { 
-              docRef_Pullout.map((val) => 
-                
-                <MenuItem key={val.docRef_Pullout} value={val.docRef_Pullout} >{val.docRef_Pullout}</MenuItem>
+          <FormControl fullWidth className="mb-3"  size="sm"  >
+                  <InputLabel id="docref">CheckIn Document Reference No.</InputLabel>
+                    <Select  className="mb-3" aria-label="Small select example"
+                      name='docref' onChange={handleInput} value={docRef_selected}
+                      error = {
+                      docRef_selected
+                        ? false
+                        : true
+                      }
+                      label="Checkin Reference No."
+                      >
+                        { 
+                        docRef_Pullout.map((val) => 
+                          
+                          <MenuItem key={val.docRef_Pullout} value={val.docRef_Pullout} >{val.docRef_Pullout}</MenuItem>
 
-              )
-              }
-          </Select>
-</FormControl>
-<CButton
-style={{ width: "100%" }}
-onClick={GeneratePDF}
-color="info"
->
-Print Receiving Document
-</CButton>
-
+                        )
+                        }
+                    </Select>
+      
+          <CButton
+          style={{ width: "100%" }}
+          onClick={GeneratePDF}
+          color="info"
+          >
+          Print Pullout Document
+          </CButton>
+          </FormControl>
           </CCol>
+         
         </CRow>
+        <br></br>
         <CRow >
             <CCol xs={12}>
-              <CCardBody>
+            
                 <CInputGroup size="sm" className="mb-3">
                         <div style={{ height: 400, width: '100%' }}>
                             <DataGrid
@@ -451,9 +459,10 @@ Print Receiving Document
                         </DialogActions>
                       </Dialog>
                 </div>
-              </CCardBody>
+        
             </CCol>
         </CRow>
+        </CCardBody>
       </CForm>
     </CCard>
   </CCol>

@@ -23,7 +23,6 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Paper from '@mui/material/Paper';
 import Draggable from 'react-draggable';
 
-import DefaulImgDispose from "../../../assets/images/DefaultDispose.png"
 
 import {
   CCard,
@@ -56,7 +55,6 @@ import utils_getDateMMDDHR from 'src/components/DateFuncMMDD';
 
 import { v4 as uuidv4 } from 'uuid';
 import { ButtonGroup, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
-import GenerateDisposeDocPDF from 'src/components/generatereport/GenerateDisposeDocPDF';
 
 const DisposeView = () => {
 
@@ -121,34 +119,10 @@ function getUserInfo() {
 useEffect(() => {
   getUserInfo()
   GetEmailInfo()
-  
+  LoadData()
   LoadDispos()
  },[])
 
- useEffect(() => {
- 
-      try {
-        getUserInfo()
-        const url = 'http://localhost:3001/dispose/viewallassetdispose'
-        axios.post(url)
-        .then(res => {
-        const dataResponse = res.data.message;
-        if(dataResponse == "Record Found") {
-            setDispose(res.data.result)
-        } 
-        else
-        {
-          setDispose([])
-
-        }
-        }).catch(err => {
-        WriteLog("Error","DisposeView","LoadData /dispose/viewallassetdispose","Error in then/catch \n" + err.message,userID)
-        })
-    }
-    catch(err) {
-        WriteLog("Error","DisposeView"," LoadData /dispose/viewallassetdispose","Error in try/catch \n" + err.message,userID)
-    }      
- }, [])
     
 function LoadData(){
     try {
@@ -236,7 +210,7 @@ function GetEmailInfo(param) {
 
 function handleClick() {
 try {
-  setOpen(false)
+
   window.localStorage.setItem('Kvsf45_','0')
   const id = uuidv4();
   var docRef_Dispose =  id.slice(0,5).toUpperCase()
@@ -248,9 +222,12 @@ try {
         }
        })
     
-
+       const check_approve_dispose = window.localStorage.getItem('Kvsf45_')
+       if(check_approve_dispose === "1")
+       {
           sendEmail()
          
+       }
        /*
        else if((!check_approve_dispose === "1") || (!check_approve_dispose === "0"))
        {
@@ -466,7 +443,7 @@ const columns = React.useMemo(() => [
 };
  
   const allow_send_email_approve_dispose = appSettings.ALLOW_SENDEMAIL_APPROVE_DISPOSE
-  if(allow_send_email_approve_dispose === "send")
+  if(allow_send_email_approve_dispose == "send")
   {
     emailjs.send(appSettings.YOUR_SERVICE_ID, appSettings.YOUR_TEMPLATE_ID, templateParams,appSettings.public_key)
     .then(function(response) {
@@ -499,37 +476,7 @@ const columns = React.useMemo(() => [
   const handleViewPDF =() => 
   {
     try {
-
-      try {
-        if (userID === "")
-        {
-          getUserInfo()
-        }
-        console.log(docRef_selected_Dispose)
-        var docref_dispose = docRef_selected_Dispose
-        const url = 'http://localhost:3001/dispose/viewallassetdispose_byDocReference'
-        axios.post(url,{docref_dispose})
-        .then(res => {
-        const dataResponse = res.data.message;
-        if(dataResponse == "Record Found") {
-
-            GenerateDisposeDocPDF(res.data.result,docref_dispose)
-        } 
-        else
-        {
-          
-          setdocRef_Dispose([])
-
-        }
-        }).catch(err => {
-        WriteLog("Error","DisposeView","handleViewPDF /dispose/viewallassetdispose_DocRef","Error in then/catch \n" + err.message,userID)
-        })
-    }
-    catch(err) {
-        WriteLog("Error","DisposeView"," handleViewPDF /dispose/viewallassetdispose","Error in try/catch \n" + err.message,userID)
-    }      
-
-      
+      console.log("dsf")
     }
     catch(err) {
       console.log("dsf")
@@ -554,24 +501,62 @@ function PaperComponent(props) {
 
 
   return (
-    
+  
+
     <CCol xs={12}>
 
-     
+      <CRow>
+        <CCol xs={10}>
+
+        </CCol>
+        <CCol xs={2}>
+                <ButtonGroup style={{
+                              display: 'flex',
+                              alignItems: 'left',
+                              justifyContent: 'left',
+                            
+                              }}>
+
+                        <CButton onClick={handleViewPDF} style={{  margin:'5px', width: '120%' }} color="info"> View Pullout  </CButton>
+                        </ButtonGroup>
+                </CCol>
+        
+      </CRow>
+
+     <CRow>
         <CCard className="mb-3" size="sm" >
-          <CCardHeader className="mb-3" size="sm">
-                <h6>
-                <span className="message" style={{ color: '#5da4f5'}}> <> Dispose </></span> 
-                <br></br>
-                <strong><span className="message" style={{ color: colorMessage}}><p>{message}</p></span> </strong>
-                </h6>
+          <CCardHeader >
+              <h6>
+              <span className="message" style={{ color: '#5da4f5'}}> <> Dispose </></span> 
+              <br></br>
+              <strong><span className="message" style={{ color: colorMessage}}><p>{message}</p></span> </strong>
+              </h6>
           </CCardHeader>
           <CCardBody>
-          <CForm onSubmit={handleSubmit}>
-            <CRow>
-                <CCol xs={3} className='mb-3'>
-                  <FormControl fullWidth  size="sm" >
-                      
+
+          </CCardBody>
+        </CCard>
+
+
+
+
+        <CCard  >
+          
+          
+            <CForm onSubmit={handleSubmit}>
+            <CCardBody className='mb-3'>
+              <CRow>
+                <CCol xs={8}>
+
+                </CCol>
+                <CCol xs={2} style={{
+                              display: 'flex',
+                              alignItems: 'right',
+                              justifyContent: 'right',
+                            
+                              }} >
+                <FormControl fullWidth  size="sm" >
+                    
                       <InputLabel id="docref">Dispose Reference No.</InputLabel>
                         <Select  className="mb-1" aria-label="Small select example"
                           name='docref' onChange={handleInput} value={docRef_selected_Dispose}
@@ -580,7 +565,7 @@ function PaperComponent(props) {
                             ? false
                             : true
                           }
-                          label="Select Reference No."
+                          label="Dispose Reference No."
                           >
                             { 
                             docRef_Dispose.map((val) => 
@@ -590,103 +575,80 @@ function PaperComponent(props) {
                             )
                             }
                         </Select>
-                        <div className="d-grid" style={{
-                                display: 'flex',
-                                alignItems: 'left',
-                                justifyContent: 'left',
-                              
-                                }}>
-                    
-
-                          <CButton onClick={handleViewPDF} style={{  margin:'5px', width: '120%' }} color="info"> View Reference  </CButton>
-                        </div>
-                        <div className="d-grid" style={{
-                          display: 'flex',
-                          alignItems: 'left',
-                          justifyContent: 'left',
-                          }} >
-                          <CButton style={{  margin:'5px', width: '185%' }} color="success" onClick={handleSubmit}>Approve</CButton>
-                        </div>
                   </FormControl>
                 </CCol>
                 
-                <CCol xs={9}>
-                <div className="formInput" width='100px' >
-                      <img src={
-                        DefaulImgDispose
-                      }
-                      alt="" width={'100%'} height={'200px'} 
-                         />
-                    </div>
-                </CCol>               
-            </CRow>
-  
-          <CRow>
-     
-                  <CCol >
-                
-                      <div style={{ height: 400, width: '100%' }}>
-
-                          <DataGrid
-                              rows={dispose}
-                              columns={columns}
-                              initialState={{
-                              pagination: {
-                                  paginationModel: {
-                                  pageSize: 10,
-                                  },
-                              },
-                              }}
-                              checkboxSelection
-                              pageSizeOptions={[10]}
-                              rowSelection={true}
-                              getRowId={(row) => row.id}
-                              onRowSelectionModelChange={id => SetRowSelected(id)}
-                          />
-                      </div>
-                      
-                
-                  </CCol>
-          </CRow>
-              <CRow>
-
-
-
-              <Dialog
-                      open={open}
-                      onClose={handleClose}
-                      PaperComponent={PaperComponent}
-                      aria-labelledby="draggable-dialog-title"
-                    >
-                      <DialogTitle style={{ cursor: 'move' }} id="draggable-dialog-title">
-                          Dispose
-                      </DialogTitle>
-                      <DialogContent>
-                        <DialogContentText>
-                          Are you sure you want to Dispose Asset(s) ?
-                          <br></br>
-                          <br></br>
-                          Selected : {iselected}
-                        </DialogContentText>
-                      </DialogContent>
-                      <DialogActions>
-                        <Button autoFocus onClick={handleClose}>
-                          Cancel
-                        </Button>
-                        <Button onClick={handleClick}>Approve</Button>
-                      </DialogActions>
-                </Dialog>
               </CRow>
+              
+                <CRow >
+                      <CCol >
+                    
+                          <div style={{ height: 400, width: '100%' }}>
 
-        </CForm>
+                              <DataGrid
+                                  rows={dispose}
+                                  columns={columns}
+                                  initialState={{
+                                  pagination: {
+                                      paginationModel: {
+                                      pageSize: 10,
+                                      },
+                                  },
+                                  }}
+                                  checkboxSelection
+                                  pageSizeOptions={[10]}
+                                  rowSelection={true}
+                                  getRowId={(row) => row.id}
+                                  onRowSelectionModelChange={id => SetRowSelected(id)}
+                              />
+                          </div>
+                          
+                    
+                      </CCol>
+                  </CRow>
+                  <CRow>
 
-          </CCardBody>
+                  <div className="d-grid" style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          }} >
+                          <CButton style={{  margin:'5px', width: '120%' }} color="success" onClick={handleSubmit}>Approve</CButton>
+                  </div>
 
+                  <Dialog
+                          open={open}
+                          onClose={handleClose}
+                          PaperComponent={PaperComponent}
+                          aria-labelledby="draggable-dialog-title"
+                        >
+                          <DialogTitle style={{ cursor: 'move' }} id="draggable-dialog-title">
+                              Dispose
+                          </DialogTitle>
+                          <DialogContent>
+                            <DialogContentText>
+                              Are you sure you want to Dispose Asset(s) ?
+                              <br></br>
+                              <br></br>
+                              Selected : {iselected}
+                            </DialogContentText>
+                          </DialogContent>
+                          <DialogActions>
+                            <Button autoFocus onClick={handleClose}>
+                              Cancel
+                            </Button>
+                            <Button onClick={handleClick}>Approve</Button>
+                          </DialogActions>
+                    </Dialog>
+                  </CRow>
+           </CCardBody>
+            </CForm>
+          
         </CCard>
-    
+       </CRow>   
     </CCol>
-    
-    
+
+
   )
 }
 

@@ -406,7 +406,7 @@ function UpdateMain_Asset(varassetid) {
     },
   ];
 
-  function LoadAsset()
+ async function LoadAsset()
   {
     try {
         if(userID == "") 
@@ -414,7 +414,7 @@ function UpdateMain_Asset(varassetid) {
         getUserInfo()
         }
       const url = 'http://localhost:3001/assets/viewallassetsassigndeployed_user'
-      axios.post(url,{userID})
+     await axios.post(url,{userID})
       .then(res => {
         const dataResponse = res.data.message;
         if(dataResponse == "Record Found") {
@@ -648,7 +648,7 @@ function UpdateMain_Asset(varassetid) {
                           
                             }}>
 
-                      <CButton onClick={handleViewPullout} style={{  margin:'5px', width: '120%' }} color="success"> View  </CButton>
+                      <CButton onClick={handleViewPullout} style={{  margin:'5px', width: '120%' }} color="info"> View Pullout  </CButton>
                       </ButtonGroup>
 
                     

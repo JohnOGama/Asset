@@ -257,6 +257,12 @@ const handle_Asset_Detail = (detailid,assetname) => {
         editable: false,
       },
       {
+        field: 'notesPullout',
+        headerName: 'Notes',
+        width: 150,
+        editable: false,
+      },
+      {
         field: 'statusName',
         headerName: 'Status',
         width: 150,
@@ -364,8 +370,6 @@ const handle_Asset_Detail = (detailid,assetname) => {
             const dataResponse = res.data.message;
   
             if(dataResponse == "Update Success") {
-
-            
 
               WriteLog("Message","ViewPullout","SingleCheckin /pullout/updatepulloutnotification", 
               " Receive Pullout " 
@@ -485,14 +489,12 @@ const handle_Asset_Detail = (detailid,assetname) => {
         axios.post(url,{rowId})
         .then(res => {
           const dataResponse = res.data.message;
-          if(dataResponse == "Record Found") {
-
-           
-            SingleCheckIn()
+          if(dataResponse === "Record Found") {
+              SingleCheckIn()
               sendEmail()
               LoadData()
           }
-          else if (dataResponse == "No Record Found") {
+          else if (dataResponse === "No Record Found") {
 
             WriteLog("Message","ViewPullout","CheckAssetReceive /pullout/checkpulloutnotification ","Asset previously received ( " + receiver_detailID + " )",userID)
 
@@ -565,7 +567,7 @@ function LoadData(){
     <CCol xs={12}>
     <CCard className="mb-3" size="sm"  >
       <CCardHeader>
-        <strong>View Pullout <span className="message" style={{ color: colorMessage}}><p>{message}</p></span> </strong>
+        <strong>Checkin / Receive Pullout <span className="message" style={{ color: colorMessage}}><p>{message}</p></span> </strong>
       </CCardHeader>
      
       <CForm >
