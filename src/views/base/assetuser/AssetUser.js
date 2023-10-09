@@ -425,8 +425,8 @@ useEffect(() => {
   function UpdateAssetDeploy(varassetid) {
     try {
       
-     
-      const url = 'http://localhost:3001/assets/updateassetdeploy'
+
+      const url = 'http://localhost:3001/assets/updateassetFordeploy'
       axios.post(url,{assetdeploy,varassetid,userID})
       .then(response => { 
         const updateResponse = response.data.message;

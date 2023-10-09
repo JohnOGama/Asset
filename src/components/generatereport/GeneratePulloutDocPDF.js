@@ -20,7 +20,7 @@ const GeneratePulloutDocPDF = (assets_byDocref,documentNo) => {
         const doc = new jsPDF();
       
         // define the columns we want and their titles
-        const tableColumn = ["#","Code", "Serial","Name", "Category","Note"];
+        const tableColumn = ["#","Code", "Serial","Name", "Category","Status","Note"];
         // define an empty array of rows
         const tableRows = [];
           var icount = 0
@@ -34,6 +34,7 @@ const GeneratePulloutDocPDF = (assets_byDocref,documentNo) => {
             asset.serialNo,
             asset.assetName,
             asset.assetCategName,
+            asset.statusName,
             asset.notesPullout,
           ];
           // push each assets info into a row
@@ -62,8 +63,14 @@ const GeneratePulloutDocPDF = (assets_byDocref,documentNo) => {
         doc.setFont('Helvetica','Normal')
         doc.setFontSize(10)
         doc.text('Date Generated : ' + dateGenerate,150,16)
+
+        doc.setFont('Helvetica','Normal')
+        doc.text('Document No : ',150,21)
         doc.setFont('Helvetica','Bold')
-        doc.text('Document No : ' + documentNo,150,21)
+        doc.setFontSize(12)
+        doc.text(documentNo,175,21)
+
+        doc.setFont('Helvetica','Normal')
         doc.line(10,25,200,25)
       
         doc.autoTable(tableColumn, tableRows,{ startY: 45,horizontalPageBreak: true,horizontalPageBreakRepeat: 0, })
@@ -97,9 +104,9 @@ const GeneratePulloutDocPDF = (assets_byDocref,documentNo) => {
 
           doc.setFont('Helvetica','Normal')
           doc.setFontSize(10)
-          doc.text("The employee whoose name and signature below acknowledge that he/she has returned the asset mentioned",10,105)
-          doc.text("above. The person receiving the asset whose name signature below confirmed receiving the asset(s)",10,110)
-          doc.text("indicated above. ",10,115)
+          doc.text("The employee whoose name and signature below acknowledge that he/she has returned the asset mentioned above",10,105)
+          doc.text("The person receiving the asset whose name signature below confirmed receiving the asset(s) mentioned above.",10,110)
+          doc.text(" ",10,115)
 
 
           doc.setFont('Helvetica','Normal')

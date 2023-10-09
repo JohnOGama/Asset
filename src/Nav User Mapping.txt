@@ -6,6 +6,9 @@
 configurations/log
 configurations/logview
 
+*** For Approver
+base/Disposeappprove
+
 
 ****** User Only
 

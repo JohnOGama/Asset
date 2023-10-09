@@ -327,7 +327,7 @@ function DisposeAsset(){
               + "\n ....."
               + "\n Mark as Dispose by : " + userID,userID)
 
-             navigate('/base/assetview')
+             navigate('/dashboard')
             } else if(dataResponse == "Insert Error") {
              WriteLog("Error","AssetDispose","DisposeAsset /dispose/insertdispose",res.data.message2,userID)
               navigate('/500');

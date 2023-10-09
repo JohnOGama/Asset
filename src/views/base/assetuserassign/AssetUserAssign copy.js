@@ -439,11 +439,11 @@ const AssetUserAssign = () => {
         .then((res) => {
           const dataResponse = res.data.message;
 
-          if (dataResponse == "Record Found") {
+          if (dataResponse === "Record Found") {
             setAssets(res.data.result);
           }
           else {
-            etAssets([]);
+            setAssets([]);
           }
         })
         .catch((err) => {

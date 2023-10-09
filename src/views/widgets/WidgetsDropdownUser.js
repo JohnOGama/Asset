@@ -79,6 +79,9 @@ const WidgetsDropdownUser = () => {
   LoadTotalCountDepartment_ByUser()
   LoadCountStatusDepartment_ByUser()
   LoadTotalCountStatusDepartment_ByUser()
+
+  LoadCountPulloutDepartment_ByUser()
+  LoadTotalCountPulloutDepartment()
  /*
   LoadStatus()
   LoadStatAvailable()
@@ -171,6 +174,28 @@ const WidgetsDropdownUser = () => {
     })
   }
 
+  
+
+  function LoadCountPulloutDepartment_ByUser(){
+    setMessage("")
+    const url = 'http://localhost:3001/status/getPulloutAssetDepartment_ByUser'
+     axios.post(url,{departmentID})
+ 
+    .then(res => {
+      const dataResponse = res.data.message;
+      if(dataResponse == "Record Found") {
+        setStatus(res.data.result)
+        
+      } else if (dataResponse == "No Record Found") {
+        WriteLog("Error","WidgetsDropDownUser","LoadStatusDepartment_ByUser /status/getPulloutAssetDepartment_ByUser",res.data.message,userID)
+        //setTotalAssets()
+        //navigate('/500');
+      }
+    }).catch(err => {
+      WriteLog("Error","WidgetsDropDownUser","LoadStatusDepartment_ByUser /status/getPulloutAssetDepartment_ByUser","Error in then/catch \n" + err.message,userID)
+    })
+  }
+
   function LoadCountStatusDepartment_ByUser(){
     setMessage("")
     const url = 'http://localhost:3001/status/getStatusbyAssetDepartment_ByUser'
@@ -212,6 +237,26 @@ const WidgetsDropdownUser = () => {
     })
   }
   
+  function LoadTotalCountPulloutDepartment(){
+    setMessage("")
+    const url = 'http://localhost:3001/status/countallPullout_ByUser'
+     axios.post(url)
+ 
+    .then(res => {
+      const dataResponse = res.data.message;
+      if(dataResponse == "Record Found") {
+        setStatAvailable({...statavailable,
+          available: res.data.result[0].statavailalble})
+        
+      } else if (dataResponse == "No Record Found") {
+        WriteLog("Error","WidgetsDropDown","LoadAvailable /status/getStatusAvailable",res.data.message,userID)
+        //setTotalAssets()
+        //navigate('/500');
+      }
+    }).catch(err => {
+      WriteLog("Error","WidgetsDropDown","LoadAvailable /status/getStatusAvailable","Error in then/catch \n" + err.message,userID)
+    })
+  }
 
   return (
     <CRow>

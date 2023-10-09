@@ -78,7 +78,7 @@ useEffect(() => {
           .then(res => {
               const dataResponse = res.data.message
               
-              if(dataResponse == "Record Found"){
+              if(dataResponse === "Record Found"){
                 const userid = res.data.result[0].userDisplayID
                 const displayName = res.data.result[0].displayName 
                 const img = res.data.result[0].imgFilename 

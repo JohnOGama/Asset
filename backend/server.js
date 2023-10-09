@@ -1,4 +1,4 @@
-
+require('dotenv').config()
 var express = require("express");
 
 var cors = require('cors');
@@ -29,6 +29,7 @@ app.listen(port,() => {
     {
         if(err)
         {
+            
             console.log("No Database Present");
         } else
         {
@@ -924,6 +925,40 @@ app.post('/status/getStatusbyAsset',(req,res) => {
     });
 
 app.post('/status/getStatusbyAssetDepartment_ByUser',(req,res) => {
+    // Dashboard
+    const sql = "SELECT stat.assetStatusID, stat.statusName,"
+        + "(select count(assets.assetID) as id  from tblUsers users"
+        + " inner join tblUserAssetDetails details on details.userSelectedID COLLATE utf8mb4_unicode_ci = users.userDisplayID"
+        + " inner join tblAssetStatus stats on stats.assetStatusID COLLATE utf8mb4_unicode_ci = details.assetStatusID"
+        + " inner join tblAssets assets on assets.assetID COLLATE utf8mb4_unicode_ci = details.assetID"
+        + " inner join tblUsers userdeploy on userdeploy.userDisplayID COLLATE utf8mb4_unicode_ci = details.useridcheckout"
+        + " inner join tblPositions positions on positions.positionDisplayID = users.positionID"
+        + " inner join tblDepartments department on department.departmentDisplayID = positions.departmentDisplayID"
+        + " where  department.departmentDisplayID = ?"
+        + " and stats.assetStatusID = stat.assetStatusID)"
+        + " as countStatus"
+        + " FROM  tblAssetStatus stat"
+        + " where stat.statusName <> '-'"
+        + " order by stat.statusName"
+
+        connection.query(sql,[req.body.departmentID],(err,result) => {
+            if(err) {
+                res.json({
+                    message: "No Record Found",
+                    message2: err.message});
+            } else {
+                if(result.length > 0) {
+                   
+                    res.json({result,message: "Record Found"});
+                } else {
+                    res.json({message: "No Record Found"});
+                }
+            }
+        })
+    });
+
+
+app.post('/status/getPulloutAssetDepartment_ByUser',(req,res) => {
     // Dashboard
     const sql = "SELECT stat.assetStatusID, stat.statusName,"
         + "(select count(assets.assetID) as id  from tblUsers users"
@@ -2093,12 +2128,34 @@ app.post('/assets/putassetsdetail',(req,res) => {
 app.post('/assets/updateassetdeploy',(req,res) => {
 
     const sqlUpdate = "UPDATE tblAssets SET assetStatusID = ?,updatedBy = ?,dateUpdated = ?"
-            + " where assetID = ? and active=1"
+            + " where assetID = ? and active = 1 "
  
 //console.log(req.body.varassetid)
 //console.log(req.body.assetdeploy)
-    connection.query(sqlUpdate,[ req.body.assetdeploy, req.body.userID, utils_getDate(),req.body.varassetid],(err,result) => {
+    connection.query(sqlUpdate,[req.body.assetstat,req.body.userID,utils_getDate(),req.body.varassetID],(err,result) => {
         if(err) {
+            
+            res.json({
+                message: "Update Error",
+                message2: err.message});
+        }else {
+            
+            res.json({
+                message: "Update Success"});
+        }
+     })
+
+})
+
+app.post('/assets/updateassetFordeploy',(req,res) => {
+/// checkout asset from IT
+    const sqlUpdate = "UPDATE tblAssets SET assetStatusID = ?,updatedBy = ?,dateUpdated = ?"
+            + " where assetID = ? and active = 1 "
+ 
+
+    connection.query(sqlUpdate,[req.body.assetdeploy,req.body.userID,utils_getDate(),req.body.varassetid],(err,result) => {
+        if(err) {
+            
             res.json({
                 message: "Update Error",
                 message2: err.message});
@@ -2136,16 +2193,38 @@ app.post('/assets/updateuserasset',(req,res) => {
 
 })
 
+
+
+
+app.post('/assets/updateAsset_Disable',(req,res) => {
+
+
+    const sqlUpdate = "UPDATE tblAssets SET active =0,updatedBy=?,dateUpdated=?"
+            + " where assetID=?"
+
+    connection.query(sqlUpdate,[req.body.userID,utils_getDate(), req.body.rowId],(err,result) => {
+        if(err) {
+            res.json({
+                message: "Update Error",
+                message2: err.message});
+        }else {
+            //console.log("success")
+           // if(result.affectedRows == 1) {
+            res.json({
+                message: "Update Success"});
+            }
+        //}
+
+     })
+
+})
+
 app.post('/assets/checkinassetsdetail',(req,res) => {
 
 
     const sqlUpdate = "UPDATE tblUserAssetDetails SET checkinby =?,datecheckin=?,assetStatusID=?"
             + " where detailID=?"
- /*           
-    console.log("A - " + req.body.userID)
-    console.log("b - " + req.body.assetstat)
-    console.log("d - " + req.body.detailID)
-*/
+
     connection.query(sqlUpdate,[req.body.userID,utils_getDate(), req.body.assetstat,
         req.body.detailID],(err,result) => {
         if(err) {
@@ -2514,6 +2593,99 @@ app.post('/dispose/viewallassetdispose',(req,res) => {
     })
 });
 
+app.post('/dispose/viewallassetdispose_withNoDocRef',(req,res) => {
+
+    const sql = "SELECT dispose.disposeID as id,assets.serialNo,assets.assetCode,assets.assetName,"
+        + "supplier.name as suppliername,category.assetCategName,"
+        + "box.boxName,assetstat.statusName as statfrom, stat.statusName as statto,users.displayName,"
+        + "COALESCE(DATE_FORMAT(dispose.datecreated, '%m/%d/%Y'),'') as disposedate,"
+        + "dispose.isApprove"
+        + " FROM tblAssets assets"
+        + " INNER JOIN tblDispose dispose on dispose.assetID COLLATE utf8mb4_unicode_ci = assets.assetID"
+        + " INNER JOIN tblBox box on box.boxID COLLATE utf8mb4_unicode_ci = dispose.boxid"
+        + " INNER JOIN tblAssetStatus stat on stat.assetStatusID COLLATE utf8mb4_unicode_ci = dispose.statusID"
+        + " INNER JOIN tblAssetStatus assetstat on assetstat.assetStatusID COLLATE utf8mb4_unicode_ci = assets.assetStatusID"
+        + " INNER JOIN tblUsers users on users.userDisplayID COLLATE utf8mb4_unicode_ci = dispose.createdBy"
+        + " INNER JOIN tblSuppliers supplier ON supplier.supplierid COLLATE utf8mb4_unicode_ci = assets.supplierID"
+        + " INNER JOIN tblAssetCategory category on category.assetCategID COLLATE utf8mb4_unicode_ci = assets.assetCategID"
+        + " WHERE dispose.isApprove = 0 and dispose.docRef_Dispose is null"
+        + " ORDER BY dispose.dateDispose "
+
+
+    connection.query(sql,(err,result) => {
+        if(err) {
+            res.json({
+                message: "No Record Found",
+                message2: err.message});
+        } else {
+         //   console.log(result)
+            if(result.length > 0) {
+                res.json({result,message: "Record Found"});
+            } else {
+                res.json({message: "No Record Found"});
+            }
+        }
+    })
+});
+
+app.post('/dispose/viewallassetdispose_forApproval',(req,res) => {
+
+    const sql = "SELECT dispose.docRef_Dispose"
+        + " FROM tblDispose dispose"
+        + " WHERE dispose.docRef_Dispose is not null and dispose.isApprove = 0"
+        + " ORDER BY dispose.dateDispose asc"
+
+
+    connection.query(sql,[req.body.docRef_selected_Dispose],(err,result) => {
+        if(err) {
+            res.json({
+                message: "No Record Found",
+                message2: err.message});
+        } else {
+            if(result.length > 0) {
+                res.json({result,message: "Record Found"});
+            } else {
+                res.json({message: "No Record Found"});
+            }
+        }
+    })
+});
+
+app.post('/dispose/viewallassetdispose_forApproval_selected',(req,res) => {
+
+    const sql = "SELECT dispose.disposeID as id,assets.serialNo,assets.assetCode,assets.assetName,"
+        + "supplier.name as suppliername,category.assetCategName,"
+        + "box.boxName,assetstat.statusName as statfrom, stat.statusName as statto,users.displayName,"
+        + "COALESCE(DATE_FORMAT(dispose.datecreated, '%m/%d/%Y'),'') as disposedate,"
+        + "dispose.isApprove"
+        + " FROM tblAssets assets"
+        + " INNER JOIN tblDispose dispose on dispose.assetID COLLATE utf8mb4_unicode_ci = assets.assetID"
+        + " INNER JOIN tblBox box on box.boxID COLLATE utf8mb4_unicode_ci = dispose.boxid"
+        + " INNER JOIN tblAssetStatus stat on stat.assetStatusID COLLATE utf8mb4_unicode_ci = dispose.statusID"
+        + " INNER JOIN tblAssetStatus assetstat on assetstat.assetStatusID COLLATE utf8mb4_unicode_ci = assets.assetStatusID"
+        + " INNER JOIN tblUsers users on users.userDisplayID COLLATE utf8mb4_unicode_ci = dispose.createdBy"
+        + " INNER JOIN tblSuppliers supplier ON supplier.supplierid COLLATE utf8mb4_unicode_ci = assets.supplierID"
+        + " INNER JOIN tblAssetCategory category on category.assetCategID COLLATE utf8mb4_unicode_ci = assets.assetCategID"
+        + " WHERE dispose.docRef_Dispose is not null and dispose.isApprove = 0"
+        + " and dispose.docRef_Dispose = ?"
+        + " ORDER BY dispose.dateDispose "
+
+
+    connection.query(sql,[req.body.docRef_selected_Dispose],(err,result) => {
+        if(err) {
+            res.json({
+                message: "No Record Found",
+                message2: err.message});
+        } else {
+            if(result.length > 0) {
+                res.json({result,message: "Record Found"});
+            } else {
+                res.json({message: "No Record Found"});
+            }
+        }
+    })
+});
+
 app.post('/dispose/viewallassetdispose_byDocReference',(req,res) => {
 
     const sql = "SELECT dispose.disposeID as id,assets.serialNo,assets.assetCode,assets.assetName,"
@@ -2551,7 +2723,7 @@ app.post('/dispose/viewallassetdispose_DocRef',(req,res) => {
 
     const sql = "SELECT distinct dispose.docRef_Dispose"
                 + " FROM tblDispose dispose "
-                + " WHERE dispose.isApprove = 0"
+                + " WHERE dispose.isApprove = 0 dispose.docRef_Dispose is null "
                 + " ORDER BY dispose.docRef_Dispose asc"
 
     connection.query(sql,(err,result) => {
@@ -2628,6 +2800,30 @@ app.post('/dispose/AssetDispose_Approve', (req,res)   => {
     //console.log("asset id is : " + req.body.assetid)
    // console.log("dispose id is : " + req.body.disposeid)
     connection.query(sqlUpdate,[req.body.userID,utils_getDate(), req.body.docRef_Dispose,
+    req.body.disposeid,req.body.assetid],(err,result) => {
+        if(err) {
+           // console.log("Error here :" + err)
+            res.json({result,
+                message: "Update Error",
+                message2: err.message});
+        }else {
+           // console.log("Success here : " + res)
+            res.json({result,
+                message: "Update Success"});
+        }
+
+        })
+})
+
+
+app.post('/dispose/AssetDispose_docRefGenerated', (req,res)   => {
+
+    const sqlUpdate = "UPDATE tblDispose SET dateDocRef_created = ?, docRef_createdBy = ?,docRef_Dispose=?"
+    + " where disposeID = ? and assetID = ? and isApprove = 0"
+
+    //console.log("asset id is : " + req.body.assetid)
+   // console.log("dispose id is : " + req.body.disposeid)
+    connection.query(sqlUpdate,[utils_getDate(),req.body.userID, req.body.docRef_Dispose,
     req.body.disposeid,req.body.assetid],(err,result) => {
         if(err) {
            // console.log("Error here :" + err)
@@ -2774,7 +2970,7 @@ app.post('/pullout/viewallpullout_by_selected_docRefPullout',(req,res) => {
     + " assets.assetName,assets.description,assetdetails.docRef_Pullout,"
     + " CONCAT(users.lastname,' , ' ,users.firstname) as PulloutName,"
     + " concat(userdeploy.lastname,' , ', userdeploy.firstname) as ReleaseBy,category.assetCategName,"
-    + " assetdetails.notesPullout"
+    + " assetdetails.notesPullout,stat.statusName"
     + " from tblAssets assets"
     + " inner join tblUserAssetDetails assetdetails on assetdetails.assetID COLLATE utf8mb4_unicode_ci = assets.assetID"
     + " inner join tblAssetStatus stat on stat.assetStatusID COLLATE utf8mb4_unicode_ci = assetdetails.assetStatusID"
@@ -2897,6 +3093,26 @@ app.post('/pullout/countallPullout',(req,res) => {
         }
     })
     });
+
+app.post('/pullout/countallPullout_ByUser',(req,res) => {
+    //Dashboard
+        const sql = "SELECT count(detail.detailID) as totalpullout FROM  tblUserAssetDetails detail"
+                + " where detail.pulloutnotify=1 and detail.pulloutBy is not null"
+        
+        connection.query(sql,(err,result) => {
+            if(err) {
+                res.json({
+                    message: "No Record Found",
+                    message2: err.message});
+            } else {
+                if(result.length > 0) {
+                    res.json({result,message: "Record Found"});
+                } else {
+                    res.json({message: "No Record Found"});
+                }
+            }
+        })
+        });
 
 app.post('/pullout/getallpulloutbydepartment',(req,res) => {
     //Dashboard

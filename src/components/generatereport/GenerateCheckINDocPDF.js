@@ -20,7 +20,7 @@ const GenerateCheckINDocPDF = (assets_byDocref,documentNo) => {
         const doc = new jsPDF();
       
         // define the columns we want and their titles
-        const tableColumn = ["#","Code", "Serial","Name","Description", "Category"];
+        const tableColumn = ["#","Code", "Serial","Name", "Category"];
         // define an empty array of rows
         const tableRows = [];
           var icount = 0
@@ -33,8 +33,7 @@ const GenerateCheckINDocPDF = (assets_byDocref,documentNo) => {
             asset.assetCode,
             asset.serialNo,
             asset.assetName,
-            asset.description,
-            asset.assetCategName,
+            asset.assetCategName
       
           ];
           // push each assets info into a row

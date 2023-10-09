@@ -1,14 +1,18 @@
+require('dotenv').config()
 var mysql = require("mysql2")
 
 var connection = mysql.createConnection(
     {
-        
-        host: 'localhost',
-        database: 'assets',
-        user: 'root',
-        password: 'Aa123456_'
+
+        host: process.env.HOST,
+        database: process.env.DATABASE,
+        user: process.env.USERNAME,
+        password: process.env.PASSWORDASSET_MYSQL
+
     });
 /*
+
+
 // Global US
         host: 'AnacondaDev.mysql.pythonanywhere-services.com',
         database: 'MySQL: AnacondaDev$assets',
