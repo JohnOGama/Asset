@@ -162,45 +162,29 @@ const Dashboard = () => {
   function LoadSupplierAssetValue() {
     getUserInfo();
 
-    try {
-      const url = "http://localhost:3001/supplier/getSupplierAssetsValue";
-      axios
-        .post(url)
+   try {
+    const url = '/supplier/getSupplierAssetsValue'
+     axios.post(url)
 
-        .then((res) => {
-          const dataResponse = res.data.message;
-          if (dataResponse == "Record Found") {
-            setSupplierAsset(res.data.result);
-          } else if (dataResponse == "No Record Found") {
-            WriteLog(
-              "Error",
-              "DashBoard",
-              "LoadSupplierAssetValue /supplier/getSupplierAssetsValue",
-              res.data.message,
-              userID
-            );
+    .then(res => {
+      const dataResponse = res.data.message;
+      if(dataResponse == "Record Found") {
+        setSupplierAsset(res.data.result)
+      } else if (dataResponse == "No Record Found") {
+        WriteLog("Error","DashBoard","LoadSupplierAssetValue /supplier/getSupplierAssetsValue",res.data.message,userID)
 
-            //navigate('/500');
-          }
-        })
-        .catch((err) => {
-          WriteLog(
-            "Error",
-            "DashBoard",
-            "LoadSupplierAssetValue /supplier/getSupplierAssetsValue",
-            "Error in then/catch \n" + err.message,
-            userID
-          );
-        });
-    } catch (err) {
-      WriteLog(
-        "Error",
-        "DashBoard",
-        "LoadSupplierAssetValue /supplier/getSupplierAssetsValue",
-        "Error in try/catch \n" + err.message,
-        userID
-      );
-    }
+        //navigate('/500');
+      }
+    }).catch(err => {
+      WriteLog("Error","DashBoard","LoadSupplierAssetValue /supplier/getSupplierAssetsValue","Error in then/catch \n" + err.message,userID)
+      
+    })
+  }
+  catch(err) {
+    WriteLog("Error","DashBoard","LoadSupplierAssetValue /supplier/getSupplierAssetsValue","Error in try/catch \n" + err.message,userID)
+    
+  }
+
   }
 
   function LoadDisposeAssetValue() {

@@ -302,9 +302,9 @@ const WidgetsDropdown = () => {
                {/* <CDropdownItem  href="#/base/assetview"> Asset</CDropdownItem> */}
                 <CDropdownItem href="#/base/assetuser">Checkout</CDropdownItem>
                 <CDropdownItem href="#/configurations/viewpullout">Pullout out By User</CDropdownItem>
-                
                 <CDropdownItem href="#/base/disposeview"> Dispose</CDropdownItem>
-                
+                {/* For Approver account */}
+                <CDropdownItem href="#/base/disposeapprover">Approve Dispose</CDropdownItem>                
               </CDropdownMenu>
             </CDropdown>
           }

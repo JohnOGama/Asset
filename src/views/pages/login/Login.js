@@ -23,11 +23,11 @@ import {
 import CIcon from "@coreui/icons-react";
 import { cilLockLocked, cilUser } from "@coreui/icons";
 
-import { useNavigate } from "react-router-dom";
-import { encrypt } from "n-krypta";
-//decrypt, compare
-import appSettings from "src/AppSettings"; // read the app config
-import { TextField } from "@mui/material";
+
+//import bcrypt from 'bcryptjs'
+
+import { HashedPassword,ComparePassword } from 'src/components/pass_helper/PassUtil'
+
 
 const Login = () => {
   const [message, setMessage] = useState("");
@@ -61,60 +61,80 @@ const Login = () => {
     return {};
   }, [values]);
 
-  function handleSubmit(event) {
-    try {
+  function  handleSubmit(event) {
+    try { 
+
+      
+
       event.preventDefault();
       localStorage.clear();
-      if (!values.username == "" && !values.password == "") {
-        const password = encrypt(values.password, appSettings.secretkey);
-        const username = values.username;
-        ///console.log("Myvalue -- " + password)
-        const url = "http://localhost:3001/checkLogin";
-        axios
-          .post(url, { username, password })
-          .then((res) => {
-            const dataResponse = res.data.message;
-            console.log(dataResponse);
+        if((!values.username == "") && (!values.password == ""))
+        {
+          //const password = encrypt(values.password, appSettings.secretkey); 
+         
+          const hashedpass = HashedPassword(values.password.toString())
+          // bcrypt.hashSync(values.password.toString(),10)
+          const username = values.username  
+          ///console.log("Myvalue -- " + password)
+          const url = 'http://localhost:3001/checkLogin'
+          //axios.post(url,{username,password})
+          axios.post(url,{username})
+          .then(res => {
+           
+              if( res.data.message === "Record Found"){
 
-            if (dataResponse == "Record Found") {
-              const userid = res.data.result[0].userDisplayID;
-              const displayName = res.data.result[0].displayName;
+                const userid = res.data.result[0].userDisplayID
+                const displayName = res.data.result[0].displayName 
+                const img = res.data.result[0].imgFilename 
+                const name = res.data.result[0].Name
+                const dbpassword = res.data.result[0].password
 
-              const img = res.data?.result[0].imgFilename;
-              const name = res.data.result[0].Name;
-              console.log("res", res.data);
+                console.log("Encrypted : " + hashedpass)
+                console.log("DB Encrypted : " + dbpassword)
+                
 
-              // encrypt to local storage use new different key
+                const isValid = ComparePassword(values.password.toString(),dbpassword)
+                //bcrypt.compareSync(dbpassword,hashedpass)
+                console.log(isValid)
+                if(isValid) {
 
-              const encryptedID = encrypt(userid, appSettings.secretkeylocal);
-              const userRoles = encrypt(
-                res.data.result[0].userRole,
-                appSettings.secretkeylocal
-              );
-              const userDepartmentID = encrypt(
-                res.data.result[0].departmentDisplayID,
-                appSettings.secretkeylocal
-              );
+                // encrypt to local storage use new different key
+                
+                const encryptedID = encrypt(userid, appSettings.secretkeylocal); 
+                const userRoles = encrypt(res.data.result[0].userRole,appSettings.secretkeylocal); 
+                const userDepartmentID = encrypt(res.data.result[0].departmentDisplayID,appSettings.secretkeylocal); 
 
-              window.localStorage.removeItem("id");
-              window.localStorage.removeItem("display");
-              window.localStorage.removeItem("userimg");
-              window.localStorage.removeItem("Kgr67W@"); // This is a user Role
-              window.localStorage.removeItem("LkgdW23!"); // This is for DepartmentID
-              window.localStorage.removeItem("Kvsf45_");
-              window.localStorage.clear();
-              window.localStorage.setItem("id", encryptedID);
-              window.localStorage.setItem("display", displayName);
-              window.localStorage.setItem("userimg", img);
-              window.localStorage.setItem("Kgr67W@", userRoles);
-              window.localStorage.setItem("LkgdW23!", userDepartmentID);
-              window.localStorage.setItem("Kvsf45_", "0");
+                window.localStorage.removeItem('id');
+                window.localStorage.removeItem('display');
+                window.localStorage.removeItem('userimg');
+                window.localStorage.removeItem('Kgr67W@'); // This is a user Role
+                window.localStorage.removeItem('LkgdW23!'); // This is for DepartmentID
+                window.localStorage.removeItem('Kvsf45_');
+                window.localStorage.clear()
+                window.localStorage.setItem('id',encryptedID)
+                window.localStorage.setItem('display',displayName)
+                window.localStorage.setItem('userimg',img);
+                window.localStorage.setItem('Kgr67W@',userRoles)
+                window.localStorage.setItem('LkgdW23!',userDepartmentID)
+                window.localStorage.setItem('Kvsf45_','0');
+               
+                navigate('/dashboard');
 
-              navigate("/dashboard");
-            } else {
-              setMessage("Login Error");
-              setColorMessage("red");
-            }
+               }
+                else {
+                  setMessage("Username and password do not match")
+                 setColorMessage("red")
+                }
+
+              }else {
+               
+                setMessage("Username and password do not match")
+                setColorMessage("red")
+              }
+          })
+          .catch(err => {
+              setMessage( err.message)
+              setColorMessage("red")
           })
           .catch((err) => {
             setMessage(err.message);

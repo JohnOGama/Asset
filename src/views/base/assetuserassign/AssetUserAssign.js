@@ -48,6 +48,7 @@ import ChecklistIcon from '@mui/icons-material/Checklist';
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 
 import GenerateCheckINDocPDF from "src/components/generatereport/GenerateCheckINDocPDF";
+import AlertMessages from "src/components/alertmessages/AlertMessages";
 
 
 const AssetUserAssign = () => {
@@ -63,8 +64,8 @@ const AssetUserAssign = () => {
   var checkin_success = ""
   var receiver_assetName = ""
 
-  const [message, setMessage] = useState("");
-  const [colorMessage, setColorMessage] = useState("red");
+  //const [message, setMessage] = useState("");
+  //const [colorMessage, setColorMessage] = useState("red");
 
   const [assets, setAssets] = useState([]);
   const [assetstat, setAssetStat] = useState(""); // deployed
@@ -162,6 +163,7 @@ const AssetUserAssign = () => {
           if (deployResponse == "Record Found") {
             setAssetStat(res.data.result[0]["assetStatusID"]);
           } else if (deployResponse == "No Record Found") {
+            setAssetStat([])
             WriteLog(
               "Message",
               "AssetUserAssign",
@@ -423,8 +425,9 @@ function GetAsset_Status_Deploy () {
       else {
 
         setOpen(false)
-        setMessage('No Asset Selected')
-        setColorMessage('orange')
+        AlertMessages('No Asset selected','Warning')
+        //setMessage('No Asset Selected')
+        //setColorMessage('orange')
       }
 
   };
@@ -444,8 +447,7 @@ function GetAsset_Status_Deploy () {
       // means no laman
       WriteLog("Error","AssetUserAssign","handle_Asset_Detail","No localsotrage for processing asstassign checkin")
     }
-    setMessage('')
-    setColorMessage('')
+ 
     GetAssetByDetail(detailID,assetname)
    
 
@@ -473,7 +475,7 @@ function GetAsset_Status_Deploy () {
 
           if (dataResponse == "Record Found") {
            
-            console.log(res.data.result)
+         //   console.log(res.data.result)
             GenerateCheckINDocPDF( res.data.result,docref)
             LoadDocCheckIn()
           }
@@ -503,7 +505,6 @@ function GetAsset_Status_Deploy () {
 
     event.preventdefault;
 
-   
 
     if(userID === "") 
     {
@@ -719,7 +720,7 @@ function UpdateAssetDeployed(paramassetid) {
       }
 
       const url = "http://localhost:3001/assets/updateassetdeploy";
-      axios.post(url, { assetstat, userID, varassetID })
+      axios.post(url, {assetstat,userID,varassetID })
         .then((res) => {
           const dataResponse = res.data.message;
           if (dataResponse == "Update Error") {
@@ -823,8 +824,6 @@ function UpdateAssetDeployed(paramassetid) {
     }
   }
 
-
- 
   /// For Data Grid
 
   const columns = [
@@ -892,7 +891,7 @@ function UpdateAssetDeployed(paramassetid) {
   return (
     <CCol xs={12}>
       <CCard className="mb-3">
-        
+        <AlertMessages/>
         <CCardHeader>
        
 
@@ -905,12 +904,13 @@ function UpdateAssetDeployed(paramassetid) {
             </span>
           </h6>
         
+       { /*
             <strong>
               <span className="message" style={{ color: colorMessage }}>
                 <p>{message}</p>
               </span>{" "}
             </strong>
-      
+  */}
           
         </CCardHeader>
        

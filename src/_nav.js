@@ -47,6 +47,11 @@ const _nav = [
       },*/
       {
         component: CNavItem,
+        name: 'Approve Dispose',
+        to: '/base/disposeapprover',
+      },
+      {
+        component: CNavItem,
         name: 'Asset Checkin',
         to: '/base/assetuserassign',
       },
@@ -54,6 +59,11 @@ const _nav = [
         component: CNavItem,
         name: 'Pullout',
         to: '/base/assetpullout',
+      },
+      {
+        component: CNavItem,
+        name: 'PassBcrypt',
+        to: '/base/passbcrypt',
       },
      /*     
       {

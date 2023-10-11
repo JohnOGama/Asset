@@ -22,6 +22,8 @@ const AssetPullout = React.lazy(() => import('./views/base/assetpullout/AssetPul
 const AssetEdit = React.lazy(() => import('./views/base/assetedit/AssetEdit'))
 const AssetDispose = React.lazy(() => import('./views/base/assetdispose/AssetDispose'))
 const DisposeView = React.lazy(() => import('./views/base/disposeview/DisposeView'))
+const DisposeApprove = React.lazy(() => import('./views/base/disposeapprover/DisposeApprove'))
+const PassBcrypt = React.lazy(() => import('./views/base/passbcrypt/PassBcrypt'))
 
 //For Testing 
 const Snipe = React.lazy(() => import('./views/base/snipe/Snipe'))
@@ -122,9 +124,13 @@ const routes = [
   { path: '/base/assetedit', name: 'AssetEdit', element: AssetEdit },
   { path: '/base/assetdispose', name: 'AssetDispose', element: AssetDispose },
   { path: '/base/disposeview', name: 'DisposeView', element: DisposeView },
+  { path: '/base/disposeapprover', name: 'DisposeApprove', element: DisposeApprove },
 
-  
-  
+  /* 
+  For Testing 
+  */ 
+  { path: '/base/passbcrypt', name: 'PassBcrypt', element: PassBcrypt },
+    
 /*
   { path: '/base/logout', name: 'Logout', element: Logout },
   { path: '/base/breadcrumbs', name: 'Breadcrumbs', element: Breadcrumbs },
