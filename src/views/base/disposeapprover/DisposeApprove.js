@@ -12,7 +12,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 import TextField from '@mui/material/TextField';
 
-import { DataGrid,useGridApiRef } from '@mui/x-data-grid';
+import { DataGrid,useGridApiRef} from '@mui/x-data-grid';
 
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -60,7 +60,7 @@ import GenerateDisposeDocPDF from 'src/components/generatereport/GenerateDispose
 import AlertMessages from 'src/components/alertmessages/AlertMessages';
 import WriteUserInfo from 'src/components/logs/LogListenerUser';
 
-const DisposeView = () => {
+const DisposeApprove = () => {
 
   const navigate = useNavigate();
   
@@ -70,20 +70,20 @@ const DisposeView = () => {
   const [message,setMessage] = useState("")
   const [colorMessage,setColorMessage] = useState('red')
 
-
-  const [iselected,SetTotalSelected] = useState(0)
+  const [dispose,setDispose] = useState([])
   const [open, setOpen] = React.useState(false);
+  const [rowselected,SetRowSelected] = useState({})
+  
+  const [iselected,SetTotalSelected] = useState(0)
 
     const [receiverInfo,setReceiverInfo] = useState ({
       receiveremail: '',
       receivername: ''
       })
   
-  const [dispose,setDispose] = useState([])
-  const [rowselected,SetRowSelected] = useState({})
   const[docRef_Dispose,setdocRef_Dispose] = useState([])
-
   const[docRef_selected_Dispose,setDocRef_selectedDispose] = useState("")
+
 
   const apiRef = useGridApiRef();
 
@@ -126,137 +126,74 @@ function getUserInfo() {
 useEffect(() => {
   getUserInfo()
   GetEmailInfo()
- // LoadDispose()
+  LoadDocRef_forApproval()
+ // LoadData()
+ 
  },[])
 
+ 
+ const LoadDocRef_forApproval = () => {
+    try {
+      getUserInfo()
+      const url = 'http://localhost:3001/dispose/viewallassetdispose_forApproval'
+      axios.post(url)
+      .then(res => {
+      const dataResponse = res.data.message;
+      if(dataResponse == "Record Found") {
+        setdocRef_Dispose(res.data.result)
+      } 
+      else
+      {
+        setdocRef_Dispose([])
 
-function LoadDispose() {
-
+      }
+      }).catch(err => {
+      WriteLog("Error","DisposeView","LoadData /dispose/viewallassetdispose","Error in then/catch \n" + err.message,userID)
+      })
+  }
+  catch(err) {
+      WriteLog("Error","DisposeView"," LoadData /dispose/viewallassetdispose","Error in try/catch \n" + err.message,userID)
+  }      
   
-  try {
-    getUserInfo()
+ }
 
-   
-    const url = 'http://localhost:3001/dispose/viewallassetdispose_forApproval'
-    //viewallassetdispose_withNoDocRef'
-    axios.post(url)
-    .then(res => {
-    const dataResponse = res.data.message;
-    if(dataResponse == "Record Found") {
-
-      setdocRef_Dispose(res.data.result)
-
-    } 
-    else
-    {
-
-      setdocRef_Dispose([])
-    }
-    }).catch(err => {
-    WriteLog("Error","DisposeView","useEffect /dispose/viewallassetdispose_withNoDocRef","Error in then/catch \n" + err.message,userID)
-    })
-}
-catch(err) {
-    WriteLog("Error","DisposeView"," useEffect /dispose/viewallassetdispose_withNoDocRef","Error in try/catch \n" + err.message,userID)
-}      
-
-}
-
-
+ /*
  useEffect(() => {
  
       try {
         getUserInfo()
-        setDocRef_selectedDispose("")
-
         const url = 'http://localhost:3001/dispose/viewallassetdispose_forApproval'
-        //viewallassetdispose_withNoDocRef'
-        axios.post(url)
-        .then(res => {
-        const dataResponse = res.data.message;
-        if(dataResponse === "Record Found") {
-          
-          setdocRef_Dispose(res.data.result)
-
-        } 
-        else
-        {
-          setdocRef_Dispose([])
-        }
-        }).catch(err => {
-        WriteLog("Error","DisposeView","useEffect /dispose/viewallassetdispose_withNoDocRef","Error in then/catch \n" + err.message,userID)
-        })
-    }
-    catch(err) {
-        WriteLog("Error","DisposeView"," useEffect /dispose/viewallassetdispose_withNoDocRef","Error in try/catch \n" + err.message,userID)
-    }      
-
- }, [])
-
-
- useEffect(() => {
- 
-  try {
-    getUserInfo()
-    const url = 'http://localhost:3001/dispose/viewallassetdispose_withNoDocRef'
-    //viewallassetdispose_withNoDocRef'
-    axios.post(url)
-    .then(res => {
-    const dataResponse = res.data.message;
-    if(dataResponse == "Record Found") {
-      
-      setDispose(res.data.result)
-      
-    } 
-    else
-    {
-      SetRowSelected({})
-      setDispose([])
-    }
-    }).catch(err => {
-    WriteLog("Error","DisposeView","useEffect /dispose/viewallassetdispose_withNoDocRef","Error in then/catch \n" + err.message,userID)
-    })
-}
-catch(err) {
-    WriteLog("Error","DisposeView"," useEffect /dispose/viewallassetdispose_withNoDocRef","Error in try/catch \n" + err.message,userID)
-}      
-
- }, [])
-
- function LoadDispose_withNoDocRef() {
-  try {
-        getUserInfo()
-        const url = 'http://localhost:3001/dispose/viewallassetdispose_withNoDocRef'
-        //viewallassetdispose_withNoDocRef'
         axios.post(url)
         .then(res => {
         const dataResponse = res.data.message;
         if(dataResponse == "Record Found") {
-          
-          setDispose(res.data.result)
-          
+          setdocRef_Dispose(res.data.result)
         } 
         else
         {
-          setDocRef_selectedDispose("")
+          setdocRef_Dispose([])
 
         }
         }).catch(err => {
-        WriteLog("Error","DisposeView","LoadDispose_withNoDocRef /dispose/viewallassetdispose_withNoDocRef","Error in then/catch \n" + err.message,userID)
+        WriteLog("Error","DisposeView","LoadData /dispose/viewallassetdispose","Error in then/catch \n" + err.message,userID)
         })
     }
     catch(err) {
-        WriteLog("Error","DisposeView"," LoadDispose_withNoDocRef /dispose/viewallassetdispose_withNoDocRef","Error in try/catch \n" + err.message,userID)
+        WriteLog("Error","DisposeView"," LoadData /dispose/viewallassetdispose","Error in try/catch \n" + err.message,userID)
     }      
-   
- }
+ }, [])
+   */ 
 
- /*
+ useEffect(() => {
+   console.log("")
+ }, [dispose])
+
 function LoadData(){
     try {
         getUserInfo()
-        const url = 'http://localhost:3001/dispose/viewallassetdispose'
-        axios.post(url)
+        
+        const url = 'http://localhost:3001/dispose/viewallassetdispose_forApproval_selected'
+        axios.post(url,{docRef_selected_Dispose})
         .then(res => {
         const dataResponse = res.data.message;
         if(dataResponse == "Record Found") {
@@ -276,22 +213,23 @@ function LoadData(){
         WriteLog("Error","DisposeView"," LoadData /dispose/viewallassetdispose","Error in try/catch \n" + err.message,userID)
     }      
   }
-*/
-  /*
+
   
   function LoadDispos(){
     try {
         getUserInfo()
-        const url = 'http://localhost:3001/dispose/viewallassetdispose_withNoDocRef'
-        axios.post(url,{docRef_selected_Dispose})
+        const url = 'http://localhost:3001/dispose/viewallassetdispose_DocRef'
+        axios.post(url)
         .then(res => {
         const dataResponse = res.data.message;
         if(dataResponse == "Record Found") {
-          setdocRef_Dispose(res.data.result) 
+            setdocRef_Dispose(res.data.result)
         } 
         else
         {
+          
           setdocRef_Dispose([])
+
         }
         }).catch(err => {
         WriteLog("Error","DisposeView","LoadDispos /dispose/viewallassetdispose_DocRef","Error in then/catch \n" + err.message,userID)
@@ -301,8 +239,6 @@ function LoadData(){
         WriteLog("Error","DisposeView"," LoadDispos /dispose/viewallassetdispose","Error in try/catch \n" + err.message,userID)
     }      
   }
-
-  */
 
 useEffect(() => {
 // console.log
@@ -337,48 +273,36 @@ function GetEmailInfo(param) {
   }
 }
 
-function handleClick(event) {
+function handleClick() {
 try {
-
-  
-  event.preventDefault()
   setOpen(false)
-
-
-
+  window.localStorage.setItem('Kvsf45_','0')
   const id = uuidv4();
-  var strdocRef_Dispose =  id.slice(0,5).toUpperCase()
-  strdocRef_Dispose = strdocRef_Dispose + utils_getDateMMDDHR()
+  var docRef_Dispose =  id.slice(0,5).toUpperCase()
+  docRef_Dispose = docRef_Dispose + utils_getDateMMDDHR()
+
 
     rowselected.forEach((irow, index) => { 
         if(!irow == '') {
-        CheckDispose(irow,strdocRef_Dispose)
+        CheckDispose(irow,docRef_Dispose)
 
-      
-          
-        const rowIds = apiRef.current.getAllRowIds();
-        const rowId = rowIds
+      //  const rowIds = apiRef.current.getRowId(irow) 
+        //.getAllRowIds();
+      //  const rowId = rowIds
         //randomArrayItem(rowIds);
     
-        apiRef.current.updateRows([{ id: rowId, _action: 'delete' }]);
+      //  apiRef.current.updateRows([{ id: irow, _action: 'delete' }]);
 
         }
        })
-       
-     
 
-     
-
-       
-       sendEmail()
-       SetRowSelected({})
        setDocRef_selectedDispose("")
-       DataGrid.re
-       LoadDispose()
-       LoadDispose_withNoDocRef()
-      
-      
-       
+        SetRowSelected({})
+        
+          sendEmail()
+         LoadDocRef_forApproval()
+         LoadData()
+        
        /*
        else if((!check_approve_dispose === "1") || (!check_approve_dispose === "0"))
        {
@@ -388,7 +312,7 @@ try {
         WriteLog("Error","DisposeView","Get_LocalStorage_Dispose","Local Storage issue \n ",userID)
        }
       */
-       
+
 
 }
 catch(err) {
@@ -408,8 +332,6 @@ catch(err) {
       setColorMessage("red")  
 
       try {
-
-       
         if(Object.keys(rowselected).length.toString() !== "0") {
         
           SetTotalSelected(Object.keys(rowselected).length.toString())
@@ -417,19 +339,18 @@ catch(err) {
           setOpen(true)
 
         } else {
-          AlertMessages('No Asset selected to Generate Document !','Warning')
+          
+          AlertMessages('No Asset selected for Dispose !','Warning')
         }
-
       }
       catch(err) {
-       // console.log(err)
+        console.log(err)
         setOpen(false);
       }
 
-
     }
     catch(err) {
-      WriteLog("Error","AssetUser","handleSubmit ","Error in try/catch " + err.message,userID)
+      WriteLog("Error","AssetUser","handleSubmit /assets/searchuser",err.message,userID)
     }
 
   }
@@ -438,20 +359,53 @@ catch(err) {
     setOpen(false);
   };
 
+
+  function UpdateAssetDisable(paramassetID) {
+    try {
+      getUserInfo()
+     const rowId = paramassetID
+    
+     GetEmailInfo()
+      const url = 'http://localhost:3001/assets/updateAsset_Disable'
+      axios.post(url,{rowId,userID})
+      .then(res => { 
+
+        const dataResponse = res.data.message 
+          
+          if(dataResponse == "Update Success") {
+            WriteUserInfo("Info","DisposeApprove",userID,receiverInfo.receivername,"","Asset is now Disabled.",userID)
+
+          } else {
+            WriteLog("Error","DisposeApprove","UpdateAssetDisable dispose/updateAsset_Disable", dataResponse,userID)
+          }
+
+      })
+      .catch(err => {
+      WriteLog("Error","DisposeApprove","UpdateAssetDisable /dispose/updateAsset_Disable","Error in then/catch \n" + err.message,userID)
+      })
+    }
+    catch(err) {
+      WriteLog("Error","DisposeApprove","UpdateAssetDisable /dispose/updateAsset_Disable","Error in try/catch \n" + err.message,userID)
+    }
+  }
+
+
   function CheckDispose(params,params_docRef_Dispose) {
 
     getUserInfo()
     try {
   
       const rowId = params
-      
+      WriteLog("For Testing","Checkdispose details : ",params)
         const url = 'http://localhost:3001/dispose/checkassetdispose_approve_exist'
         axios.post(url,{rowId})
         .then(res => { 
           const dataResponse = res.data.message 
           
           if(dataResponse == "Record Found"){ 
-            GenerateDocRef(rowId,res.data.result[0].assetID,params_docRef_Dispose)
+
+            AssetDispose(rowId,res.data.result[0].assetID,params_docRef_Dispose)
+            UpdateAssetDisable(res.data.result[0].assetID)
 
           } else if(dataResponse == "No Record Found") {
             setMessage("Asset already mark as Dispose contact Support Team")
@@ -473,38 +427,36 @@ catch(err) {
     
   }
 
-  function GenerateDocRef(disposeid,assetid,params_docRef_Dispose) {
+  function AssetDispose(disposeid,assetid,params_docRef_Dispose) {
     try {
 
 
 
       getUserInfo()
       const docRef_Dispose = params_docRef_Dispose
-      const url = 'http://localhost:3001/dispose/AssetDispose_docRefGenerated'
+      const url = 'http://localhost:3001/dispose/AssetDispose_Approve'
       axios.post(url,{userID,disposeid,assetid,docRef_Dispose})
       .then(res => {
         const dataResponse = res.data.message 
         
         if(dataResponse == "Update Error") {
-          WriteLog("Error","DisposeView","GenerateDocRef /dispose/AssetDispose_docRefGenerated", res.message2,userID)
+          WriteLog("Error","DisposeView","AssetDispose_Single /dispose/AssetDispose_Approve", res.message2,userID)
           //window.localStorage.setItem('Kvsf45_','0')
         } else if( dataResponse === "Update Success") {
-        //  window.localStorage.setItem('Kvsf45_','1')
-          WriteLog("Message","DisposeView","GenerateDocRef /dispose/AssetDispose_docRefGenerated", 
-          "Asset Dispose DocRef Generated "
+          window.localStorage.setItem('Kvsf45_','1')
+          WriteLog("Message","DisposeView","AssetDispose /dispose/AssetDispose_Approve", 
+          "Asset Dispose "
           + "\n AssetID: " + assetid
-          + "\n Dispose ID: " + disposeid 
-          + "\n Docref : " + docRef_Dispose,userID)
+          + "\n Dispose ID: " + disposeid ,userID)
         }
-
       })
       .catch(err => {
-      WriteLog("Error","DisposeView","GenerateDocRef /dispose/AssetDispose_docRefGenerated","Error in then/catch \n" + err.message,userID)
+      WriteLog("Error","DisposeView","AssetDispose_Single /dispose/AssetDispose_Approve","Error in then/catch \n" + err.message,userID)
       
       })
     }
     catch(err) {
-      WriteLog("Error","DisposeView"," GenerateDocRef /dispose/AssetDispose_docRefGenerated","Error in try/catch \n" + err.message,userID)
+      WriteLog("Error","DisposeView"," AssetDispose_Single /dispose/AssetDispose_Approve","Error in try/catch \n" + err.message,userID)
     }
   }
 
@@ -587,8 +539,6 @@ const columns = React.useMemo(() => [
   function sendEmail() {
 
     let strDate =   utils_getDate();
-
-    GetEmailInfo()
    
     try {
     var templateParams = {
@@ -606,9 +556,9 @@ const columns = React.useMemo(() => [
     emailjs.send(appSettings.YOUR_SERVICE_ID, appSettings.YOUR_TEMPLATE_ID, templateParams,appSettings.public_key)
     .then(function(response) {
        
-      WriteUserInfo("Info","DisposeView",userID,receiverInfo.receivername,"",
-      "Email sent for Asset (Disposal )Approval : "
-      + "\nNotes : " + templateParams.notes,userID)
+      WriteUserInfo("Info","DisposeView",userID,
+      "Email sent Approve Asset Dispose : "
+      + `\nNotes : ` + templateParams.notes,userID)
 
     }, function(error) {
       WriteUserInfo("Error","DisposeView",userID,
@@ -620,9 +570,9 @@ const columns = React.useMemo(() => [
     });
   }
   else {
-    WriteUserInfo("Info","DisposeView",userID,receiverInfo.receivername,"",
-      "Asset ( Disposal ) Approval : "
-      + "\nNotes : " + templateParams.notes,userID)
+    WriteUserInfo("Info","DisposeView",userID,
+    "Approve Asset Dispose : "
+    + `\nNotes : ` + templateParams.notes,userID)
   }
 
   }
@@ -631,56 +581,13 @@ const columns = React.useMemo(() => [
   }
   }
 
-  const handleViewPDF =() => 
+  const handleViewDispose =() => 
   {
-   
-      if(!docRef_selected_Dispose == "") {
-
-      try {
-        if (userID === "")
-        {
-          getUserInfo()
-        }
-        console.log(docRef_selected_Dispose)
-        var docref_dispose = docRef_selected_Dispose
-        const url = 'http://localhost:3001/dispose/viewallassetdispose_byDocReference'
-        axios.post(url,{docref_dispose})
-        .then(res => { 
-        const dataResponse = res.data.message;
-        if(dataResponse == "Record Found") {
-
-            GenerateDisposeDocPDF(res.data.result,docref_dispose)
-        } 
-        else
-        {
-          
-          setdocRef_Dispose([])
-
-        }
-        }).catch(err => {
-        WriteLog("Error","DisposeView","handleViewPDF /dispose/viewallassetdispose_DocRef","Error in then/catch \n" + err.message,userID)
-        })
-    }
-    catch(err) {
-        WriteLog("Error","DisposeView"," handleViewPDF /dispose/viewallassetdispose","Error in try/catch \n" + err.message,userID)
-    }      
-  }
-  else {
-    AlertMessages('No data document to load','Warning')
-  }
-      
-
+    LoadData()
   }
   
   const handleInput =(event) => {
-    try {
-   
     setDocRef_selectedDispose(event.target.value.trim())
-    }
-  
-  catch {
-    AlertMessages('No Dispose Document Reference selected !','Warning')
-  }
   }
 ////////// For Dialog Box
 
@@ -702,10 +609,10 @@ function PaperComponent(props) {
 
      
         <CCard className="mb-3" size="sm" >
-          <AlertMessages/>
           <CCardHeader className="mb-3" size="sm">
+            <AlertMessages/>
                 <h6>
-                <span className="message" style={{ color: '#5da4f5'}}> <> Dispose </></span> 
+                <span className="message" style={{ color: '#5da4f5'}}> <> Approve Dispose </></span> 
                 <br></br>
                 <strong><span className="message" style={{ color: colorMessage}}><p>{message}</p></span> </strong>
                 </h6>
@@ -742,14 +649,14 @@ function PaperComponent(props) {
                                 }}>
                     
 
-                          <CButton onClick={handleViewPDF} style={{  margin:'5px', width: '115%' }} color="info"> View Dispose Document  </CButton>
+                          <CButton onClick={handleViewDispose} style={{  margin:'5px', width: '115%' }} color="info"> Load Dispose Document  </CButton>
                         </div>
                         <div className="d-grid" style={{
                           display: 'flex',
                           alignItems: 'left',
                           justifyContent: 'left',
                           }} >
-                          <CButton style={{  margin:'5px', width: '100%' }} color="success" onClick={handleSubmit}>Generate Dispose Document</CButton>
+                          <CButton style={{  margin:'5px', width: '150%' }} color="success" onClick={handleSubmit}>Approve Disposal</CButton>
                         </div>
                   </FormControl>
                 </CCol>
@@ -772,7 +679,7 @@ function PaperComponent(props) {
                       <div style={{ height: 400, width: '100%' }}>
 
                           <DataGrid
-                              apiRef={apiRef}
+                           apiRef={apiRef}
                               rows={dispose}
                               columns={columns}
                               initialState={{
@@ -784,8 +691,8 @@ function PaperComponent(props) {
                               }}
                               checkboxSelection
                               pageSizeOptions={[10]}
-                            //  rowSelection={true}
-                            //  getRowId={(row) => row.id}
+                             // rowSelection={true}
+                              //getRowId={(row) => row.id}
                               onRowSelectionModelChange={id => SetRowSelected(id)}
                           />
                       </div>
@@ -794,8 +701,6 @@ function PaperComponent(props) {
                   </CCol>
           </CRow>
               <CRow>
-
-
 
               <Dialog
                       open={open}
@@ -808,7 +713,7 @@ function PaperComponent(props) {
                       </DialogTitle>
                       <DialogContent>
                         <DialogContentText>
-                          Are you sure you want to Generate Document on selected Asset(s) ?
+                          Are you sure you want to Dispose Asset(s) ?
                           <br></br>
                           <br></br>
                           Selected : {iselected}
@@ -818,7 +723,7 @@ function PaperComponent(props) {
                         <Button autoFocus onClick={handleClose}>
                           Cancel
                         </Button>
-                        <Button onClick={handleClick}>Generate</Button>
+                        <Button onClick={handleClick}>Approve</Button>
                       </DialogActions>
                 </Dialog>
               </CRow>
@@ -835,4 +740,4 @@ function PaperComponent(props) {
   )
 }
 
-export default DisposeView
+export default DisposeApprove

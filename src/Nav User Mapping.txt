@@ -6,6 +6,9 @@
 configurations/log
 configurations/logview
 
+*** For Approver
+base/Disposeappprove
+
 
 ****** User Only
 
@@ -58,3 +61,18 @@ logout
  {/*require(`../../../../backend/uploads/${val.pictureFile}`) */},
 
   require(`../../../../backend/uploads/${params.row.pictureFile}`)
+
+
+
+
+
+  https://www.youtube.com/watch?v=nSIo0kHZcic
+  https://www.youtube.com/results?search_query=bcryptjs+in+react+js
+  https://www.youtube.com/watch?v=ywlEPtiaHZg
+  https://www.youtube.com/watch?v=ywlEPtiaHZg
+
+
+  $2a$10$0jx6EmVMtR5iUxkOWKri0e4H6RJyXZMqZdPIRbL7anMl0V.zG0nZG
+  $2a$10$FiXV0cO8Lrv7DkOIVt8umOfIWPYAJx.4tKMNrDkztMusTHZcw8rM2
+
+  blacardkillerhhg#^

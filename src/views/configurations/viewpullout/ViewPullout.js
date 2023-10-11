@@ -35,6 +35,9 @@ import {  decrypt, encrypt } from 'n-krypta';
 
 
 import ChecklistIcon from '@mui/icons-material/Checklist';
+import utils_getDate from 'src/components/DateFunc';
+import WriteUserInfo from 'src/components/logs/LogListenerUser';
+import AlertMessages from 'src/components/alertmessages/AlertMessages';
 
 const ViewPullout = () => {
 
@@ -52,12 +55,12 @@ const ViewPullout = () => {
   var receiver_statusID = ""
 
 
-    const [message,setMessage] = useState("")
-    const [colorMessage,setColorMessage] = useState('red')
+  //  const [message,setMessage] = useState("")
+  //  const [colorMessage,setColorMessage] = useState('red')
 
     const [pullout,setPullout] = useState([])
     const [open, setOpen] = React.useState(false);
-    const [rowselected,setRowSelected] = useState({ })
+  //  const [rowselected,setRowSelected] = useState({ })
 
 
     useEffect(() => {
@@ -66,6 +69,9 @@ const ViewPullout = () => {
       LoadData();
     }, [])
 
+    useEffect(() => {
+     // console.log
+    }, [pullout])
 
     function CheckRole() {
       try {
@@ -212,8 +218,6 @@ const handle_Asset_Detail = (detailid,assetname) => {
     window.localStorage.removeItem('jkfrf34')
     window.localStorage.removeItem("Kvsf45_")
 
-    setMessage('')
-    setColorMessage('')
   
     GetAssetDetail_ByUserPullout(detailid,assetname)
     setOpen(true)
@@ -286,6 +290,18 @@ const handle_Asset_Detail = (detailid,assetname) => {
             width: 150,
             editable: false,
         },
+        {
+          field: 'pulloutdatereceive',
+          headerName: 'Receive Date',
+          width: 150,
+          editable: false,
+        },
+        {
+          field: 'pulloutreceive',
+          headerName: 'Receive BY',
+          width: 150,
+          editable: false,
+        },
       ],[]);
 
     
@@ -305,14 +321,14 @@ const handle_Asset_Detail = (detailid,assetname) => {
         receiver_statusID = decrypt(window.localStorage.getItem('jkfrf34'),appSettings.secretkeylocal) 
 
      
-
+       
         const rowId = assetid
         const statusID = receiver_statusID
           const url = 'http://localhost:3001/pullout/updateAsset_ByUser_pulloutnotificationstatus'
           axios.post(url,{rowId,userID,statusID})
           .then(res => {
             const dataResponse = res.data.message;
-  
+          
             if(dataResponse == "Update Success") {
 
           
@@ -344,7 +360,7 @@ const handle_Asset_Detail = (detailid,assetname) => {
 
     const SingleCheckIn = () => 
     {
-      try {
+
      
      
         
@@ -368,7 +384,7 @@ const handle_Asset_Detail = (detailid,assetname) => {
           axios.post(url,{rowId,userID})
           .then(res => {
             const dataResponse = res.data.message;
-  
+            
             if(dataResponse == "Update Success") {
 
               WriteLog("Message","ViewPullout","SingleCheckin /pullout/updatepulloutnotification", 
@@ -378,7 +394,6 @@ const handle_Asset_Detail = (detailid,assetname) => {
               + "\n User : " + userID ,userID)
   
               UpdateAssetBy_User_PulloutStatus(receiver_assetID)
-  
   
             }
             if (dataResponse == "Update Error") {
@@ -396,21 +411,13 @@ const handle_Asset_Detail = (detailid,assetname) => {
           WriteLog("Error","ViewPullout","SingleCheckin /pullout/updatepulloutnotification","Error in try/catch " + err.message,userID)
         }
        
-  
-  
-        }
-        catch(err) {
-          WriteLog("Error","ViewPullout","SingleCheckin ", "Error in try/catch " +  err.message,userID)
-        }
-       
-
     }
 
 
     const sendEmail= () => 
     {
-      let strDate =   utils_getDate();
-    displayname = window.localStorage.getItem('display')
+      let strDate = utils_getDate()
+   // displayname = window.localStorage.getItem('display')
     const allow_send_email_checkin_by_IT = appSettings.ALLOW_SENDEMAIL_CHECKIN_BY_IT
       
      
@@ -421,24 +428,22 @@ const handle_Asset_Detail = (detailid,assetname) => {
         email_sender: appSettings.IT_ASSETCHECKIN_EMAIL,
         reply_to : appSettings.IT_ASSETCHECKIN_REPLY_TO,
         name: appSettings.IT_ASSETCHECKIN_ASSET_RECEIVERNAME,
-        notes: "Receive Asset (" + receiver_assetName + ") \n" + notes,
+        notes: "Receive Asset (" + receiver_assetName + ")" ,
         date: strDate,
         user_name:  appSettings.IT_ASSETCHECKIN_ASSET_RECEIVERNAME
     };
-
 
           if(allow_send_email_checkin_by_IT === "send") {
 
           emailjs.send(appSettings.IT_ASSETCHECKIN_USER_SERVICE_ID, appSettings.IT_ASSETCHECKIN_USER_TEMPLATE_ID, templateParams,appSettings.public_key)
           .then(function(response) {
-
+            
             WriteUserInfo("Info", "IT Checkin", receiver_userID,
             receiver_name,receiver_deptID,
             templateParams.notes,userID)
 
           }, function(error) {
             
-
             WriteLog(
               "Error",
               "ViewPullout",
@@ -451,7 +456,7 @@ const handle_Asset_Detail = (detailid,assetname) => {
         }
         else {
           
-          WriteUserInfo("Info", "ViewPullout", receiver_userID,
+          WriteUserInfo("Info", "IT Checkin", receiver_userID,
           receiver_name,receiver_deptID,
           templateParams.notes,userID)
         }
@@ -463,7 +468,7 @@ const handle_Asset_Detail = (detailid,assetname) => {
    WriteLog("Error","ViewPullout","sendEmail not successful","Error in try/catch \n" + err.message,userID)
   }
 
-    }
+}
 
     const  CheckAssetReceive = () =>
     {
@@ -482,17 +487,19 @@ const handle_Asset_Detail = (detailid,assetname) => {
           receiver_assetID = decrypt(window.localStorage.getItem('uuer474'),appSettings.secretkeylocal) 
           receiver_assetName = decrypt(window.localStorage.getItem('ooe34d'),appSettings.secretkeylocal) 
       
-        
-        setMessage("")
+
         let rowId = receiver_detailID
         const url = 'http://localhost:3001/pullout/checkpulloutnotification'
         axios.post(url,{rowId})
         .then(res => {
           const dataResponse = res.data.message;
+
           if(dataResponse === "Record Found") {
+            
               SingleCheckIn()
               sendEmail()
               LoadData()
+              AlertMessages('Receive pullout successful.','Success')
           }
           else if (dataResponse === "No Record Found") {
 
@@ -511,12 +518,12 @@ const handle_Asset_Detail = (detailid,assetname) => {
 
 
 
-    function ProcessCheckin()
+   const ProcessCheckin = (event) =>
     {
-      //event.preventDefault();
+      event.preventDefault;
       setOpen(false)
       CheckAssetReceive()
-
+      LoadData()
     }
       
 function handleClose(){
@@ -530,10 +537,11 @@ function handleClose(){
   }, [pullout])
 
 function LoadData(){
+
     if(userID == "") 
-  {
-    getUserInfo()
-  }
+    {
+      getUserInfo()
+    }
   const url = 'http://localhost:3001/pullout/viewallpullout'
   axios.post(url)
   .then(res => {
@@ -567,13 +575,15 @@ function LoadData(){
     <CCol xs={12}>
     <CCard className="mb-3" size="sm"  >
       <CCardHeader>
-        <strong>Checkin / Receive Pullout <span className="message" style={{ color: colorMessage}}><p>{message}</p></span> </strong>
+        <AlertMessages/>
+        <strong>Checkin / Receive Pullout  </strong>
       </CCardHeader>
      
       <CForm >
+      <CCardBody>
         <CRow >
             <CCol xs={12}>
-              <CCardBody>
+              
                 <CInputGroup size="sm" className="mb-3">
                         <div style={{ height: 400, width: '100%' }}>
                             <DataGrid
@@ -587,11 +597,11 @@ function LoadData(){
                                 },
                                 }}
                                 pageSizeOptions={[10]}
-                                rowSelection={true}
+                               // rowSelection={true}
                                 
-                                getRowId={(row) => row.id}
+                                //getRowId={(row) => row.id}
                                 
-                                disableRowSelectionOnClick
+                                //disableRowSelectionOnClick
                                 //onRowSelectionModelChange={id,assetID => setRowSelected({detailid:id,assetid:assetID})}
                              
                             />
@@ -621,9 +631,10 @@ function LoadData(){
                       </Dialog>
                 </div>
 
-              </CCardBody>
+              
             </CCol>
         </CRow>
+        </CCardBody>
       </CForm>
     </CCard>
   </CCol>

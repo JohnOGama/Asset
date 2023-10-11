@@ -44,11 +44,11 @@ const appSettings = {
     // allow to send email
     // value : send --- will send email
     // value : no --- will not send email
-    ALLOW_SENDEMAIL_CHECKOUT_BY_IT: 'no',
-    ALLOW_SENDEMAIL_CHECKIN_BY_USER: 'no',
-    ALLOW_SENDEMAIL_APPROVE_DISPOSE: 'no',
-    ALLOW_SENDEMAIL_PULLOUT_BY_USER: 'no',
-    ALLOW_SENDEMAIL_CHECKIN_BY_IT: 'no',
+    ALLOW_SENDEMAIL_CHECKOUT_BY_IT: "no",
+    ALLOW_SENDEMAIL_CHECKIN_BY_USER: "no",
+    ALLOW_SENDEMAIL_APPROVE_DISPOSE: "no",
+    ALLOW_SENDEMAIL_PULLOUT_BY_USER: "no",
+    ALLOW_SENDEMAIL_CHECKIN_BY_IT: "no",
 
     // For next-server
     email_key: 're_BReLyfj9_7cLbVV2Rxf5aji3CcnmUvinH',

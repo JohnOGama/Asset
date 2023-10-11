@@ -164,7 +164,7 @@ const Dashboard = () => {
     getUserInfo() 
 
    try {
-    const url = 'http://localhost:3001/supplier/getSupplierAssetsValue'
+    const url = '/supplier/getSupplierAssetsValue'
      axios.post(url)
 
     .then(res => {
