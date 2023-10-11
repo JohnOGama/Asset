@@ -352,16 +352,17 @@ app.post('/checkLogin',(req,res) => {
 
     const sql = "SELECT users.userDisplayID,users.displayName,CONCAT(users.lastname ,', ', users.firstname) as Name,"
             + "users.email,users.imgFilename,userCategory.categoryName as userRole,department.departmentDisplayID,"
-            + "department.departmentName FROM tblUsers users"
+            + "department.departmentName,users.password FROM tblUsers users"
             + " inner join tblUserCategory userCategory on users.groupTypeID = userCategory.categoryID"
             + " inner join tblPositions positions on positions.positionDisplayID = users.positionID"
             + " inner join tblDepartments department on department.departmentDisplayID = positions.departmentDisplayID"
-            + " where users.username = ? and users.password = ? and users.active=1"
+            + " where users.username = ? and users.active=1"
+// and users.password = ? 
 
     const username = req.body.username;
-    const pass = req.body.password;
+    //const pass = req.body.password;
 
-    connection.query(sql,[username,pass],(err,result) => {
+    connection.query(sql,[username],(err,result) => {
 
         if(err) {
             res.json({message: "No Record Found",

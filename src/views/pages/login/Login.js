@@ -24,6 +24,9 @@ import { encrypt } from 'n-krypta';
 //decrypt, compare
 import appSettings from 'src/AppSettings' // read the app config
 
+//import bcrypt from 'bcryptjs'
+
+import { HashedPassword,ComparePassword } from 'src/components/pass_helper/PassUtil'
 
 const Login = () => {
 
@@ -64,26 +67,43 @@ useEffect(() => {
   },[values])
 
 
-  function handleSubmit(event) {
+  function  handleSubmit(event) {
     try { 
+
+      
+
       event.preventDefault();
       localStorage.clear();
         if((!values.username == "") && (!values.password == ""))
         {
-          const password = encrypt(values.password, appSettings.secretkey); 
+          //const password = encrypt(values.password, appSettings.secretkey); 
+         
+          const hashedpass = HashedPassword(values.password.toString())
+          // bcrypt.hashSync(values.password.toString(),10)
           const username = values.username  
           ///console.log("Myvalue -- " + password)
           const url = 'http://localhost:3001/checkLogin'
-          axios.post(url,{username,password})
+          //axios.post(url,{username,password})
+          axios.post(url,{username})
           .then(res => {
-              const dataResponse = res.data.message
-              
-              if(dataResponse === "Record Found"){
+           
+              if( res.data.message === "Record Found"){
+
                 const userid = res.data.result[0].userDisplayID
                 const displayName = res.data.result[0].displayName 
                 const img = res.data.result[0].imgFilename 
                 const name = res.data.result[0].Name
-          
+                const dbpassword = res.data.result[0].password
+
+                console.log("Encrypted : " + hashedpass)
+                console.log("DB Encrypted : " + dbpassword)
+                
+
+                const isValid = ComparePassword(values.password.toString(),dbpassword)
+                //bcrypt.compareSync(dbpassword,hashedpass)
+                console.log(isValid)
+                if(isValid) {
+
                 // encrypt to local storage use new different key
                 
                 const encryptedID = encrypt(userid, appSettings.secretkeylocal); 
@@ -106,9 +126,15 @@ useEffect(() => {
                
                 navigate('/dashboard');
 
+               }
+                else {
+                  setMessage("Username and password do not match")
+                 setColorMessage("red")
+                }
+
               }else {
                
-                setMessage("Login Error")
+                setMessage("Username and password do not match")
                 setColorMessage("red")
               }
           })

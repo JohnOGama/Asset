@@ -60,6 +60,11 @@ const _nav = [
         name: 'Pullout',
         to: '/base/assetpullout',
       },
+      {
+        component: CNavItem,
+        name: 'PassBcrypt',
+        to: '/base/passbcrypt',
+      },
      /*     
       {
         component: CNavItem,
