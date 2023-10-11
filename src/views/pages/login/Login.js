@@ -1,13 +1,16 @@
 /* eslint-disable react/prop-types  */
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from "react";
+import "./Login.css";
 //useContext,
-import axios from 'axios'
-import { Link } from 'react-router-dom'
+import axios from "axios";
+import DISPOSE from "../../../assets/images/DefaultDispose.png";
+import { Link } from "react-router-dom";
 import {
   CButton,
   CCard,
   CCardBody,
   CCardGroup,
+  CCardText,
   CCol,
   CContainer,
   CForm,
@@ -15,149 +18,175 @@ import {
   CInputGroup,
   CInputGroupText,
   CRow,
-} from '@coreui/react'
-import CIcon from '@coreui/icons-react'
-import { cilLockLocked, cilUser } from '@coreui/icons'
+} from "@coreui/react";
 
-import {useNavigate} from 'react-router-dom';
-import { encrypt } from 'n-krypta';
+import CIcon from "@coreui/icons-react";
+import { cilLockLocked, cilUser } from "@coreui/icons";
+
+import { useNavigate } from "react-router-dom";
+import { encrypt } from "n-krypta";
 //decrypt, compare
-import appSettings from 'src/AppSettings' // read the app config
-
+import appSettings from "src/AppSettings"; // read the app config
+import { TextField } from "@mui/material";
 
 const Login = () => {
-
-  const [message,setMessage] = useState("")
-  const [colorMessage,setColorMessage] = useState('red')
+  const [message, setMessage] = useState("");
+  const [colorMessage, setColorMessage] = useState("red");
   const navigate = useNavigate();
 
-  const [values,setValues] = useState({
-    username: '',
-    password: ''
+  const [values, setValues] = useState({
+    username: "",
+    password: "",
+  });
 
-  })
-
-
-
-useEffect(() => {
-
-  if (!window.localStorage.getItem("id") == null) {
-    if (window.localStorage.getItem("id") !== "0"){
-      navigate('/dashboard')
+  useEffect(() => {
+    if (!window.localStorage.getItem("id") == null) {
+      if (window.localStorage.getItem("id") !== "0") {
+        navigate("/dashboard");
+      }
+    } else {
+      localStorage.clear();
+      window.localStorage.setItem("id", "0");
     }
-    
-  } else{
-    localStorage.clear();
-    window.localStorage.setItem('id',"0")
-  }
-
-},[]);
+  }, []);
 
   const handleInput = (e) => {
-    setValues(prev => ({...prev,[e.target.name]: [e.target.value.trim()]}))
-  }
+    setValues((prev) => ({
+      ...prev,
+      [e.target.name]: [e.target.value.trim()],
+    }));
+  };
 
-  useState (() => {
-   return ({
-
-   })
-  },[values])
-
+  useState(() => {
+    return {};
+  }, [values]);
 
   function handleSubmit(event) {
-    try { 
+    try {
       event.preventDefault();
       localStorage.clear();
-        if((!values.username == "") && (!values.password == ""))
-        {
-          const password = encrypt(values.password, appSettings.secretkey); 
-          const username = values.username  
-          ///console.log("Myvalue -- " + password)
-          const url = 'http://localhost:3001/checkLogin'
-          axios.post(url,{username,password})
-          .then(res => {
-              const dataResponse = res.data.message
-              
-              if(dataResponse == "Record Found"){
-                const userid = res.data.result[0].userDisplayID
-                const displayName = res.data.result[0].displayName 
-                const img = res.data.result[0].imgFilename 
-                const name = res.data.result[0].Name
-          
-                // encrypt to local storage use new different key
-                
-                const encryptedID = encrypt(userid, appSettings.secretkeylocal); 
-                const userRoles = encrypt(res.data.result[0].userRole,appSettings.secretkeylocal); 
-                const userDepartmentID = encrypt(res.data.result[0].departmentDisplayID,appSettings.secretkeylocal); 
+      if (!values.username == "" && !values.password == "") {
+        const password = encrypt(values.password, appSettings.secretkey);
+        const username = values.username;
+        ///console.log("Myvalue -- " + password)
+        const url = "http://localhost:3001/checkLogin";
+        axios
+          .post(url, { username, password })
+          .then((res) => {
+            const dataResponse = res.data.message;
+            console.log(dataResponse);
 
-                window.localStorage.removeItem('id');
-                window.localStorage.removeItem('display');
-                window.localStorage.removeItem('userimg');
-                window.localStorage.removeItem('Kgr67W@'); // This is a user Role
-                window.localStorage.removeItem('LkgdW23!'); // This is for DepartmentID
-                window.localStorage.removeItem('Kvsf45_');
-                window.localStorage.clear()
-                window.localStorage.setItem('id',encryptedID)
-                window.localStorage.setItem('display',displayName)
-                window.localStorage.setItem('userimg',img);
-                window.localStorage.setItem('Kgr67W@',userRoles)
-                window.localStorage.setItem('LkgdW23!',userDepartmentID)
-                window.localStorage.setItem('Kvsf45_','0');
-               
-                navigate('/dashboard');
+            if (dataResponse == "Record Found") {
+              const userid = res.data.result[0].userDisplayID;
+              const displayName = res.data.result[0].displayName;
 
-              }else {
-               
-                setMessage("Login Error")
-                setColorMessage("red")
-              }
+              const img = res.data?.result[0].imgFilename;
+              const name = res.data.result[0].Name;
+              console.log("res", res.data);
+
+              // encrypt to local storage use new different key
+
+              const encryptedID = encrypt(userid, appSettings.secretkeylocal);
+              const userRoles = encrypt(
+                res.data.result[0].userRole,
+                appSettings.secretkeylocal
+              );
+              const userDepartmentID = encrypt(
+                res.data.result[0].departmentDisplayID,
+                appSettings.secretkeylocal
+              );
+
+              window.localStorage.removeItem("id");
+              window.localStorage.removeItem("display");
+              window.localStorage.removeItem("userimg");
+              window.localStorage.removeItem("Kgr67W@"); // This is a user Role
+              window.localStorage.removeItem("LkgdW23!"); // This is for DepartmentID
+              window.localStorage.removeItem("Kvsf45_");
+              window.localStorage.clear();
+              window.localStorage.setItem("id", encryptedID);
+              window.localStorage.setItem("display", displayName);
+              window.localStorage.setItem("userimg", img);
+              window.localStorage.setItem("Kgr67W@", userRoles);
+              window.localStorage.setItem("LkgdW23!", userDepartmentID);
+              window.localStorage.setItem("Kvsf45_", "0");
+
+              navigate("/dashboard");
+            } else {
+              setMessage("Login Error");
+              setColorMessage("red");
+            }
           })
-          .catch(err => {
-              setMessage( err.message)
-              setColorMessage("red")
-          })
-        }
-
-    }catch(err) {
-      console.log(err)
-
+          .catch((err) => {
+            setMessage(err.message);
+            setColorMessage("red");
+          });
+      }
+    } catch (err) {
+      console.log(err);
     }
   }
 
   return (
-
-    <div className="bg-light min-vh-100 d-flex flex-row align-items-center">
+    <div className=" min-vh-100 d-flex flex-row align-items-center background">
       <CContainer>
         <CRow className="justify-content-center">
-          <CCol md={8}>
+          <CCol md={9}>
             <CCardGroup>
-              <CCard className="p-4">
+              <CCard className="text-white image-con">
+                <CCardBody className="text-center image">
+                  {/* <div>
+                    <h2>
+                      <span className="message">
+                        {" "}
+                        <>Sign up </>
+                      </span>
+                    </h2>
+                    <p>
+                      By clicking the {'"'}Sign Up {'"'}, you are creating an
+                      account to Asset Management System, and you are agree to
+                      Asset Management Terms of Use and Privacy Policy
+                    </p>
+                    <Link to="/register">
+                      <CButton
+                        color="primary"
+                        className="mt-3"
+                        active
+                        tabIndex={-1}
+                      >
+                        Register Now!
+                      </CButton>
+                    </Link>
+                  </div> */}
+                </CCardBody>
+              </CCard>
+              <CCard className="p-4 ">
                 <CCardBody>
-                  <CForm onSubmit={handleSubmit}>
+                  <CForm onSubmit={handleSubmit} className="w-full ">
                     <h3>
-                    <span className="message" style={{ color: '#5da4f5'}}> <>Login </></span> 
+                      <span className="message "> Login</span>
                     </h3>
                     <br></br>
                     <h6>
-                      <span className="message" style={{ color: colorMessage}}><p>{message}</p></span>
-
-                      <p className="text-medium-emphasis">Sign In to your account</p>
+                      <span className="message" style={{ color: colorMessage }}>
+                        <p>{message}</p>
+                      </span>
+                      <p className="" style={{ color: "#191A1E" }}>
+                        Sign In to your account
+                      </p>
                     </h6>
-                    
-                    <CInputGroup className="mb-3">
-                      <CInputGroupText>
-                        <CIcon icon={cilUser} />
-                      </CInputGroupText>
-                      <CFormInput name="username"
-                       placeholder="Username"
-                      autoComplete="username"
-                      onChange={handleInput}/>
-                    </CInputGroup>
-                    <CInputGroup className="mb-4">
-                      <CInputGroupText>
-                        <CIcon icon={cilLockLocked} />
-                      </CInputGroupText>
+
+                    <CInputGroup>
                       <CFormInput
+                        className="mb-3 w-full py-3"
+                        name="username"
+                        placeholder="Username"
+                        autoComplete="username"
+                        onChange={handleInput}
+                      />
+                    </CInputGroup>
+                    <CInputGroup className="">
+                      <CFormInput
+                        className=" py-3"
                         name="password"
                         type="password"
                         placeholder="Password"
@@ -165,38 +194,27 @@ useEffect(() => {
                         onChange={handleInput}
                       />
                     </CInputGroup>
+
+                    <CCol
+                      style={{ width: "100", textAlign: "right" }}
+                      className="mb-2"
+                    >
+                      <CButton color="link" className="px-0">
+                        Forgot password?
+                      </CButton>
+                    </CCol>
+                    <CCardText>
+                      Don't have an account?{" "}
+                      <Link to={"/register"}>Sign Up</Link>
+                    </CCardText>
                     <CRow>
                       <CCol xs={6}>
-                        <CButton color="primary" className="px-4" type='submit'>
+                        <CButton color="primary" className="px-4" type="submit">
                           Login
-                        </CButton>
-                      </CCol>
-                      <CCol xs={6} className="text-right">
-                        <CButton color="link" className="px-0">
-                          Forgot password?
                         </CButton>
                       </CCol>
                     </CRow>
                   </CForm>
-                </CCardBody>
-              </CCard>
-              <CCard className="text-white bg-primary py-5" style={{ width: '44%' }}>
-                <CCardBody className="text-center">
-                  <div>
-                    <h2>
-                    <span className="message" > <>Sign up </></span> 
-                    </h2>
-                    <p>
-                      By clicking the {'"' }Sign Up { '"'}, you are creating an account to Asset Management System, and
-                      
-                      you are agree to Asset Management Terms of Use and Privacy Policy
-                    </p>
-                    <Link to="/register">
-                      <CButton color="primary" className="mt-3" active tabIndex={-1}>
-                        Register Now!
-                      </CButton>
-                    </Link>
-                  </div>
                 </CCardBody>
               </CCard>
             </CCardGroup>
@@ -204,7 +222,7 @@ useEffect(() => {
         </CRow>
       </CContainer>
     </div>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;

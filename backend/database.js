@@ -1,13 +1,11 @@
-var mysql = require("mysql2")
+var mysql = require("mysql2");
 
-var connection = mysql.createConnection(
-    {
-        
-        host: 'localhost',
-        database: 'assets',
-        user: 'root',
-        password: 'Aa123456_'
-    });
+var connection = mysql.createConnection({
+  host: "localhost",
+  database: "assets",
+  user: "root",
+  password: "carloe24!@",
+});
 /*
 // Global US
         host: 'AnacondaDev.mysql.pythonanywhere-services.com',
