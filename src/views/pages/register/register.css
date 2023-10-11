@@ -1,0 +1,20 @@
+.image{
+    background-image: url("https://proest.com/wp-content/uploads/2022/11/Building-Construction-Process-From-Start-To-Finish.jpg");
+    background-size: cover;
+}
+
+.background {
+    background-image: url("https://proest.com/wp-content/uploads/2022/11/Building-Construction-Process-From-Start-To-Finish.jpg");
+    background-color: rgba(0, 0, 0, 0.7); /* Dark color with 50% opacity */
+    background-blend-mode: overlay;
+}
+
+
+@media (max-width: 768px) {
+    .image {
+        background-image: none; /* Remove the background image */
+    }
+    .image-con {
+        display: none;
+    }
+}
